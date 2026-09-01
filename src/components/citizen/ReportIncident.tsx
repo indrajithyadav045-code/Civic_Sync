@@ -21,60 +21,75 @@ import {
 import { useCivic } from '../../context/CivicContext';
 import { dispatchSmsAlert, getStoredRecipients } from '../../services/smsService';
 
-const PRESET_SCENARIOS = [
-  {
-    label: '🌊 Velachery Road Flooding (Waterlogging)',
-    text: 'Heavy northeast monsoon rain has blocked 100 Feet Bypass Road near DAV School, Velachery. Water level is over 2.5 feet and vehicles cannot pass.',
-    image: 'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?auto=format&fit=crop&w=1000&q=80',
-    lat: 12.9815,
-    lng: 80.2180,
-    location: '100 Feet Bypass Road, Velachery, Chennai'
-  },
-  {
-    label: '🕳️ Major Asphalt Crater / Pothole',
-    text: 'Severe 4-foot wide asphalt crater pothole on Anna Salai near Guindy Industrial Estate damaging passing two-wheelers.',
-    image: 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=1000&q=80',
-    lat: 13.0067,
-    lng: 80.2025,
-    location: 'Anna Salai near Guindy Industrial Estate, Chennai'
-  },
-  {
-    label: '🗑️ Overflowing Municipal Waste Bin',
-    text: 'Large municipal waste bin #WB-092 overflowing onto pedestrian sidewalk on Ranganathan Street, T. Nagar creating public health hazard.',
-    image: 'https://images.unsplash.com/photo-1605600659908-0ef719419d41?auto=format&fit=crop&w=1000&q=80',
-    lat: 13.0410,
-    lng: 80.2330,
-    location: 'Ranganathan Street, T. Nagar, Chennai'
-  },
-  {
-    label: '💡 Offline Street Light (Dark Zone)',
-    text: 'Pole #SL-183 street light fixture completely offline creating zero-visibility dark zone on pedestrian corridor near school.',
-    image: '/images/offline_street_light.jpg',
-    lat: 13.0450,
-    lng: 80.2280,
-    location: 'Ward 8 Pedestrian Corridor, T. Nagar, Chennai'
-  },
-  {
-    label: '💧 CMWSSB Pipeline Burst / Water Loss',
-    text: 'CMWSSB 36-inch water main pipe burst leaking over 1,200 L/hr and flooding roadway near Greams Road.',
-    image: 'https://images.unsplash.com/photo-1541888946425-d0fbb18086f6?auto=format&fit=crop&w=1000&q=80',
-    lat: 13.0585,
-    lng: 80.2520,
-    location: 'Greams Road, Thousand Lights, Chennai'
-  }
-];
-
 export const ReportIncident: React.FC = () => {
-  const { submitNewReport, setActiveView, runTriageAnimation, playSound, t } = useCivic();
+  const { submitNewReport, setActiveView, runTriageAnimation, playSound, language, t } = useCivic();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const PRESET_SCENARIOS = [
+    {
+      id: 'flood',
+      label: t('presetFloodLabel'),
+      text: t('presetFloodText'),
+      image: 'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?auto=format&fit=crop&w=1000&q=80',
+      lat: 12.9815,
+      lng: 80.2180,
+      location: t('presetFloodLocation')
+    },
+    {
+      id: 'pothole',
+      label: t('presetPotholeLabel'),
+      text: t('presetPotholeText'),
+      image: 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=1000&q=80',
+      lat: 13.0067,
+      lng: 80.2025,
+      location: t('presetPotholeLocation')
+    },
+    {
+      id: 'waste',
+      label: t('presetWasteLabel'),
+      text: t('presetWasteText'),
+      image: 'https://images.unsplash.com/photo-1605600659908-0ef719419d41?auto=format&fit=crop&w=1000&q=80',
+      lat: 13.0410,
+      lng: 80.2330,
+      location: t('presetWasteLocation')
+    },
+    {
+      id: 'lighting',
+      label: t('presetLightingLabel'),
+      text: t('presetLightingText'),
+      image: '/images/offline_street_light.jpg',
+      lat: 13.0450,
+      lng: 80.2280,
+      location: t('presetLightingLocation')
+    },
+    {
+      id: 'water',
+      label: t('presetWaterLabel'),
+      text: t('presetWaterText'),
+      image: 'https://images.unsplash.com/photo-1541888946425-d0fbb18086f6?auto=format&fit=crop&w=1000&q=80',
+      lat: 13.0585,
+      lng: 80.2520,
+      location: t('presetWaterLocation')
+    }
+  ];
+
+  const [selectedPresetId, setSelectedPresetId] = useState('flood');
   const [description, setDescription] = useState(PRESET_SCENARIOS[0].text);
   const [imagePreview, setImagePreview] = useState(PRESET_SCENARIOS[0].image);
   const [isCustomPhoto, setIsCustomPhoto] = useState(false);
   const [customPhotoName, setCustomPhotoName] = useState<string | null>(null);
   const [coordinates, setCoordinates] = useState({ lat: PRESET_SCENARIOS[0].lat, lng: PRESET_SCENARIOS[0].lng });
   const [locationName, setLocationName] = useState(PRESET_SCENARIOS[0].location);
+
+  // Update default text when language changes if user has not entered custom text
+  useEffect(() => {
+    if (!isCustomPhoto) {
+      const currentPreset = PRESET_SCENARIOS.find(p => p.id === selectedPresetId) || PRESET_SCENARIOS[0];
+      setDescription(currentPreset.text);
+      setLocationName(currentPreset.location);
+    }
+  }, [language, selectedPresetId]);
   const [citizenName, setCitizenName] = useState('Karthik Subramanian');
   const [phone, setPhone] = useState('+91 98401 23456');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -146,6 +161,7 @@ export const ReportIncident: React.FC = () => {
   };
 
   const handleSelectPreset = (preset: typeof PRESET_SCENARIOS[0]) => {
+    setSelectedPresetId(preset.id);
     setDescription(preset.text);
     setImagePreview(preset.image);
     setIsCustomPhoto(false);

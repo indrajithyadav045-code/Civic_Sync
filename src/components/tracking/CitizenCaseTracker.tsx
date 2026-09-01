@@ -98,7 +98,7 @@ export const CitizenCaseTracker: React.FC = () => {
         {/* Stepper Timeline */}
         <div className="space-y-4 pt-1">
           <div className="text-xs font-bold text-slate-900 uppercase tracking-wide">
-            Verified Resolution Pipeline:
+            {t('verifiedResolutionPipeline')}
           </div>
 
           <div className="space-y-3 relative before:absolute before:left-3.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200">
@@ -145,7 +145,7 @@ export const CitizenCaseTracker: React.FC = () => {
         {/* Assigned Officer Box */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-3 border-t border-slate-200 text-xs">
           <div className="p-3 rounded bg-slate-50 border border-slate-200">
-            <span className="text-slate-500 block text-[10px] uppercase font-semibold">Assigned Field Unit</span>
+            <span className="text-slate-500 block text-[10px] uppercase font-semibold">{t('assignedFieldUnit')}</span>
             <div className="flex items-center space-x-2 text-slate-900 font-bold mt-0.5">
               <Truck className="w-3.5 h-3.5 text-blue-700" />
               <span>{incident.assignedTeam || 'GCC Rapid Unit Alpha-4'}</span>
@@ -153,7 +153,7 @@ export const CitizenCaseTracker: React.FC = () => {
           </div>
 
           <div className="p-3 rounded bg-slate-50 border border-slate-200">
-            <span className="text-slate-500 block text-[10px] uppercase font-semibold">Officer in Charge</span>
+            <span className="text-slate-500 block text-[10px] uppercase font-semibold">{t('officerInCharge')}</span>
             <div className="flex items-center space-x-2 text-slate-900 font-bold mt-0.5">
               <UserCheck className="w-3.5 h-3.5 text-slate-700" />
               <span>{incident.assignedOfficer || 'Capt. R. Selvam'}</span>
@@ -161,7 +161,7 @@ export const CitizenCaseTracker: React.FC = () => {
           </div>
 
           <div className="p-3 rounded bg-slate-50 border border-slate-200">
-            <span className="text-slate-500 block text-[10px] uppercase font-semibold">Dynamic SLA Remaining</span>
+            <span className="text-slate-500 block text-[10px] uppercase font-semibold">{t('slaRemaining')}</span>
             <div className="flex items-center space-x-2 text-amber-800 font-bold font-mono mt-0.5">
               <Clock className="w-3.5 h-3.5" />
               <span>
