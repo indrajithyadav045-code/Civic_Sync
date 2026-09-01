@@ -56,7 +56,18 @@ export type ActiveView =
   | 'resolution_verification'
   | 'risk_forecast'
   | 'dedup_lab'
-  | 'future_matrix';
+  | 'future_matrix'
+  | 'admin_portal';
+
+export type PortalMode = 'CITIZEN' | 'ADMIN';
+
+export type AdminOfficerRole = 
+  | 'ZONAL_COMMISSIONER'
+  | 'PWD_CHIEF_ENGINEER'
+  | 'WMD_SANITATION_OFFICER'
+  | 'DD_DISASTER_OFFICER'
+  | 'ED_ELECTRICAL_SUPERVISOR'
+  | 'WSD_METROWATER_ENGINEER';
 
 export interface TriageStepProgress {
   stepIndex: number;
@@ -80,6 +91,15 @@ interface CivicContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   t: (key: keyof typeof translations.en) => string;
+
+  // Portal Mode & Municipal Admin Role
+  portalMode: PortalMode;
+  setPortalMode: (mode: PortalMode) => void;
+  adminRole: AdminOfficerRole;
+  setAdminRole: (role: AdminOfficerRole) => void;
+  assignFieldSquad: (incidentId: string, squadName: string, staffName: string, vehicleNo: string, etaMinutes: number) => void;
+  resolveIncidentWithProof: (incidentId: string, proof: Partial<ResolutionProof>) => void;
+  overrideIncidentSeverity: (incidentId: string, severity: IncidentSeverity) => void;
 
   // Real-Time Providers & Dynamic Telemetry
   liveWeather: LiveWeatherData | null;
@@ -224,6 +244,8 @@ function playSynthesizedSound(type: string) {
 
 export const CivicProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [activeView, setActiveView] = useState<ActiveView>('citizen_home');
+  const [portalMode, setPortalMode] = useState<PortalMode>('CITIZEN');
+  const [adminRole, setAdminRole] = useState<AdminOfficerRole>('ZONAL_COMMISSIONER');
   const [incidents, setIncidents] = useState<Incident[]>(MOCK_INCIDENTS);
   const [selectedIncident, setSelectedIncident] = useState<Incident>(MOCK_INCIDENTS[0]);
   const [alerts, setAlerts] = useState<EmergencyBroadcast[]>(MOCK_EMERGENCY_ALERTS);
@@ -556,6 +578,99 @@ export const CivicProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return newIncident;
   };
 
+  const assignFieldSquad = (
+    incidentId: string, 
+    squadName: string, 
+    staffName: string, 
+    vehicleNo: string, 
+    etaMinutes: number
+  ) => {
+    setIncidents(prev => prev.map(inc => {
+      if (inc.id !== incidentId) return inc;
+
+      const newTimeline = inc.timeline.map(t => {
+        if (t.stage === 'Department Assigned') return { ...t, completed: true, active: false };
+        if (t.stage === 'Team Dispatched') return { 
+          ...t, 
+          completed: true, 
+          active: true, 
+          timestamp: new Date().toLocaleTimeString(), 
+          description: `${squadName} (${staffName} • ${vehicleNo}) dispatched. ETA: ${etaMinutes} mins.` 
+        };
+        return t;
+      });
+
+      return {
+        ...inc,
+        status: 'ASSIGNED',
+        assignedTeam: squadName,
+        assignedOfficer: staffName,
+        timeline: newTimeline,
+        updatedAt: new Date().toISOString()
+      };
+    }));
+
+    playSound('success');
+    realtimeEventBus.publish({
+      type: 'INCIDENT_UPDATED',
+      payload: { incidentId, status: 'ASSIGNED', squadName }
+    });
+  };
+
+  const resolveIncidentWithProof = (incidentId: string, proof: Partial<ResolutionProof>) => {
+    setIncidents(prev => prev.map(inc => {
+      if (inc.id !== incidentId) return inc;
+
+      const updatedProof: ResolutionProof = {
+        beforeImage: proof.beforeImage || inc.image,
+        afterImage: proof.afterImage || 'https://images.unsplash.com/photo-1578836537282-3171d77f8632?auto=format&fit=crop&w=1000&q=80',
+        resolvedAt: new Date().toLocaleString(),
+        resolvedByStaff: proof.resolvedByStaff || 'Officer M. Natarajan',
+        staffBadge: proof.staffBadge || 'PWD-CHIEF-884',
+        geoVerified: true,
+        cvConfidenceScore: proof.cvConfidenceScore || 98.6,
+        aiVerificationNotes: proof.aiVerificationNotes || [
+          'PostGIS Geofence match ±0.8m confirmed',
+          'AI CV clearance signature validated with 98.6% confidence',
+          'Citizen notification SMS transmitted successfully'
+        ],
+        status: 'VERIFIED'
+      };
+
+      const newTimeline = inc.timeline.map(t => {
+        if (t.stage === 'Issue Being Resolved') return { ...t, completed: true, active: false, timestamp: new Date().toLocaleTimeString() };
+        if (t.stage === 'Verification Pending') return { ...t, completed: true, active: false, timestamp: new Date().toLocaleTimeString(), description: 'Cryptographically certified by Municipal Corporation Admin' };
+        return t;
+      });
+
+      return {
+        ...inc,
+        status: 'RESOLVED',
+        resolution: updatedProof,
+        timeline: newTimeline,
+        updatedAt: new Date().toISOString()
+      };
+    }));
+
+    playSound('success');
+  };
+
+  const overrideIncidentSeverity = (incidentId: string, severity: IncidentSeverity) => {
+    setIncidents(prev => prev.map(inc => {
+      if (inc.id !== incidentId) return inc;
+      return {
+        ...inc,
+        severity,
+        risk: {
+          ...inc.risk,
+          priorityLevel: severity
+        },
+        updatedAt: new Date().toISOString()
+      };
+    }));
+    playSound('beep');
+  };
+
   // Hackathon Demo Steps
   const DEMO_STAGES: { view: ActiveView; title: string; log: string }[] = [
     { view: 'report_issue', title: '1. Citizen Fast Report Submission', log: 'Citizen reports: "Heavy rain has blocked the road near the school." with instant GPS.' },
@@ -615,6 +730,13 @@ export const CivicProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       value={{
         activeView,
         setActiveView,
+        portalMode,
+        setPortalMode,
+        adminRole,
+        setAdminRole,
+        assignFieldSquad,
+        resolveIncidentWithProof,
+        overrideIncidentSeverity,
         incidents,
         selectedIncident,
         setSelectedIncident,

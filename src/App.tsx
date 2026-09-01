@@ -13,6 +13,7 @@ import { CitizenCaseTracker } from './components/tracking/CitizenCaseTracker';
 import { ResolutionVerifier } from './components/verification/ResolutionVerifier';
 import { PredictiveRiskForecast } from './components/forecast/PredictiveRiskForecast';
 import { StrategicFutureMatrix } from './components/future-matrix/StrategicFutureMatrix';
+import { MunicipalAdminPortal } from './components/authority/MunicipalAdminPortal';
 import { HackathonTourModal } from './components/guided-demo/HackathonTourModal';
 
 export const AppContent: React.FC = () => {
@@ -29,6 +30,7 @@ export const AppContent: React.FC = () => {
         {activeView === 'dedup_lab' && <SpatialDedupVisualizer />}
         {activeView === 'command_map' && <TacticalCommandMap />}
         {activeView === 'command_center' && <AuthorityCommandCenter />}
+        {activeView === 'admin_portal' && <MunicipalAdminPortal />}
         {activeView === 'disaster_alerts' && <GeoFencedAlerts />}
         {activeView === 'case_tracking' && <CitizenCaseTracker />}
         {activeView === 'resolution_verification' && <ResolutionVerifier />}

@@ -22,7 +22,8 @@ import {
   Database,
   CloudRain,
   Wind,
-  Compass
+  Compass,
+  Users
 } from 'lucide-react';
 import { useCivic, ActiveView } from '../../context/CivicContext';
 import { SmsSettingsModal } from './SmsSettingsModal';
@@ -46,7 +47,9 @@ export const Header: React.FC = () => {
     t,
     playSound,
     liveWeather,
-    liveAqi
+    liveAqi,
+    portalMode,
+    setPortalMode
   } = useCivic();
 
   const [isSmsModalOpen, setIsSmsModalOpen] = useState(false);
@@ -64,6 +67,7 @@ export const Header: React.FC = () => {
     { id: 'dedup_lab', labelKey: 'navDedupLab', icon: Layers, badge: 3 },
     { id: 'command_map', labelKey: 'navCommandMap', icon: Map },
     { id: 'command_center', labelKey: 'navCommandCenter', icon: LayoutDashboard, badge: incidents.filter(i => i.status !== 'RESOLVED').length },
+    { id: 'admin_portal', labelKey: 'navAdminPortal', icon: Shield, badge: incidents.filter(i => i.status !== 'RESOLVED').length },
     { id: 'disaster_alerts', labelKey: 'navDisasterAlerts', icon: Radio, badge: alerts.length },
     { id: 'case_tracking', labelKey: 'navCaseTracking', icon: Search },
     { id: 'risk_forecast', labelKey: 'navRiskForecast', icon: TrendingUp },
@@ -223,18 +227,58 @@ export const Header: React.FC = () => {
             </div>
           </div>
 
-          {/* Operations Walkthrough Trigger Button */}
-          <div className="flex items-center space-x-2">
+          {/* Portal Switcher & Walkthrough Trigger Buttons */}
+          <div className="flex flex-wrap items-center gap-2.5">
+            {/* Linked Consumer vs Admin Switcher */}
+            <div className="flex items-center space-x-1 p-1 bg-slate-900/90 rounded-xl border border-cyan-500/30">
+              <button
+                onClick={() => {
+                  setPortalMode('CITIZEN');
+                  setActiveView('citizen_home');
+                  playSound('beep');
+                }}
+                className={`flex items-center space-x-1.5 px-3 py-1 rounded-lg text-xs font-bold transition ${
+                  portalMode === 'CITIZEN' && activeView !== 'admin_portal'
+                    ? 'bg-blue-600 text-white shadow-xs'
+                    : 'text-slate-300 hover:text-white'
+                }`}
+                title="Citizen / Consumer Grievance Portal"
+              >
+                <Users className="w-3.5 h-3.5 text-blue-300" />
+                <span>Citizen Portal</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setPortalMode('ADMIN');
+                  setActiveView('admin_portal');
+                  playSound('beep');
+                }}
+                className={`flex items-center space-x-1.5 px-3 py-1 rounded-lg text-xs font-bold transition ${
+                  portalMode === 'ADMIN' || activeView === 'admin_portal'
+                    ? 'bg-cyan-500 text-slate-950 shadow-xs'
+                    : 'text-slate-300 hover:text-white'
+                }`}
+                title="Municipal Corporation Administrator Control Panel"
+              >
+                <Shield className="w-3.5 h-3.5" />
+                <span>Admin Panel</span>
+                <span className="px-1.5 py-0.2 rounded-full bg-red-600 text-white text-[9px] font-mono font-extrabold">
+                  {incidents.filter(i => i.status !== 'RESOLVED').length}
+                </span>
+              </button>
+            </div>
+
             <button
               onClick={startHackathonDemo}
-              className={`flex items-center space-x-2 px-3.5 py-1.5 rounded text-xs font-semibold tracking-wide transition border shadow-sm ${
+              className={`flex items-center space-x-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold tracking-wide transition border shadow-sm ${
                 isDemoRunning 
                   ? 'bg-amber-400 text-slate-900 border-amber-300 font-bold'
                   : 'bg-blue-800 hover:bg-blue-700 text-white border-blue-600'
               }`}
             >
               <Play className="w-3.5 h-3.5 fill-current" />
-              <span>{isDemoRunning ? 'Automated Run Active...' : '▶ Operations Walkthrough'}</span>
+              <span>{isDemoRunning ? 'Automated Run...' : '▶ Walkthrough'}</span>
             </button>
           </div>
         </div>

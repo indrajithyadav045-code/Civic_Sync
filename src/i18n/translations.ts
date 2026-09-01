@@ -41,6 +41,7 @@ export const translations = {
     navResolutionVerification: 'Resolution Proof',
     navRiskForecast: 'Risk Forecast',
     navFutureMatrix: 'Future Matrix',
+    navAdminPortal: 'Admin Panel',
 
     // Citizen Home
     homePortalBadge: 'CROWDSOURCED CIVIC ISSUE REPORTING & RESOLUTION PLATFORM',
@@ -210,6 +211,7 @@ export const translations = {
     navResolutionVerification: 'தீர்வு சான்றிதழ்',
     navRiskForecast: 'இடர் முன்னறிவிப்பு',
     navFutureMatrix: 'எதிர்கால மேட்ரிக்ஸ்',
+    navAdminPortal: 'நிர்வாகக் குழு',
 
     // Citizen Home
     homePortalBadge: 'குடிமக்கள் புகார் பதிவு மற்றும் நகராட்சி தீர்வு தளம்',
@@ -379,6 +381,7 @@ export const translations = {
     navResolutionVerification: 'పరిష్కార రుజువు',
     navRiskForecast: 'ప్రమాద అంచనా',
     navFutureMatrix: 'ఫ్యూచర్ మ్యాట్రిక్స్',
+    navAdminPortal: 'అడ్మిన్ ప్యానెల్',
 
     // Citizen Home
     homePortalBadge: 'పౌర సమస్యల నివేదన & పరిష్కార వేదిక',
@@ -548,6 +551,7 @@ export const translations = {
     navResolutionVerification: 'ಪರಿಹಾರ ಪುರಾವೆ',
     navRiskForecast: 'ಅಪಾಯ ಮುನ್ಸೂಚನೆ',
     navFutureMatrix: 'ಫ್ಯೂಚರ್ ಮ್ಯಾಟ್ರಿಕ್ಸ್',
+    navAdminPortal: 'ನಿರ್ವಾಹಕ ಫಲಕ',
 
     // Citizen Home
     homePortalBadge: 'ನಾಗರಿಕ ಸಮಸ್ಯೆ ವರದಿ ಮತ್ತು ಪರಿಹಾರ ವೇದಿಕೆ',
@@ -717,6 +721,7 @@ export const translations = {
     navResolutionVerification: 'പരിഹാര തെളിവ്',
     navRiskForecast: 'അപകട സാധ്യത പ്രവചനം',
     navFutureMatrix: 'ഫ്യൂച്ചർ മാട്രിക്സ്',
+    navAdminPortal: 'അഡ്മിൻ പാനൽ',
 
     // Citizen Home
     homePortalBadge: 'പൗര പരാതി പരിഹാര പ്ലാറ്റ്‌ഫോം',
@@ -886,6 +891,7 @@ export const translations = {
     navResolutionVerification: 'समाधान प्रमाण',
     navRiskForecast: 'जोखिम पूर्वानुमान',
     navFutureMatrix: 'फ्यूचर मैट्रिक्स',
+    navAdminPortal: 'एडमिन पैनल',
 
     // Citizen Home
     homePortalBadge: 'नागरिक शिकायत निवारण एवं समाधान मंच',
