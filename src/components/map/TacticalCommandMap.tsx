@@ -17,12 +17,42 @@ import {
   Navigation,
   Crosshair,
   Building,
-  Sliders
+  Sliders,
+  Globe,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { useCivic } from '../../context/CivicContext';
 import { SENSITIVE_INFRASTRUCTURE } from '../../data/mockData';
 import { DigitalTwinLayerPanel } from '../smartcity/DigitalTwinLayerPanel';
 import L from 'leaflet';
+
+type MapTileStyle = 'osm' | 'satellite' | 'dark' | 'positron';
+
+const TILE_PROVIDERS: Record<MapTileStyle, { url: string; subdomains?: string; maxZoom: number; label: string }> = {
+  osm: {
+    url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+    maxZoom: 19,
+    label: 'Standard Street Map (Free / Complete Areas)'
+  },
+  satellite: {
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    maxZoom: 19,
+    label: 'Satellite Imagery (Esri)'
+  },
+  dark: {
+    url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+    subdomains: 'abcd',
+    maxZoom: 19,
+    label: 'Dark Tactical Command (Carto)'
+  },
+  positron: {
+    url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+    subdomains: 'abcd',
+    maxZoom: 19,
+    label: 'Light Positron (Clean Minimal)'
+  }
+};
 
 export const TacticalCommandMap: React.FC = () => {
   const { 
@@ -45,11 +75,13 @@ export const TacticalCommandMap: React.FC = () => {
 
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
+  const currentTileLayerRef = useRef<L.TileLayer | null>(null);
   const userLocationMarkerRef = useRef<L.Marker | null>(null);
 
+  const [mapStyle, setMapStyle] = useState<MapTileStyle>('osm');
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [isLocating, setIsLocating] = useState(false);
-  const [locationStatus, setLocationStatus] = useState<string>('Chennai Default (Velachery)');
+  const [locationStatus, setLocationStatus] = useState<string>('Chennai Default (Velachery / Guindy / Mount Road)');
   const [showLayerDrawer, setShowLayerDrawer] = useState(false);
 
   // Locate User via Browser Geolocation API
@@ -112,6 +144,25 @@ export const TacticalCommandMap: React.FC = () => {
     );
   };
 
+  // Switch Base Map Tile Layer
+  useEffect(() => {
+    if (!mapInstanceRef.current) return;
+    const map = mapInstanceRef.current;
+
+    if (currentTileLayerRef.current) {
+      map.removeLayer(currentTileLayerRef.current);
+    }
+
+    const provider = TILE_PROVIDERS[mapStyle];
+    const newLayer = L.tileLayer(provider.url, {
+      maxZoom: provider.maxZoom,
+      subdomains: provider.subdomains || 'abc',
+      attribution: '© OpenStreetMap contributors | No API Key Required'
+    }).addTo(map);
+
+    currentTileLayerRef.current = newLayer;
+  }, [mapStyle]);
+
   useEffect(() => {
     if (!mapContainerRef.current) return;
 
@@ -124,14 +175,23 @@ export const TacticalCommandMap: React.FC = () => {
         attributionControl: false
       });
 
-      // Clean OpenStreetMap / Positron Cartography
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        maxZoom: 19,
-        subdomains: 'abcd',
+      // Free Standard OpenStreetMap (100% Free, NO API Key needed, Full Streets & Areas)
+      const provider = TILE_PROVIDERS[mapStyle];
+      const tileLayer = L.tileLayer(provider.url, {
+        maxZoom: provider.maxZoom,
+        subdomains: provider.subdomains || 'abc',
+        attribution: '© OpenStreetMap contributors'
       }).addTo(map);
+
+      currentTileLayerRef.current = tileLayer;
 
       L.control.zoom({ position: 'bottomright' }).addTo(map);
       mapInstanceRef.current = map;
+
+      // Invalidate size to guarantee no blank tiles
+      setTimeout(() => {
+        map.invalidateSize();
+      }, 200);
     }
 
     const map = mapInstanceRef.current;
@@ -408,7 +468,7 @@ export const TacticalCommandMap: React.FC = () => {
       });
     }
 
-  }, [incidents, selectedIncident, alerts, digitalTwinLayers, forecastHotspots, smartTraffic, smartLighting, smartWaste, smartWater, environmentAqi, emergencyFleet]);
+  }, [incidents, selectedIncident, alerts, digitalTwinLayers, forecastHotspots, smartTraffic, smartLighting, smartWaste, smartWater, environmentAqi, emergencyFleet, mapStyle]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
@@ -420,10 +480,10 @@ export const TacticalCommandMap: React.FC = () => {
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <span className="px-2 py-0.5 text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200 rounded">
-                {t('mapBadge')}
+              <span className="px-2 py-0.5 text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 rounded">
+                ● NO API KEY REQUIRED • 100% FREE TILES
               </span>
-              <span className="text-xs text-slate-500 font-mono">{locationStatus}</span>
+              <span className="text-xs text-slate-500 font-mono hidden sm:inline">{locationStatus}</span>
             </div>
             <h1 className="text-base sm:text-lg font-bold text-slate-900 font-sans mt-0.5">
               City Digital Twin & Spatial Operations Map
@@ -431,11 +491,42 @@ export const TacticalCommandMap: React.FC = () => {
           </div>
         </div>
 
-        {/* Action Shortcuts */}
+        {/* Tile Style & Layer Controls */}
         <div className="flex flex-wrap items-center gap-2">
+          {/* Map Base Tile Selector */}
+          <div className="flex items-center space-x-1 p-1 bg-slate-100 rounded border border-slate-300 text-xs">
+            <button
+              onClick={() => { setMapStyle('osm'); playSound('beep'); }}
+              className={`px-2 py-1 rounded text-[11px] font-semibold transition ${
+                mapStyle === 'osm' ? 'bg-white text-blue-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+              }`}
+              title="Standard OpenStreetMap (Shows all streets, areas, and labels with 0 API key)"
+            >
+              Street (OSM)
+            </button>
+            <button
+              onClick={() => { setMapStyle('satellite'); playSound('beep'); }}
+              className={`px-2 py-1 rounded text-[11px] font-semibold transition ${
+                mapStyle === 'satellite' ? 'bg-white text-blue-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+              }`}
+              title="Esri Satellite Imagery"
+            >
+              Satellite
+            </button>
+            <button
+              onClick={() => { setMapStyle('dark'); playSound('beep'); }}
+              className={`px-2 py-1 rounded text-[11px] font-semibold transition ${
+                mapStyle === 'dark' ? 'bg-slate-900 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
+              }`}
+              title="Carto Dark Tactical Mode"
+            >
+              Dark
+            </button>
+          </div>
+
           <button
             onClick={() => setShowLayerDrawer(!showLayerDrawer)}
-            className="flex items-center space-x-1.5 px-3.5 py-1.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 text-xs font-semibold transition"
+            className="flex items-center space-x-1.5 px-3 py-1.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 text-xs font-semibold transition"
           >
             <Sliders className="w-3.5 h-3.5" />
             <span>{showLayerDrawer ? 'Hide Layers' : 'Digital Twin Layers'}</span>
@@ -444,18 +535,10 @@ export const TacticalCommandMap: React.FC = () => {
           <button
             onClick={handleUseCurrentLocation}
             disabled={isLocating}
-            className="flex items-center space-x-1.5 px-3.5 py-1.5 rounded bg-blue-800 hover:bg-blue-900 text-white text-xs font-semibold transition shadow-sm disabled:opacity-50"
+            className="flex items-center space-x-1.5 px-3 py-1.5 rounded bg-blue-800 hover:bg-blue-900 text-white text-xs font-semibold transition shadow-sm disabled:opacity-50"
           >
             <Navigation className="w-3.5 h-3.5" />
             <span>{isLocating ? 'Acquiring GPS...' : t('useMyLocationMapBtn')}</span>
-          </button>
-
-          <button
-            onClick={() => setActiveView('disaster_alerts')}
-            className="flex items-center space-x-1.5 px-3.5 py-1.5 rounded bg-red-50 hover:bg-red-100 text-red-800 border border-red-200 text-xs font-semibold transition"
-          >
-            <Radio className="w-3.5 h-3.5" />
-            <span>{t('issueGeoAlertBtn')}</span>
           </button>
         </div>
       </div>
@@ -503,7 +586,7 @@ export const TacticalCommandMap: React.FC = () => {
           </div>
 
           <div className="text-[11px] font-mono text-slate-500">
-            PostGIS EPSG:4326 • Leaflet CartoDB
+            OpenStreetMap Cartography • 0 API Key Required • PostGIS EPSG:4326
           </div>
         </div>
       </div>
