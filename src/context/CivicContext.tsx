@@ -104,7 +104,22 @@ interface CivicContextType {
   setHighlightedSystemCategory: (cat: string | null) => void;
 
   // Submit workflow
-  submitNewReport: (text: string, imageUrl: string, lat: number, lng: number, citizenName: string, phone: string) => Promise<Incident>;
+  submitNewReport: (
+    arg1: string | {
+      title?: string;
+      description: string;
+      locationName?: string;
+      coordinates: { lat: number; lng: number };
+      citizenName?: string;
+      citizenContact?: string;
+      image?: string;
+    }, 
+    imageUrl?: string, 
+    lat?: number, 
+    lng?: number, 
+    citizenName?: string, 
+    phone?: string
+  ) => Promise<Incident>;
   updateIncidentStatus: (incidentId: string, status: IncidentStatus) => void;
   createEmergencyAlert: (newAlert: Omit<EmergencyBroadcast, 'id' | 'issuedAt' | 'status'>) => void;
   
@@ -431,13 +446,47 @@ export const CivicProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Citizen submit action
   const submitNewReport = async (
-    text: string, 
-    imageUrl: string, 
-    lat: number, 
-    lng: number, 
-    citizenName: string, 
-    phone: string
+    arg1: string | {
+      title?: string;
+      description: string;
+      locationName?: string;
+      coordinates: { lat: number; lng: number };
+      citizenName?: string;
+      citizenContact?: string;
+      image?: string;
+    }, 
+    imageUrl?: string, 
+    latParam?: number, 
+    lngParam?: number, 
+    citizenNameParam?: string, 
+    phoneParam?: string
   ): Promise<Incident> => {
+    let text = '';
+    let img = '';
+    let lat = CHENNAI_DEFAULT_COORDS.lat;
+    let lng = CHENNAI_DEFAULT_COORDS.lng;
+    let citizenName = 'Verified Citizen';
+    let phone = '+91 98765 00000';
+    let locName = '';
+
+    if (typeof arg1 === 'object' && arg1 !== null) {
+      text = arg1.description || '';
+      img = arg1.image || '';
+      lat = arg1.coordinates?.lat ?? CHENNAI_DEFAULT_COORDS.lat;
+      lng = arg1.coordinates?.lng ?? CHENNAI_DEFAULT_COORDS.lng;
+      citizenName = arg1.citizenName || 'Verified Citizen';
+      phone = arg1.citizenContact || '+91 98765 00000';
+      locName = arg1.locationName || `Zone Sector (${lat.toFixed(4)}°N, ${lng.toFixed(4)}°E)`;
+    } else {
+      text = arg1 || '';
+      img = imageUrl || '';
+      lat = latParam ?? CHENNAI_DEFAULT_COORDS.lat;
+      lng = lngParam ?? CHENNAI_DEFAULT_COORDS.lng;
+      citizenName = citizenNameParam || 'Verified Citizen';
+      phone = phoneParam || '+91 98765 00000';
+      locName = `Zone Sector (${lat.toFixed(4)}°N, ${lng.toFixed(4)}°E)`;
+    }
+
     // 1. NLP
     const nlp = simulateNlpTriage(text);
     // 2. Vision
@@ -456,13 +505,13 @@ export const CivicProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       category: nlp.category,
       severity: risk.priorityLevel,
       status: 'AI_TRIAGED',
-      locationName: `Zone Sector 4 (${lat.toFixed(4)}°N, ${lng.toFixed(4)}°E)`,
+      locationName: locName,
       coordinates: { lat, lng },
-      image: imageUrl || 'https://images.unsplash.com/photo-1547683905-f686c993aae5?auto=format&fit=crop&w=1000&q=80',
+      image: img || 'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?auto=format&fit=crop&w=1000&q=80',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      citizenName: citizenName || 'Verified Citizen',
-      citizenContact: phone || '+91 98765 00000',
+      citizenName: citizenName,
+      citizenContact: phone,
       aiConfidence: nlp.confidence,
       aiReasoning: nlp.reasoning,
       recommendedDepartment: nlp.recommendedDepartment,
@@ -476,8 +525,8 @@ export const CivicProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       isPrimaryMaster: true,
       sla,
       resolution: {
-        beforeImage: imageUrl || 'https://images.unsplash.com/photo-1547683905-f686c993aae5?auto=format&fit=crop&w=1000&q=80',
-        afterImage: 'https://images.unsplash.com/photo-1517649763962-0c623266ddc0?auto=format&fit=crop&w=1000&q=80',
+        beforeImage: img || 'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?auto=format&fit=crop&w=1000&q=80',
+        afterImage: 'https://images.unsplash.com/photo-1578836537282-3171d77f8632?auto=format&fit=crop&w=1000&q=80',
         resolvedAt: 'Pending Action',
         resolvedByStaff: 'Field Operations Crew',
         staffBadge: 'PWD-SQUAD-12',

@@ -192,33 +192,37 @@ export const ReportIncident: React.FC = () => {
     setIsSubmitting(true);
     playSound('triage');
 
-    // 1. Submit report to global Civic Context
-    const createdIncident = submitNewReport({
-      title: description.slice(0, 50) + (description.length > 50 ? '...' : ''),
-      description,
-      locationName,
-      coordinates,
-      citizenName,
-      citizenContact: phone,
-      image: imagePreview
-    });
+    try {
+      // 1. Submit report to global Civic Context
+      const createdIncident = await submitNewReport({
+        title: description.slice(0, 50) + (description.length > 50 ? '...' : ''),
+        description,
+        locationName,
+        coordinates,
+        citizenName,
+        citizenContact: phone,
+        image: imagePreview
+      });
 
-    // 2. Dispatch Live SMS Alert to configured test numbers
-    const recipients = getStoredRecipients();
-    const smsMessage = `[CIVIC-SYNC] Grievance #${createdIncident.id} registered at ${locationName}. AI Triage Category: ${createdIncident.category}. Dynamic SLA: ${Math.floor(createdIncident.sla.remainingSeconds / 3600)}h. Assigned to ${createdIncident.assignedDepartment}.`;
-    
-    dispatchSmsAlert(recipients, smsMessage).catch(err => {
-      console.warn('SMS dispatch handled in background:', err);
-    });
+      // 2. Dispatch Live SMS Alert to configured test numbers
+      const recipients = getStoredRecipients();
+      const smsMessage = `[CIVIC-SYNC] Grievance #${createdIncident.id} registered at ${locationName}. AI Triage Category: ${createdIncident.category}. Dynamic SLA: ${Math.floor(createdIncident.sla.remainingSeconds / 3600)}h. Assigned to ${createdIncident.assignedDepartment}.`;
+      
+      dispatchSmsAlert(recipients, smsMessage).catch(err => {
+        console.warn('SMS dispatch handled in background:', err);
+      });
 
-    // 3. Trigger 7-Stage Triage Animation sequence
-    runTriageAnimation(createdIncident);
+      // 3. Trigger 7-Stage Triage Animation sequence
+      runTriageAnimation(createdIncident);
 
-    // 4. Navigate to AI Triage Engine View
-    setTimeout(() => {
+      // 4. Navigate immediately to AI Triage Engine View
       setIsSubmitting(false);
       setActiveView('ai_triage');
-    }, 1200);
+    } catch (err) {
+      console.error('Error during grievance submission:', err);
+      setIsSubmitting(false);
+      setActiveView('ai_triage');
+    }
   };
 
   return (
