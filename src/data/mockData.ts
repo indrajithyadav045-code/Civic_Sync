@@ -69,10 +69,10 @@ export const MOCK_INCIDENTS: Incident[] = [
       'High-risk vulnerability: 180m from DAV Public School Velachery',
       'Spatial clustering: 3 duplicate citizen reports confirmed within 42m radius in Velachery'
     ],
-    recommendedDepartment: 'Disaster Management',
-    assignedDepartment: 'Disaster Management',
+    recommendedDepartment: 'Drainage & Stormwater Management',
+    assignedDepartment: 'Drainage & Stormwater Management',
     assignedTeam: 'Greater Chennai Corp (GCC) De-watering Unit Alpha-4',
-    assignedOfficer: 'Capt. R. Selvam (Badge #GCC-DM-882)',
+    assignedOfficer: 'Capt. R. Selvam (Badge #GCC-DD-882)',
     detectedObjects: [
       {
         id: 'box-1',

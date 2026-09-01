@@ -46,10 +46,10 @@ export function calculateDynamicFloodIntelligence(inputs: DynamicFloodInputs): F
 
   const recommendedActions: string[] = [];
   if (riskScore >= 75) {
-    recommendedActions.push('Dispatch Disaster Management Unit Alpha-4');
+    recommendedActions.push('Dispatch Drainage & De-watering Rapid Squad Alpha-4');
     recommendedActions.push('Mobilize 150HP de-watering super-sucker pumps');
     recommendedActions.push('Apply 500m geofence perimeter on 100ft road');
-    recommendedActions.push('Broadcast cell-tower emergency warning to subscribers');
+    recommendedActions.push('Broadcast cell-tower municipal advisory to subscribers');
   } else if (riskScore >= 50) {
     recommendedActions.push('Deploy Municipal Health & Sanitation drain clearance team');
     recommendedActions.push('Monitor SCADA water level sensors every 15 minutes');

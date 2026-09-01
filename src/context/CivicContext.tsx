@@ -364,7 +364,7 @@ export const CivicProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     { stepIndex: 3, stepName: '50-Meter Spatial Deduplication Engine', isProcessing: false, isDone: true, dataSummary: 'Merged 3 duplicate citizen reports within 42m' },
     { stepIndex: 4, stepName: 'Contextual Spatial Risk Matrix', isProcessing: false, isDone: true, dataSummary: 'Score: 91/100 (HIGH) | 180m from Oakridge School' },
     { stepIndex: 5, stepName: 'Dynamic Context-Aware SLA Generation', isProcessing: false, isDone: true, dataSummary: 'Calculated SLA: 02h:48m:31s (Accelerated by 90m)' },
-    { stepIndex: 6, stepName: 'Automated Inter-Agency Dispatch', isProcessing: false, isDone: true, dataSummary: 'Disaster Management Unit Alpha-4 mobilized' },
+    { stepIndex: 6, stepName: 'Automated Inter-Agency Dispatch', isProcessing: false, isDone: true, dataSummary: 'Drainage & Public Works Squad Alpha-4 mobilized' },
   ]);
 
   // Demo auto-runner
@@ -558,14 +558,13 @@ export const CivicProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Hackathon Demo Steps
   const DEMO_STAGES: { view: ActiveView; title: string; log: string }[] = [
     { view: 'report_issue', title: '1. Citizen Fast Report Submission', log: 'Citizen reports: "Heavy rain has blocked the road near the school." with instant GPS.' },
-    { view: 'ai_triage', title: '2. Multi-Stage AI Triage Pipeline', log: 'AI processes NLP text, runs CV damage detection, calculates confidence (94%), and routes to Disaster Management.' },
+    { view: 'ai_triage', title: '2. Multi-Stage AI Triage Pipeline', log: 'AI processes NLP text, runs CV damage detection, calculates confidence (94%), and routes to Drainage & Stormwater Management (DD).' },
     { view: 'dedup_lab', title: '3. 50-Meter Spatial Deduplication', log: 'Spatial engine identifies 3 duplicate citizen reports within 42m radius and merges them into 1 master incident.' },
     { view: 'command_map', title: '4. Spatial Proximity Risk & Command Map', log: 'Calculated 180m distance from school + flood basin -> Elevates priority to HIGH (Risk: 91/100).' },
-    { view: 'command_center', title: '5. Authority Command Center & Dynamic SLA', log: 'Disaster Management dashboard displays contextual SLA (02h:48m remaining) & dispatch status.' },
-    { view: 'disaster_alerts', title: '6. Geo-Fenced Emergency Broadcast', log: 'Authority broadcasts live emergency alert to 2,847 affected citizens in 650m danger buffer.' },
+    { view: 'command_center', title: '5. Authority Command Center & Dynamic SLA', log: 'Municipal Operations dashboard displays contextual SLA (02h:48m remaining) & dispatch status.' },
+    { view: 'disaster_alerts', title: '6. Geo-Fenced Municipal Advisory Broadcast', log: 'Authority broadcasts live municipal advisory to 2,847 affected citizens in 650m zone buffer.' },
     { view: 'case_tracking', title: '7. Citizen Real-Time Case Telemetry', log: 'Citizen tracks live timeline, assigned officer badge, and crew dispatch status.' },
-    { view: 'resolution_verification', title: '8. Before/After CV Proof Verification', log: 'Field staff submits resolved photo; AI verifies 100% water clearance with 97.4% CV confidence.' },
-    { view: 'risk_forecast', title: '9. Predictive Civic Risk Forecast (Next 6h)', log: 'Predictive spatial model displays high-risk flood zones A/B/C for preemptive infrastructure defense.' }
+    { view: 'risk_forecast', title: '8. Predictive Civic Risk Forecast (Next 6h)', log: 'Predictive spatial model displays high-risk flood zones A/B/C for preemptive infrastructure defense.' }
   ];
 
   const jumpToDemoStep = (step: number) => {

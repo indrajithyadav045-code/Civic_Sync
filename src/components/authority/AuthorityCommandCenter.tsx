@@ -234,11 +234,12 @@ export const AuthorityCommandCenter: React.FC = () => {
                 className="px-3 py-1.5 rounded border border-slate-300 text-xs font-semibold text-slate-900 bg-white outline-none"
               >
                 <option value="ALL">All Municipal Departments</option>
-                <option value="Disaster Management">Disaster Management</option>
-                <option value="Public Works & Roads">Public Works & Roads</option>
-                <option value="Power & Utilities">Power & Utilities</option>
-                <option value="Municipal Health & Sanitation">Health & Sanitation</option>
-                <option value="Traffic Police">Traffic Police</option>
+                <option value="Drainage & Stormwater Management">Drainage & Stormwater (DD)</option>
+                <option value="Public Works & Roads (PWD)">Public Works & Roads (PWD)</option>
+                <option value="Power & Utilities (ED)">Power & Utilities (ED)</option>
+                <option value="Solid Waste & Sanitation (WMD)">Solid Waste & Sanitation (WMD)</option>
+                <option value="Water Supply & Sewerage (WSD)">Water Supply & Sewerage (WSD)</option>
+                <option value="Traffic & Smart Mobility">Traffic & Smart Mobility</option>
               </select>
             </div>
 
