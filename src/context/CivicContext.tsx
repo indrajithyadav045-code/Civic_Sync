@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { 
   Incident, 
   EmergencyBroadcast, 
@@ -32,6 +32,14 @@ import {
   MOCK_AI_CITY_INSIGHT,
   INITIAL_DIGITAL_TWIN_LAYERS
 } from '../data/smartCityData';
+import { WeatherProvider } from '../services/providers/weatherProvider';
+import { AqiProvider } from '../services/providers/aqiProvider';
+import { TrafficProvider } from '../services/providers/trafficProvider';
+import { IotProvider } from '../services/providers/iotProvider';
+import { LiveWeatherData, LiveAqiData } from '../services/providers/types';
+import { calculateDynamicCityHealth } from '../services/calculators/dynamicCityHealth';
+import { calculateDynamicFloodIntelligence } from '../services/calculators/dynamicFloodRisk';
+import { realtimeEventBus } from '../services/realtime/eventBus';
 import { simulateNlpTriage, simulateVisionAnalysis, runSpatialDeduplication, calculateSpatialRisk } from '../services/aiEngine';
 
 import { Language, translations } from '../i18n/translations';
@@ -71,6 +79,12 @@ interface CivicContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   t: (key: keyof typeof translations.en) => string;
+
+  // Real-Time Providers & Dynamic Telemetry
+  liveWeather: LiveWeatherData | null;
+  liveAqi: LiveAqiData | null;
+  refreshLiveFeeds: () => Promise<void>;
+  isLiveLoading: boolean;
 
   // Smart City Digital Twin & Subsystems
   cityHealth: CityHealthMetrics;
@@ -200,6 +214,11 @@ export const CivicProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [forecastHotspots] = useState<ForecastHotspot[]>(MOCK_FORECAST_HOTSPOTS);
   const [soundEnabled, setSoundEnabled] = useState(true);
 
+  // Real-Time Ingestion Feeds
+  const [liveWeather, setLiveWeather] = useState<LiveWeatherData | null>(null);
+  const [liveAqi, setLiveAqi] = useState<LiveAqiData | null>(null);
+  const [isLiveLoading, setIsLiveLoading] = useState(false);
+
   // Smart City Subsystem States
   const [cityHealth, setCityHealth] = useState<CityHealthMetrics>(MOCK_CITY_HEALTH);
   const [smartTraffic, setSmartTraffic] = useState<SmartTrafficData>(MOCK_SMART_TRAFFIC);
@@ -214,6 +233,89 @@ export const CivicProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [aiCityInsight, setAiCityInsight] = useState<AiCityInsight>(MOCK_AI_CITY_INSIGHT);
   const [digitalTwinLayers, setDigitalTwinLayers] = useState<DigitalTwinLayers>(INITIAL_DIGITAL_TWIN_LAYERS);
   const [highlightedSystemCategory, setHighlightedSystemCategory] = useState<string | null>(null);
+
+  // Real-Time Ingestion Loader
+  const refreshLiveFeeds = useCallback(async () => {
+    setIsLiveLoading(true);
+    try {
+      const [weather, aqi, traffic, iot] = await Promise.all([
+        WeatherProvider.getLiveWeather(12.9815, 80.2180),
+        AqiProvider.getLiveAqi(12.9815, 80.2180),
+        TrafficProvider.getLiveTraffic(incidents.filter(i => i.severity === 'CRITICAL').length, true),
+        IotProvider.getLiveIotTelemetry(35.0)
+      ]);
+
+      setLiveWeather(weather);
+      setLiveAqi(aqi);
+
+      // Dynamically calculate City Health Score based on live inputs
+      const computedHealth = calculateDynamicCityHealth({
+        trafficDensityPct: traffic.densityPct,
+        activeBlockages: traffic.activeBlockages,
+        criticalIncidentsCount: incidents.filter(i => i.severity === 'CRITICAL' && i.status !== 'RESOLVED').length,
+        darkZonesCount: iot.lightingFaultsCount,
+        aqiValue: aqi.aqi,
+        wasteOverflowCount: iot.wasteBinFillPct >= 90 ? 1 : 0,
+        waterNetworkHealthPct: 97,
+        lightingOperationalPct: iot.lightingOperationalPct,
+        ambulancesAvailable: 7,
+        fireUnitsAvailable: 3
+      });
+      setCityHealth(computedHealth);
+
+      // Dynamically calculate Flood Intelligence based on live weather
+      const computedFlood = calculateDynamicFloodIntelligence({
+        wardName: 'WARD 12 (Velachery South)',
+        rainfallMmHr: weather.precipitationMmHr || 35.0,
+        waterLevelFt: iot.floodWaterLevelFt,
+        nearbyIncidentReportsCount: incidents.filter(i => i.category.includes('Flood')).length || 4,
+        schoolDistanceMeters: 180,
+        trafficCongested: traffic.densityPct >= 75
+      });
+      setFloodIntelligence(computedFlood);
+
+      // Update Subsystem Objects with real provenance
+      setSmartTraffic(traffic);
+      setEnvironmentAqi({
+        aqi: aqi.aqi,
+        pm25: aqi.pm25,
+        pm10: aqi.pm10,
+        pollutionHotspot: 'Central Zone (Kathipara Junction CAAQMS)',
+        exposureRisk: aqi.exposureRisk,
+        temperatureC: weather.temperatureC,
+        humidityPct: weather.humidityPct
+      });
+    } catch (e) {
+      console.warn('Real-time ingestion error:', e);
+    } finally {
+      setIsLiveLoading(false);
+    }
+  }, [incidents]);
+
+  // Initial fetch and 60-second periodic live refresh
+  useEffect(() => {
+    refreshLiveFeeds();
+    const interval = setInterval(refreshLiveFeeds, 60000);
+    return () => clearInterval(interval);
+  }, [refreshLiveFeeds]);
+
+  // Subscribe to Realtime WebSocket Event Bus
+  useEffect(() => {
+    const unsubscribe = realtimeEventBus.subscribe('*', (payload) => {
+      const newEvent: CityLiveEvent = {
+        id: `EVT-${Date.now().toString().slice(-4)}`,
+        timestamp: payload.timestamp,
+        category: payload.type.includes('FLOOD') ? 'FLOOD' : payload.type.includes('TRAFFIC') ? 'TRAFFIC' : payload.type.includes('AQI') ? 'AQI' : 'EMERGENCY',
+        title: typeof payload.data === 'string' ? payload.data : payload.data?.title || payload.type.replace(/_/g, ' '),
+        location: payload.data?.location || payload.source,
+        severity: payload.type.includes('FLOOD') || payload.type.includes('CRITICAL') ? 'CRITICAL' : 'HIGH'
+      };
+
+      setLiveEvents(prev => [newEvent, ...prev.slice(0, 19)]);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const toggleDigitalTwinLayer = (layerKey: keyof DigitalTwinLayers) => {
     setDigitalTwinLayers(prev => ({
@@ -472,6 +574,10 @@ export const CivicProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         language,
         setLanguage,
         t,
+        liveWeather,
+        liveAqi,
+        refreshLiveFeeds,
+        isLiveLoading,
         cityHealth,
         smartTraffic,
         floodIntelligence,

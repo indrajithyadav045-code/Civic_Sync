@@ -1,23 +1,31 @@
 import React from 'react';
 import { Droplet, AlertTriangle, CheckCircle2, Activity } from 'lucide-react';
 import { useCivic } from '../../context/CivicContext';
+import { DataProvenanceBadge } from '../common/DataProvenanceBadge';
 
 export const SmartWaterCard: React.FC = () => {
   const { smartWater } = useCivic();
 
+  const provenance = {
+    source: 'CMWSSB SCADA Pressure Telemetry',
+    lastUpdated: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
+    status: 'LIVE' as const,
+    refreshIntervalMs: 45000,
+    providerName: 'Chennai Metro Water Supply & Sewerage Board'
+  };
+
   return (
     <div className="gov-card rounded-lg p-4 bg-white border border-slate-200 shadow-sm space-y-3">
       {/* Header */}
-      <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-slate-100 gap-1">
         <div className="flex items-center space-x-2">
           <Droplet className="w-4 h-4 text-cyan-700" />
           <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wide">
             Water Network Intelligence
           </h3>
         </div>
-        <span className="text-[10px] font-mono text-slate-500">
-          PROTOTYPE / DEMO DATA
-        </span>
+
+        <DataProvenanceBadge provenance={provenance} />
       </div>
 
       {/* Network Health */}

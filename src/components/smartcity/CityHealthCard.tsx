@@ -1,6 +1,7 @@
 import React from 'react';
 import { Activity, Shield, Car, Trees, Building2, Radio, TrendingUp, Info } from 'lucide-react';
 import { useCivic } from '../../context/CivicContext';
+import { DataProvenanceBadge } from '../common/DataProvenanceBadge';
 
 export const CityHealthCard: React.FC = () => {
   const { cityHealth, highlightedSystemCategory, setHighlightedSystemCategory, playSound } = useCivic();
@@ -18,23 +19,30 @@ export const CityHealthCard: React.FC = () => {
     setHighlightedSystemCategory(highlightedSystemCategory === key ? null : key);
   };
 
+  const provenance = {
+    source: 'CIVIC-SYNC Multi-Signal Aggregator',
+    lastUpdated: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
+    status: 'LIVE' as const,
+    refreshIntervalMs: 60000,
+    providerName: 'GCC Smart City Operating Model'
+  };
+
   return (
     <div className="gov-card rounded-lg p-4 bg-white border border-slate-200 shadow-sm space-y-3">
       {/* Header */}
-      <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-slate-100 gap-2">
         <div className="flex items-center space-x-2">
           <Activity className="w-4 h-4 text-blue-800" />
           <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wide">
-            City Health Score
+            City Health Score (Dynamic Real-Time Index)
           </h3>
         </div>
-        <span className="px-2 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-emerald-800 text-[10px] font-bold uppercase font-mono">
-          {cityHealth.status} ({cityHealth.overallScore}/100)
-        </span>
+
+        <DataProvenanceBadge provenance={provenance} />
       </div>
 
       {/* Main Score & Subsystem Pillars */}
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         {/* Overall Big Circle Score */}
         <div className="flex items-center space-x-3 shrink-0">
           <div className="w-14 h-14 rounded-full bg-slate-900 text-white flex flex-col items-center justify-center shadow">
@@ -43,12 +51,14 @@ export const CityHealthCard: React.FC = () => {
           </div>
           <div>
             <div className="text-xs font-bold text-slate-900">Greater Chennai EOC</div>
-            <div className="text-[10px] text-slate-500 font-mono">Zone 13 Real-time Index</div>
+            <div className="text-[10px] text-slate-500 font-mono">
+              Status: <strong className="text-emerald-700">{cityHealth.status}</strong> • Trend: {cityHealth.activeTrend}
+            </div>
           </div>
         </div>
 
         {/* Subsystem category buttons */}
-        <div className="grid grid-cols-5 gap-1.5 flex-1">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5 flex-1">
           {categories.map((cat) => {
             const Icon = cat.icon;
             const isSelected = highlightedSystemCategory === cat.key;

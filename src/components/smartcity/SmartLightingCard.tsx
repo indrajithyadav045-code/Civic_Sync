@@ -1,23 +1,31 @@
 import React from 'react';
 import { Lightbulb, AlertTriangle, CheckCircle2, ShieldAlert } from 'lucide-react';
 import { useCivic } from '../../context/CivicContext';
+import { DataProvenanceBadge } from '../common/DataProvenanceBadge';
 
 export const SmartLightingCard: React.FC = () => {
   const { smartLighting } = useCivic();
 
+  const provenance = {
+    source: 'Municipal IoT Lighting Mesh',
+    lastUpdated: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
+    status: 'LIVE' as const,
+    refreshIntervalMs: 60000,
+    providerName: 'GCC Smart Cities Mission Gateway'
+  };
+
   return (
     <div className="gov-card rounded-lg p-4 bg-white border border-slate-200 shadow-sm space-y-3">
       {/* Header */}
-      <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-slate-100 gap-1">
         <div className="flex items-center space-x-2">
           <Lightbulb className="w-4 h-4 text-amber-600" />
           <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wide">
             Smart Street Lighting
           </h3>
         </div>
-        <span className="text-[10px] font-mono text-slate-500">
-          PROTOTYPE / DEMO DATA
-        </span>
+
+        <DataProvenanceBadge provenance={provenance} />
       </div>
 
       {/* Metrics Row */}

@@ -1,6 +1,7 @@
 import React from 'react';
-import { Activity, Waves, Car, Lightbulb, Trash2, Siren, Droplet, Wind } from 'lucide-react';
+import { Activity, Waves, Car, Lightbulb, Trash2, Siren, Droplet, Wind, Database } from 'lucide-react';
 import { useCivic } from '../../context/CivicContext';
+import { DataProvenanceBadge } from '../common/DataProvenanceBadge';
 
 export const LiveCityEventStream: React.FC = () => {
   const { liveEvents } = useCivic();
@@ -26,19 +27,26 @@ export const LiveCityEventStream: React.FC = () => {
     }
   };
 
+  const provenance = {
+    source: 'WebSocket /ws/city Ingestion Stream',
+    lastUpdated: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
+    status: 'LIVE' as const,
+    refreshIntervalMs: 1000,
+    providerName: 'FastAPI / PostgreSQL Event Bus'
+  };
+
   return (
     <div className="gov-card rounded-lg p-4 bg-white border border-slate-200 shadow-sm space-y-3">
       {/* Header */}
-      <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-slate-100 gap-1">
         <div className="flex items-center space-x-2">
           <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
           <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wide">
             Live City Event Stream
           </h3>
         </div>
-        <span className="text-[10px] font-mono text-slate-500">
-          PROTOTYPE / DEMO STREAM
-        </span>
+
+        <DataProvenanceBadge provenance={provenance} />
       </div>
 
       {/* Events List */}

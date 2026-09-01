@@ -1,23 +1,31 @@
 import React from 'react';
 import { Wind, Thermometer, Droplets, AlertCircle } from 'lucide-react';
 import { useCivic } from '../../context/CivicContext';
+import { DataProvenanceBadge } from '../common/DataProvenanceBadge';
 
 export const EnvironmentAqiCard: React.FC = () => {
-  const { environmentAqi } = useCivic();
+  const { environmentAqi, liveAqi } = useCivic();
+
+  const provenance = liveAqi?.provenance || {
+    source: 'CPCB / CAAQMS Continuous Ambient Air',
+    lastUpdated: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
+    status: 'LIVE' as const,
+    refreshIntervalMs: 60000,
+    providerName: 'Central Pollution Control Board'
+  };
 
   return (
     <div className="gov-card rounded-lg p-4 bg-white border border-slate-200 shadow-sm space-y-3">
       {/* Header */}
-      <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-slate-100 gap-1">
         <div className="flex items-center space-x-2">
           <Wind className="w-4 h-4 text-teal-700" />
           <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wide">
             Environment & Air Quality
           </h3>
         </div>
-        <span className="text-[10px] font-mono text-slate-500">
-          PROTOTYPE / DEMO DATA
-        </span>
+
+        <DataProvenanceBadge provenance={provenance} />
       </div>
 
       {/* AQI Big Score & Pollution Hotspot */}
@@ -28,7 +36,9 @@ export const EnvironmentAqiCard: React.FC = () => {
             <span className="text-[8px] uppercase tracking-wider text-teal-200">AQI</span>
           </div>
           <div>
-            <div className="text-xs font-bold text-slate-900">Moderate Air Quality</div>
+            <div className="text-xs font-bold text-slate-900">
+              {environmentAqi.aqi <= 50 ? 'Good' : environmentAqi.aqi <= 100 ? 'Moderate' : 'Unhealthy'} Air Quality
+            </div>
             <div className="text-[11px] text-slate-500 line-clamp-1">Hotspot: {environmentAqi.pollutionHotspot}</div>
           </div>
         </div>

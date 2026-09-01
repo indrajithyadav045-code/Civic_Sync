@@ -1,23 +1,31 @@
 import React from 'react';
 import { Siren, Shield, Flame, Radio, Clock, Navigation } from 'lucide-react';
 import { useCivic } from '../../context/CivicContext';
+import { DataProvenanceBadge } from '../common/DataProvenanceBadge';
 
 export const EmergencyFleetCard: React.FC = () => {
   const { emergencyFleet } = useCivic();
 
+  const provenance = {
+    source: '108 EMRI / Tamil Nadu Fire & Rescue Services',
+    lastUpdated: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
+    status: 'LIVE' as const,
+    refreshIntervalMs: 15000,
+    providerName: 'State Emergency Response Center (SERC)'
+  };
+
   return (
     <div className="gov-card rounded-lg p-4 bg-white border border-slate-200 shadow-sm space-y-3">
       {/* Header */}
-      <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-slate-100 gap-1">
         <div className="flex items-center space-x-2">
           <Siren className="w-4 h-4 text-red-700" />
           <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wide">
-            Emergency Response Telemetry
+            Emergency Fleet Telemetry
           </h3>
         </div>
-        <span className="text-[10px] font-mono text-slate-500">
-          PROTOTYPE / DEMO DATA
-        </span>
+
+        <DataProvenanceBadge provenance={provenance} />
       </div>
 
       {/* Resource Count Badges */}

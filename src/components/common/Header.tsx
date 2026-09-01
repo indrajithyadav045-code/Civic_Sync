@@ -18,10 +18,14 @@ import {
   Shield,
   Phone,
   Globe,
-  ChevronDown
+  ChevronDown,
+  Database,
+  CloudRain,
+  Wind
 } from 'lucide-react';
 import { useCivic, ActiveView } from '../../context/CivicContext';
 import { SmsSettingsModal } from './SmsSettingsModal';
+import { DataSourcesModal } from './DataSourcesModal';
 import { SUPPORTED_LANGUAGES, Language } from '../../i18n/translations';
 
 export const Header: React.FC = () => {
@@ -37,10 +41,13 @@ export const Header: React.FC = () => {
     language,
     setLanguage,
     t,
-    playSound
+    playSound,
+    liveWeather,
+    liveAqi
   } = useCivic();
 
   const [isSmsModalOpen, setIsSmsModalOpen] = useState(false);
+  const [isSourcesModalOpen, setIsSourcesModalOpen] = useState(false);
   const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
 
   const currentLangObj = SUPPORTED_LANGUAGES.find(l => l.code === language) || SUPPORTED_LANGUAGES[0];
@@ -73,11 +80,33 @@ export const Header: React.FC = () => {
           </span>
         </div>
 
-        <div className="flex items-center space-x-3">
-          <div className="flex items-center space-x-1 text-slate-700 font-medium">
-            <Phone className="w-3.5 h-3.5 text-blue-700" />
-            <span className="text-[11px]">{t('emergencyHelpline')}</span>
-          </div>
+        <div className="flex items-center space-x-2.5">
+          {/* Real-Time IMD Weather & CPCB AQI Chips */}
+          {liveWeather && (
+            <div className="hidden lg:flex items-center space-x-1 px-2 py-0.5 rounded bg-blue-50 border border-blue-200 text-[10px] text-blue-900 font-mono">
+              <CloudRain className="w-3 h-3 text-blue-700" />
+              <span>IMD: {liveWeather.temperatureC}°C ({liveWeather.precipitationMmHr}mm/h)</span>
+            </div>
+          )}
+
+          {liveAqi && (
+            <div className="hidden lg:flex items-center space-x-1 px-2 py-0.5 rounded bg-teal-50 border border-teal-200 text-[10px] text-teal-900 font-mono">
+              <Wind className="w-3 h-3 text-teal-700" />
+              <span>CPCB AQI: {liveAqi.aqi}</span>
+            </div>
+          )}
+
+          <span className="text-slate-300 hidden sm:inline">|</span>
+
+          {/* Data Sources Catalog Modal Button */}
+          <button
+            onClick={() => setIsSourcesModalOpen(true)}
+            className="flex items-center space-x-1 px-2 py-0.5 rounded bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-300 text-[11px] font-bold transition shadow-xs"
+            title="Inspect Official Government Data Sources & Provenance"
+          >
+            <Database className="w-3 h-3 text-emerald-700" />
+            <span>● Live Data Sources</span>
+          </button>
 
           <span className="text-slate-300">|</span>
 
@@ -223,6 +252,11 @@ export const Header: React.FC = () => {
       <SmsSettingsModal 
         isOpen={isSmsModalOpen} 
         onClose={() => setIsSmsModalOpen(false)} 
+      />
+
+      <DataSourcesModal
+        isOpen={isSourcesModalOpen}
+        onClose={() => setIsSourcesModalOpen(false)}
       />
     </header>
   );
