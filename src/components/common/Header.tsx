@@ -26,6 +26,7 @@ import {
 import { useCivic, ActiveView } from '../../context/CivicContext';
 import { SmsSettingsModal } from './SmsSettingsModal';
 import { DataSourcesModal } from './DataSourcesModal';
+import { QuickCommandBar } from './QuickCommandBar';
 import { SUPPORTED_LANGUAGES, Language } from '../../i18n/translations';
 
 export const Header: React.FC = () => {
@@ -48,6 +49,7 @@ export const Header: React.FC = () => {
 
   const [isSmsModalOpen, setIsSmsModalOpen] = useState(false);
   const [isSourcesModalOpen, setIsSourcesModalOpen] = useState(false);
+  const [isCommandBarOpen, setIsCommandBarOpen] = useState(false);
   const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
 
   const currentLangObj = SUPPORTED_LANGUAGES.find(l => l.code === language) || SUPPORTED_LANGUAGES[0];
@@ -97,6 +99,19 @@ export const Header: React.FC = () => {
           )}
 
           <span className="text-slate-300 hidden sm:inline">|</span>
+
+          {/* Quick Command Bar Spotlight Button */}
+          <button
+            onClick={() => setIsCommandBarOpen(true)}
+            className="flex items-center space-x-1.5 px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 text-[11px] font-semibold transition"
+            title="Quick Command Bar & Jump Search (Ctrl+K)"
+          >
+            <Search className="w-3 h-3 text-slate-500" />
+            <span className="hidden sm:inline">Spotlight</span>
+            <kbd className="px-1 py-0.2 rounded bg-white text-[9px] font-mono text-slate-500 border border-slate-200 hidden md:inline">⌘K</kbd>
+          </button>
+
+          <span className="text-slate-300">|</span>
 
           {/* Data Sources Catalog Modal Button */}
           <button
@@ -257,6 +272,11 @@ export const Header: React.FC = () => {
       <DataSourcesModal
         isOpen={isSourcesModalOpen}
         onClose={() => setIsSourcesModalOpen(false)}
+      />
+
+      <QuickCommandBar
+        isOpen={isCommandBarOpen}
+        onClose={() => setIsCommandBarOpen(false)}
       />
     </header>
   );
