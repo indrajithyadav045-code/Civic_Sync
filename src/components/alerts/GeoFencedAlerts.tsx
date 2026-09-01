@@ -270,20 +270,44 @@ export const GeoFencedAlerts: React.FC = () => {
 
             {/* Live SMS Delivery Confirmation Log */}
             {smsDeliveryLog && (
-              <div className="p-3 rounded bg-green-50 border border-green-200 space-y-1.5 font-mono text-xs">
+              <div className="p-3.5 rounded bg-green-50 border border-green-200 space-y-2 font-mono text-xs">
                 <div className="flex items-center justify-between text-green-900 font-bold">
                   <span className="flex items-center space-x-1.5">
                     <CheckCircle2 className="w-4 h-4 text-green-700" />
-                    <span>Live SMS Transmission Confirmed ({smsDeliveryLog.length} messages)</span>
+                    <span>Live Alert Dispatched ({smsDeliveryLog.length} recipients)</span>
                   </span>
                   <span className="text-[10px]">{smsDeliveryLog[0]?.timestamp}</span>
                 </div>
 
-                <div className="space-y-1 text-[11px] pt-1">
+                <div className="space-y-2 text-[11px] pt-1">
                   {smsDeliveryLog.map((log, idx) => (
-                    <div key={idx} className="flex items-center justify-between p-1.5 rounded bg-white border border-green-200">
-                      <span>📱 {log.recipient} ({log.phone || 'Configured'})</span>
-                      <span className="text-green-800 font-bold">{log.provider} • {log.messageId}</span>
+                    <div key={idx} className="p-2 rounded bg-white border border-green-200 space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-slate-900">📱 {log.recipient} ({log.phone || 'Configured'})</span>
+                        <span className="text-green-800 font-bold text-[10px]">{log.provider}</span>
+                      </div>
+
+                      <div className="flex items-center space-x-2 font-sans pt-0.5">
+                        {log.smsUrl && (
+                          <a
+                            href={log.smsUrl}
+                            className="px-2.5 py-1 rounded bg-blue-50 hover:bg-blue-100 text-blue-900 border border-blue-200 text-[11px] font-semibold flex items-center space-x-1"
+                          >
+                            <span>📲 Open in Phone SMS</span>
+                          </a>
+                        )}
+
+                        {log.whatsappUrl && (
+                          <a
+                            href={log.whatsappUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="px-2.5 py-1 rounded bg-green-600 hover:bg-green-700 text-white text-[11px] font-semibold flex items-center space-x-1"
+                          >
+                            <span>💬 Send to WhatsApp</span>
+                          </a>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>

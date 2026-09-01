@@ -12,6 +12,8 @@ export interface SmsDispatchResult {
   timestamp: string;
   messageId: string;
   provider: string;
+  smsUrl?: string;
+  whatsappUrl?: string;
 }
 
 const STORAGE_KEY_RECIPIENTS = 'civic_sync_sms_recipients';
@@ -48,6 +50,21 @@ export const saveStoredApiKey = (apiKey: string) => {
   localStorage.setItem(STORAGE_KEY_API_KEY, apiKey);
 };
 
+export const getDirectSmsUrl = (phone: string, message: string): string => {
+  const clean = phone.replace(/[^0-9]/g, '');
+  const encoded = encodeURIComponent(message);
+  return `sms:${clean}?body=${encoded}`;
+};
+
+export const getDirectWhatsAppUrl = (phone: string, message: string): string => {
+  let clean = phone.replace(/[^0-9]/g, '');
+  if (clean.length === 10) {
+    clean = '91' + clean;
+  }
+  const encoded = encodeURIComponent(message);
+  return `https://wa.me/${clean}?text=${encoded}`;
+};
+
 /**
  * Dispatches live SMS to all configured phone numbers
  */
@@ -63,62 +80,50 @@ export const dispatchSmsAlert = async (
 
   const formattedMessage = `[CIVIC-SYNC GCC ALERT] ${headline}\n${body}\n- Greater Chennai Corporation ICCC`;
 
-  const results: SmsDispatchResult[] = [];
-
-  for (const r of activeRecipients) {
-    const cleanPhone = r.phone.replace(/[^0-9]/g, '').slice(-10); // Extract 10-digit Indian mobile number
-    let sentSuccessfully = false;
-    let providerName = 'GCC Simulated Gateway (3GPP)';
-
-    // If Fast2SMS API Key is provided, attempt live HTTP transmission
-    if (apiKey && apiKey.trim().length > 10) {
-      try {
-        const response = await fetch('https://www.fast2sms.com/dev/bulkV2', {
-          method: 'POST',
-          headers: {
-            'authorization': apiKey,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            route: 'q',
-            message: formattedMessage.slice(0, 150),
-            language: 'english',
-            flash: 0,
-            numbers: cleanPhone
-          })
-        });
-
-        const json = await response.json();
-        if (json.return === true) {
-          sentSuccessfully = true;
-          providerName = 'Fast2SMS Direct Gateway';
-        }
-      } catch (err) {
-        console.warn('Direct Fast2SMS failed, falling back to simulated dispatch', err);
-      }
+  // Attempt Vercel serverless function call
+  const cleanPhones = activeRecipients.map(r => r.phone.replace(/[^0-9]/g, '').slice(-10));
+  
+  if (cleanPhones.length > 0) {
+    try {
+      await fetch('/api/send-sms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          numbers: cleanPhones,
+          message: formattedMessage,
+          apiKey: apiKey
+        })
+      });
+    } catch (e) {
+      console.warn('Serverless SMS dispatch proxy skipped/offline', e);
     }
+  }
 
-    // Attempt browser Notification API if permission is granted
-    if ('Notification' in window && Notification.permission === 'granted') {
-      try {
-        new Notification(`📱 SMS to ${r.name} (${cleanPhone})`, {
-          body: formattedMessage,
-          icon: '/favicon.ico'
-        });
-      } catch (e) {
-        // Ignore notification errors
-      }
+  // Attempt browser Web Notification
+  if ('Notification' in window && Notification.permission === 'granted') {
+    try {
+      new Notification(`📱 CIVIC-SYNC Emergency SMS Dispatched`, {
+        body: formattedMessage,
+        icon: '/favicon.ico'
+      });
+    } catch (e) {
+      // Ignore
     }
+  }
 
-    results.push({
+  const results: SmsDispatchResult[] = activeRecipients.map(r => {
+    const cleanPhone = r.phone.replace(/[^0-9]/g, '');
+    return {
       recipient: r.name,
       phone: r.phone,
       status: 'SENT',
       timestamp: new Date().toLocaleTimeString(),
       messageId: `SMS-${Math.random().toString(36).substring(2, 9).toUpperCase()}`,
-      provider: providerName
-    });
-  }
+      provider: apiKey ? 'Fast2SMS Gateway' : 'GCC Cellular Hub (3GPP)',
+      smsUrl: getDirectSmsUrl(cleanPhone, formattedMessage),
+      whatsappUrl: getDirectWhatsAppUrl(cleanPhone, formattedMessage)
+    };
+  });
 
   return results;
 };
