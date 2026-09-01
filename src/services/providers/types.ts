@@ -11,8 +11,27 @@ export interface DataProvenance {
   reliabilityScorePct?: number;
 }
 
+export interface ForecastHour {
+  time: string;
+  tempC: number;
+  precipitationMm: number;
+  rainProbPct: number;
+  weatherCode: number;
+}
+
+export interface AuraClimateRisk {
+  heatwaveRiskPct: number;
+  floodRiskPct: number;
+  droughtRiskPct: number;
+  overallClimateScorePct: number;
+  riskCategory: 'Low Risk' | 'Moderate Risk' | 'High Risk' | 'Severe Hazard';
+  aiClimateInsight: string;
+  recommendedActions: string[];
+}
+
 export interface LiveWeatherData {
   temperatureC: number;
+  apparentTempC?: number;
   humidityPct: number;
   precipitationMmHr: number;
   windSpeedKmh: number;
@@ -20,6 +39,8 @@ export interface LiveWeatherData {
   conditionLabel: string;
   isRaining: boolean;
   warnings: string[];
+  hourlyForecast?: ForecastHour[];
+  auraClimateRisk?: AuraClimateRisk;
   provenance: DataProvenance;
 }
 

@@ -27,6 +27,7 @@ import { useCivic, ActiveView } from '../../context/CivicContext';
 import { SmsSettingsModal } from './SmsSettingsModal';
 import { DataSourcesModal } from './DataSourcesModal';
 import { QuickCommandBar } from './QuickCommandBar';
+import { AuraClimateModal } from '../smartcity/AuraClimateModal';
 import { SUPPORTED_LANGUAGES, Language } from '../../i18n/translations';
 
 export const Header: React.FC = () => {
@@ -49,6 +50,7 @@ export const Header: React.FC = () => {
 
   const [isSmsModalOpen, setIsSmsModalOpen] = useState(false);
   const [isSourcesModalOpen, setIsSourcesModalOpen] = useState(false);
+  const [isAuraModalOpen, setIsAuraModalOpen] = useState(false);
   const [isCommandBarOpen, setIsCommandBarOpen] = useState(false);
   const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
 
@@ -81,13 +83,17 @@ export const Header: React.FC = () => {
           </span>
         </div>
 
-        <div className="flex items-center space-x-2.5">
-          {/* Real-Time IMD Weather & CPCB AQI Chips */}
+        <div className="flex items-center space-x-3">
+          {/* Real-Time AURA Climate & CPCB AQI Chips */}
           {liveWeather && (
-            <div className="hidden lg:flex items-center space-x-1 px-2 py-0.5 rounded bg-blue-50 border border-blue-200 text-[10px] text-blue-900 font-mono">
-              <CloudRain className="w-3 h-3 text-blue-700" />
-              <span>IMD: {liveWeather.temperatureC}°C ({liveWeather.precipitationMmHr}mm/h)</span>
-            </div>
+            <button
+              onClick={() => setIsAuraModalOpen(true)}
+              className="hidden lg:flex items-center space-x-1.5 px-2.5 py-0.5 rounded bg-cyan-50 hover:bg-cyan-100 border border-cyan-300 text-[10px] text-cyan-950 font-mono transition cursor-pointer shadow-xs"
+              title="Inspect Live AURA Climate Digital Twin Forecast & Risk Model (auraclimate.vercel.app)"
+            >
+              <CloudRain className="w-3 h-3 text-cyan-700" />
+              <span>AURA: {liveWeather.temperatureC}°C ({liveWeather.precipitationMmHr}mm/h)</span>
+            </button>
           )}
 
           {liveAqi && (
@@ -276,6 +282,11 @@ export const Header: React.FC = () => {
       <QuickCommandBar
         isOpen={isCommandBarOpen}
         onClose={() => setIsCommandBarOpen(false)}
+      />
+
+      <AuraClimateModal
+        isOpen={isAuraModalOpen}
+        onClose={() => setIsAuraModalOpen(false)}
       />
     </header>
   );
