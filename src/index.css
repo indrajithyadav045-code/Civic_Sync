@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #f7f9fb;
+    color: #1e293b;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+}
+
+/* Official Government Card and Containers */
+.gov-card {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+}
+
+.gov-card:hover {
+  border-color: #cbd5e1;
+}
+
+.gov-card-elevated {
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  box-shadow: 0 4px 6px -1px rgba(15, 42, 74, 0.06), 0 2px 4px -2px rgba(15, 42, 74, 0.06);
+}
+
+.gov-header {
+  background-color: #0f2a4a;
+  color: #ffffff;
+}
+
+.gov-subheader {
+  background-color: #00152f;
+  color: #ffffff;
+}
+
+/* Official Status Badges */
+.badge-gov-red {
+  background-color: #fee2e2;
+  border: 1px solid #f87171;
+  color: #991b1b;
+}
+
+.badge-gov-amber {
+  background-color: #fef3c7;
+  border: 1px solid #fcd34d;
+  color: #92400e;
+}
+
+.badge-gov-green {
+  background-color: #dcfce7;
+  border: 1px solid #86efac;
+  color: #166534;
+}
+
+.badge-gov-blue {
+  background-color: #dbeafe;
+  border: 1px solid #93c5fd;
+  color: #1e40af;
+}
+
+/* Leaflet Clean Gov Map Overrides */
+.leaflet-container {
+  background: #f1f5f9 !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
+}
+
+.leaflet-popup-content-wrapper {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 6px !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+}
+
+.leaflet-popup-tip {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+.leaflet-bar {
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 4px !important;
+  overflow: hidden;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+}
+
+.leaflet-bar a {
+  background-color: #ffffff !important;
+  color: #0f2a4a !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+.leaflet-bar a:hover {
+  background-color: #f8fafc !important;
+  color: #1d4ed8 !important;
+}
