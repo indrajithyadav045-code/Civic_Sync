@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AlertTriangle, Cpu, CheckCircle2, ArrowRight, Users, ShieldAlert, Zap } from 'lucide-react';
+import { Cpu, CheckCircle2, ArrowRight, Zap } from 'lucide-react';
 import { useCivic } from '../../context/CivicContext';
 
 export const AiCityInsightCard: React.FC = () => {
@@ -13,16 +13,16 @@ export const AiCityInsightCard: React.FC = () => {
   };
 
   return (
-    <div className="rounded-2xl p-4 bg-[#0D111A] border border-slate-800 shadow-xl space-y-3.5">
+    <div className="gov-card rounded-lg p-4 bg-white border border-slate-200 shadow-sm space-y-3">
       {/* Header */}
-      <div className="flex items-center justify-between pb-2 border-b border-white/10">
+      <div className="flex items-center justify-between pb-2 border-b border-slate-100">
         <div className="flex items-center space-x-2">
-          <Cpu className="w-4 h-4 text-cyan-400" />
-          <h3 className="text-xs font-bold text-white uppercase tracking-wider font-mono">
-            AI City Insight & Fusion
+          <Cpu className="w-4 h-4 text-blue-800" />
+          <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wide">
+            AI City Insight
           </h3>
         </div>
-        <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-red-950 text-red-300 border border-red-500/40">
+        <span className="px-2 py-0.5 rounded bg-red-100 border border-red-200 text-red-800 text-[10px] font-mono font-bold uppercase">
           {aiCityInsight.headline}
         </span>
       </div>
@@ -30,50 +30,50 @@ export const AiCityInsightCard: React.FC = () => {
       {/* Zone & Confidence */}
       <div className="flex items-center justify-between text-xs">
         <div>
-          <span className="text-slate-400 text-[10px] block font-mono">TARGET ZONE:</span>
-          <span className="font-bold text-white">{aiCityInsight.zone}</span>
+          <span className="text-slate-500 text-[11px] block">TARGET ZONE:</span>
+          <span className="font-bold text-slate-900">{aiCityInsight.zone}</span>
         </div>
         <div className="text-right">
-          <span className="text-slate-400 text-[10px] block font-mono">MODEL CONFIDENCE:</span>
-          <span className="font-bold text-cyan-300 font-mono text-sm">{aiCityInsight.confidencePct}%</span>
+          <span className="text-slate-500 text-[11px] block">MODEL CONFIDENCE:</span>
+          <span className="font-bold text-blue-900 font-mono">{aiCityInsight.confidencePct}%</span>
         </div>
       </div>
 
       {/* Multi-Signal Fusion */}
-      <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1 text-xs text-slate-300">
-        <div className="font-bold text-[10px] uppercase text-slate-400 font-mono">Spatial Intelligence Fusion:</div>
+      <div className="p-2.5 rounded bg-slate-50 border border-slate-200 space-y-1 text-xs text-slate-700">
+        <div className="font-bold text-[10px] uppercase text-slate-500">Spatial Intelligence Fusion:</div>
         {aiCityInsight.signals.map((sig, idx) => (
-          <div key={idx} className="flex items-center space-x-1.5 text-[11px] text-slate-200">
-            <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+          <div key={idx} className="flex items-center space-x-1.5 text-[11px] text-slate-800">
+            <CheckCircle2 className="w-3 h-3 text-blue-700 shrink-0" />
             <span>{sig}</span>
           </div>
         ))}
       </div>
 
       {/* Recommended Municipal Actions */}
-      <div className="p-3 rounded-xl bg-blue-950/40 border border-blue-500/30 space-y-1.5 text-xs text-blue-200">
-        <div className="font-bold text-[11px] uppercase text-blue-300 flex items-center space-x-1">
-          <ArrowRight className="w-3.5 h-3.5 text-blue-400" />
+      <div className="p-2.5 rounded bg-blue-50 border border-blue-200 space-y-1.5 text-xs text-blue-950">
+        <div className="font-bold text-[10px] uppercase text-blue-900 flex items-center space-x-1">
+          <ArrowRight className="w-3.5 h-3.5 text-blue-700" />
           <span>Recommended Inter-Agency Actions:</span>
         </div>
         {aiCityInsight.recommendedActions.map((action, idx) => (
-          <div key={idx} className="text-[11px] flex items-center space-x-1.5 text-slate-300">
-            <span className="text-cyan-400 font-bold">•</span>
+          <div key={idx} className="text-[11px] flex items-center space-x-1 text-blue-900">
+            <span>•</span>
             <span>{action}</span>
           </div>
         ))}
 
         <button
           onClick={handleExecuteActions}
-          className="w-full mt-2 py-1.5 px-3 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition flex items-center justify-center space-x-1 shadow"
+          className="w-full mt-1 py-1.5 px-3 rounded bg-blue-700 hover:bg-blue-800 text-white font-semibold text-xs transition flex items-center justify-center space-x-1 shadow-xs"
         >
           <Zap className="w-3.5 h-3.5" />
-          <span>{actionsExecuted ? '✓ All Recommended Actions Executed' : 'Execute Recommended Actions'}</span>
+          <span>{actionsExecuted ? '✓ Recommended Actions Executed' : 'Execute Recommended Actions'}</span>
         </button>
       </div>
 
       {/* Predicted Impact Footer */}
-      <div className="text-[11px] text-slate-400 font-mono flex items-center justify-between pt-1 border-t border-white/5">
+      <div className="text-[11px] text-slate-500 font-mono flex items-center justify-between pt-1 border-t border-slate-100">
         <span>Impact: {aiCityInsight.predictedImpact}</span>
       </div>
     </div>

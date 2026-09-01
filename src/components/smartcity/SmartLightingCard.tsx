@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Lightbulb, Zap, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { Lightbulb, Zap } from 'lucide-react';
 import { useCivic } from '../../context/CivicContext';
 import { DataProvenanceBadge } from '../common/DataProvenanceBadge';
 
@@ -27,12 +27,12 @@ export const SmartLightingCard: React.FC = () => {
   const sampleIncident = smartLighting?.sampleIncident;
 
   return (
-    <div className="rounded-2xl p-4 bg-[#0D111A] border border-slate-800 shadow-xl space-y-3">
+    <div className="gov-card rounded-lg p-4 bg-white border border-slate-200 shadow-sm space-y-3">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-white/10 gap-1">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-slate-100 gap-1">
         <div className="flex items-center space-x-2">
-          <Lightbulb className="w-4 h-4 text-yellow-400" />
-          <h3 className="text-xs font-bold text-white uppercase tracking-wider font-mono">
+          <Lightbulb className="w-4 h-4 text-yellow-600" />
+          <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wide">
             Street Lighting Grid
           </h3>
         </div>
@@ -43,47 +43,47 @@ export const SmartLightingCard: React.FC = () => {
       {/* Grid Telemetry */}
       <div className="space-y-2">
         <div className="flex items-center justify-between text-xs">
-          <span className="font-semibold text-slate-200">
+          <span className="font-semibold text-slate-800">
             {sampleIncident?.ward || 'T. Nagar Pedestrian Zone'}
           </span>
-          <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-yellow-950 text-yellow-300 border border-yellow-500/40">
+          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-yellow-100 text-yellow-800 border border-yellow-200">
             {operationalPct}% OPERATIONAL
           </span>
         </div>
 
         {/* Metrics Grid */}
         <div className="grid grid-cols-3 gap-2 text-xs font-mono">
-          <div className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-center">
-            <span className="text-[10px] text-slate-400 block font-sans">Active Poles</span>
-            <span className="text-sm font-bold text-emerald-400">{operationalPct}%</span>
+          <div className="p-2 rounded bg-slate-50 border border-slate-200 text-center">
+            <span className="text-[10px] text-slate-500 block font-sans">Active Poles</span>
+            <span className="text-sm font-bold text-emerald-800">{operationalPct}%</span>
           </div>
-          <div className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-center">
-            <span className="text-[10px] text-slate-400 block font-sans">Dark Faults</span>
-            <span className="text-sm font-bold text-red-400">{darkZonesCount} Zones</span>
+          <div className="p-2 rounded bg-slate-50 border border-slate-200 text-center">
+            <span className="text-[10px] text-slate-500 block font-sans">Dark Faults</span>
+            <span className="text-sm font-bold text-red-700">{darkZonesCount} Zones</span>
           </div>
-          <div className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-center">
-            <span className="text-[10px] text-slate-400 block font-sans">Outage Rate</span>
-            <span className="text-sm font-bold text-amber-400">{faultyPct}%</span>
+          <div className="p-2 rounded bg-slate-50 border border-slate-200 text-center">
+            <span className="text-[10px] text-slate-500 block font-sans">Outage Rate</span>
+            <span className="text-sm font-bold text-amber-800">{faultyPct}%</span>
           </div>
         </div>
 
         {/* Energy Optimization Status */}
-        <div className="p-2.5 rounded-xl bg-yellow-950/40 border border-yellow-500/30 text-xs text-yellow-200 space-y-1.5">
+        <div className="p-2 rounded bg-yellow-50 border border-yellow-200 text-xs text-yellow-950 space-y-1">
           <div className="flex items-center justify-between">
             <span className="font-bold text-[11px] block">
               {sampleIncident?.poleId || 'Pole #SL-183'} ({sampleIncident?.status || 'OFFLINE'})
             </span>
-            <span className="text-[10px] font-mono text-yellow-300">Sensor Active</span>
+            <span className="text-[10px] text-yellow-900">Sensor Active</span>
           </div>
-          <p className="text-[10px] text-slate-300 leading-relaxed">
-            {sampleIncident?.reason || 'Automatic astronomical clock & ambient light sensors adjusting 14,200 LED luminaires.'}
+          <p className="text-[10px] text-slate-700 leading-relaxed">
+            {sampleIncident?.reason || 'Astronomical clock & ambient light sensors adjusting 14,200 LED luminaires.'}
           </p>
           <button
             onClick={handleBoostIllumination}
-            className="w-full mt-1 px-2.5 py-1 rounded-lg bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-bold text-[10px] transition flex items-center justify-center space-x-1"
+            className="w-full mt-1 px-2.5 py-1 rounded bg-yellow-600 hover:bg-yellow-700 text-white font-semibold text-[10px] transition flex items-center justify-center space-x-1"
           >
             <Zap className="w-3 h-3" />
-            <span>{lightsBoosted ? '✓ 100% Emergency Lux Boost Active' : 'Boost Grid Illumination to 100%'}</span>
+            <span>{lightsBoosted ? '✓ 100% Lux Boost Active' : 'Boost Grid Illumination'}</span>
           </button>
         </div>
       </div>

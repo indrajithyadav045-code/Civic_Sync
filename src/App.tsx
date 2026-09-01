@@ -20,7 +20,7 @@ export const AppContent: React.FC = () => {
   const { activeView } = useCivic();
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#07090E] text-slate-100 font-sans selection:bg-cyan-500/30 selection:text-cyan-200">
+    <div className="min-h-screen flex flex-col bg-[#f7f9fb] text-slate-800 font-sans selection:bg-blue-100 selection:text-blue-900">
       <Header />
 
       <main className="flex-1 py-4">

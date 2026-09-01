@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   LayoutDashboard, 
   AlertTriangle, 
@@ -18,12 +18,7 @@ import {
   Map as MapIcon,
   Sliders,
   Zap,
-  Radio,
-  RefreshCw,
-  Eye,
-  CheckCheck,
-  TrendingUp,
-  Sparkles
+  Radio
 } from 'lucide-react';
 import { useCivic } from '../../context/CivicContext';
 import { IncidentStatus, Incident } from '../../types';
@@ -41,12 +36,12 @@ import { AiCityInsightCard } from '../smartcity/AiCityInsightCard';
 import { TacticalCommandMap } from '../map/TacticalCommandMap';
 import { SimulationSandbox } from '../smartcity/SimulationSandbox';
 
-const KANBAN_COLUMNS: { id: IncidentStatus; label: string; color: string; bg: string }[] = [
-  { id: 'NEW', label: '1. NEW GRIEVANCES', color: 'border-slate-600 text-slate-300', bg: 'bg-slate-900/60' },
-  { id: 'AI_TRIAGED', label: '2. AI TRIAGED', color: 'border-blue-500 text-blue-300', bg: 'bg-blue-950/40' },
-  { id: 'ASSIGNED', label: '3. SQUAD ASSIGNED', color: 'border-indigo-500 text-indigo-300', bg: 'bg-indigo-950/40' },
-  { id: 'IN_PROGRESS', label: '4. IN REMEDIATION', color: 'border-amber-500 text-amber-300', bg: 'bg-amber-950/40' },
-  { id: 'RESOLVED', label: '5. AUDITED & RESOLVED', color: 'border-emerald-500 text-emerald-300', bg: 'bg-emerald-950/40' },
+const KANBAN_COLUMNS: { id: IncidentStatus; label: string; color: string }[] = [
+  { id: 'NEW', label: '1. NEW GRIEVANCES', color: 'border-slate-300 text-slate-700 bg-slate-100' },
+  { id: 'AI_TRIAGED', label: '2. AI TRIAGED', color: 'border-blue-300 text-blue-900 bg-blue-50' },
+  { id: 'ASSIGNED', label: '3. SQUAD ASSIGNED', color: 'border-indigo-300 text-indigo-900 bg-indigo-50' },
+  { id: 'IN_PROGRESS', label: '4. IN REMEDIATION', color: 'border-amber-300 text-amber-900 bg-amber-50' },
+  { id: 'RESOLVED', label: '5. AUDITED & RESOLVED', color: 'border-green-300 text-green-900 bg-green-50' },
 ];
 
 export const AuthorityCommandCenter: React.FC = () => {
@@ -87,8 +82,7 @@ export const AuthorityCommandCenter: React.FC = () => {
   const filteredIncidents = incidents.filter(inc => {
     const matchesSearch = inc.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           inc.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          inc.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          inc.locationName.toLowerCase().includes(searchTerm.toLowerCase());
+                          inc.category.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesDept = filterDepartment === 'ALL' || inc.assignedDepartment === filterDepartment;
     return matchesSearch && matchesDept;
   });
@@ -104,7 +98,7 @@ export const AuthorityCommandCenter: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 relative py-2">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 relative">
       {/* Geo-Targeted CAP Cell Broadcast Banner Overlay */}
       {isCapAlertActive && (
         <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 max-w-xl w-full px-4 animate-bounce">
@@ -135,27 +129,25 @@ export const AuthorityCommandCenter: React.FC = () => {
       )}
 
       {/* Operations Dashboard Header */}
-      <div className="rounded-2xl p-6 bg-[#0D111A] border border-cyan-500/30 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-cyan-500/10 via-blue-500/5 to-transparent rounded-full blur-3xl pointer-events-none" />
-
-        <div className="space-y-1 relative z-10">
-          <div className="inline-flex items-center space-x-2 px-2.5 py-0.5 rounded bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 text-[11px] font-mono font-bold">
-            <Building className="w-3.5 h-3.5 text-cyan-400" />
-            <span>INTEGRATED COMMAND & CONTROL CENTRE (ICCC)</span>
+      <div className="gov-card rounded-lg p-5 bg-white border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div className="inline-flex items-center space-x-2 px-2.5 py-0.5 rounded bg-blue-50 border border-blue-200 text-blue-900 text-xs font-semibold mb-1">
+            <Building className="w-3.5 h-3.5" />
+            <span>{t('kanbanBadge')}</span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight font-sans">
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 font-sans">
             Smart City Operations & Unified Command Center
           </h1>
-          <p className="text-xs sm:text-sm text-slate-300">
+          <p className="text-xs sm:text-sm text-slate-600">
             Real-time digital twin monitoring, AI multi-signal telemetry, and inter-agency dispatch workflow.
           </p>
         </div>
 
         {/* View Switcher Tabs & Simulator Toggle */}
-        <div className="flex flex-wrap items-center gap-2 relative z-10">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={handleTriggerCapAlert}
-            className="px-3 py-2 rounded-xl text-xs font-bold bg-red-600 hover:bg-red-500 text-white transition flex items-center space-x-1.5 shadow-md shadow-red-950/50 animate-pulse"
+            className="px-3 py-1.5 rounded-lg text-xs font-bold bg-red-600 hover:bg-red-700 text-white transition flex items-center space-x-1.5 shadow-sm animate-pulse"
             title="Simulate Geo-Targeted Common Alerting Protocol (CAP) Broadcast"
           >
             <Radio className="w-3.5 h-3.5" />
@@ -163,51 +155,40 @@ export const AuthorityCommandCenter: React.FC = () => {
           </button>
 
           <button
-            onClick={() => {
-              setShowSimulator(!showSimulator);
-              playSound('beep');
-            }}
-            className={`px-3 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 border ${
+            onClick={() => setShowSimulator(!showSimulator)}
+            className={`px-3 py-1.5 rounded text-xs font-semibold transition flex items-center space-x-1.5 ${
               showSimulator 
-                ? 'bg-amber-400 text-slate-950 border-amber-300 shadow-md shadow-amber-950/50' 
-                : 'bg-slate-900 text-amber-400 border-amber-500/30 hover:bg-slate-800'
+                ? 'bg-amber-500 text-slate-950 font-bold shadow-xs' 
+                : 'bg-slate-900 text-amber-400 hover:bg-slate-800'
             }`}
           >
             <Zap className="w-3.5 h-3.5" />
-            <span>{showSimulator ? 'Hide Simulator' : '⚡ Interactive Simulator'}</span>
+            <span>{showSimulator ? 'Close Simulator' : '⚡ Interactive Simulator'}</span>
           </button>
 
-          <div className="flex items-center p-1 bg-slate-900/90 rounded-xl border border-slate-700">
-            <button
-              onClick={() => {
-                setActiveTab('digital_twin_overview');
-                playSound('beep');
-              }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 ${
-                activeTab === 'digital_twin_overview'
-                  ? 'bg-cyan-500 text-slate-950 shadow'
-                  : 'text-slate-300 hover:text-white'
-              }`}
-            >
-              <Activity className="w-3.5 h-3.5" />
-              <span>Digital Twin Overview</span>
-            </button>
+          <button
+            onClick={() => setActiveTab('digital_twin_overview')}
+            className={`px-3.5 py-1.5 rounded text-xs font-semibold transition flex items-center space-x-1.5 ${
+              activeTab === 'digital_twin_overview'
+                ? 'bg-[#0f2a4a] text-white shadow-sm'
+                : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-300'
+            }`}
+          >
+            <Activity className="w-3.5 h-3.5" />
+            <span>Digital Twin Overview</span>
+          </button>
 
-            <button
-              onClick={() => {
-                setActiveTab('kanban_dispatch');
-                playSound('beep');
-              }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 ${
-                activeTab === 'kanban_dispatch'
-                  ? 'bg-blue-600 text-white shadow'
-                  : 'text-slate-300 hover:text-white'
-              }`}
-            >
-              <LayoutDashboard className="w-3.5 h-3.5" />
-              <span>Municipal Kanban ({activeIncidents.length})</span>
-            </button>
-          </div>
+          <button
+            onClick={() => setActiveTab('kanban_dispatch')}
+            className={`px-3.5 py-1.5 rounded text-xs font-semibold transition flex items-center space-x-1.5 ${
+              activeTab === 'kanban_dispatch'
+                ? 'bg-[#0f2a4a] text-white shadow-sm'
+                : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-300'
+            }`}
+          >
+            <LayoutDashboard className="w-3.5 h-3.5" />
+            <span>Municipal Kanban Dispatch</span>
+          </button>
         </div>
       </div>
 
@@ -221,28 +202,28 @@ export const AuthorityCommandCenter: React.FC = () => {
         <CityHealthCard />
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="p-4 rounded-xl bg-[#0D111A] border border-slate-800 space-y-1">
-            <div className="text-[10px] font-mono font-bold text-slate-400 uppercase">ACTIVE INCIDENTS</div>
-            <div className="text-2xl font-bold text-white font-mono">{activeIncidents.length}</div>
-            <div className="text-[10px] text-slate-500">Live Ingested Queue</div>
+          <div className="p-3.5 rounded-lg gov-card bg-white border border-slate-200 shadow-sm">
+            <div className="text-[11px] font-semibold text-slate-500 uppercase">ACTIVE INCIDENTS</div>
+            <div className="text-2xl font-bold text-slate-900 mt-0.5">{activeIncidents.length}</div>
+            <div className="text-[10px] text-slate-400">Total in queue</div>
           </div>
 
-          <div className="p-4 rounded-xl bg-[#0D111A] border border-red-500/30 space-y-1">
-            <div className="text-[10px] font-mono font-bold text-red-300 uppercase">CRITICAL SEVERITY</div>
-            <div className="text-2xl font-bold text-red-400 font-mono">{criticalCount}</div>
-            <div className="text-[10px] text-red-400">Immediate Response Required</div>
+          <div className="p-3.5 rounded-lg gov-card bg-white border border-slate-200 shadow-sm">
+            <div className="text-[11px] font-semibold text-red-600 uppercase">CRITICAL INCIDENTS</div>
+            <div className="text-2xl font-bold text-red-700 mt-0.5">{criticalCount}</div>
+            <div className="text-[10px] text-red-600">Immediate response required</div>
           </div>
 
-          <div className="p-4 rounded-xl bg-[#0D111A] border border-emerald-500/30 space-y-1">
-            <div className="text-[10px] font-mono font-bold text-emerald-300 uppercase">DUPLICATES MERGED (50M)</div>
-            <div className="text-2xl font-bold text-emerald-400 font-mono">{totalDuplicatesMerged}</div>
-            <div className="text-[10px] text-emerald-400">Spatial Dispatches Saved</div>
+          <div className="p-3.5 rounded-lg gov-card bg-white border border-slate-200 shadow-sm">
+            <div className="text-[11px] font-semibold text-blue-700 uppercase">DUPLICATES MERGED (50M)</div>
+            <div className="text-2xl font-bold text-blue-900 mt-0.5">{totalDuplicatesMerged}</div>
+            <div className="text-[10px] text-slate-400">Spatial tickets deduplicated</div>
           </div>
 
-          <div className="p-4 rounded-xl bg-[#0D111A] border border-amber-500/30 space-y-1">
-            <div className="text-[10px] font-mono font-bold text-amber-300 uppercase">SLA AT RISK</div>
-            <div className="text-2xl font-bold text-amber-400 font-mono">{slaAtRiskCount}</div>
-            <div className="text-[10px] text-amber-400">Dynamic Target &lt; 30 mins</div>
+          <div className="p-3.5 rounded-lg gov-card bg-white border border-slate-200 shadow-sm">
+            <div className="text-[11px] font-semibold text-amber-700 uppercase">SLA AT RISK</div>
+            <div className="text-2xl font-bold text-amber-800 mt-0.5">{slaAtRiskCount}</div>
+            <div className="text-[10px] text-slate-400">Target &lt; 30 mins</div>
           </div>
         </div>
       </div>
@@ -251,7 +232,7 @@ export const AuthorityCommandCenter: React.FC = () => {
       {activeTab === 'digital_twin_overview' ? (
         <div className="space-y-6">
           {/* Main Map + Side Panel Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Left 8 cols: Large City Digital Twin Map */}
             <div className="lg:col-span-8">
               <TacticalCommandMap />
@@ -266,15 +247,15 @@ export const AuthorityCommandCenter: React.FC = () => {
 
           {/* Bottom Subsystems Operations Grid (8 Subsystems) */}
           <div className="space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-white/10">
+            <div className="flex items-center justify-between pb-1 border-b border-slate-200">
               <div className="flex items-center space-x-2">
-                <Sliders className="w-4 h-4 text-cyan-400" />
-                <h2 className="text-xs font-bold text-white uppercase tracking-wider font-mono">
-                  Smart City Subsystem Telemetry & Direct Interventions (8 Domain Operations)
+                <Sliders className="w-4 h-4 text-blue-800" />
+                <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wide">
+                  Smart City Subsystem Telemetry (8 Domain Operations)
                 </h2>
               </div>
-              <span className="text-[11px] text-cyan-400 font-mono font-bold">
-                ● LIVE OPERATIONAL LAYER
+              <span className="text-[11px] text-slate-500 font-mono">
+                INTELLIGENT OPERATING LAYER
               </span>
             </div>
 
@@ -292,16 +273,16 @@ export const AuthorityCommandCenter: React.FC = () => {
         </div>
       ) : (
         /* Kanban Dispatch View */
-        <div className="space-y-5 rounded-2xl p-6 bg-[#0D111A] border border-slate-800 shadow-2xl">
+        <div className="space-y-4">
           {/* Search & Department Filter */}
-          <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-white/10">
+          <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-white rounded-lg border border-slate-200">
             <div className="flex items-center space-x-2">
-              <Filter className="w-4 h-4 text-cyan-400" />
-              <span className="text-xs font-bold text-white uppercase">Department Filter:</span>
+              <Filter className="w-4 h-4 text-slate-500" />
+              <span className="text-xs font-bold text-slate-700 uppercase">Department Filter:</span>
               <select
                 value={filterDepartment}
                 onChange={(e) => setFilterDepartment(e.target.value)}
-                className="px-3 py-1.5 rounded-xl border border-slate-700 text-xs font-semibold text-white bg-slate-900 outline-none focus:border-cyan-400"
+                className="px-3 py-1.5 rounded border border-slate-300 text-xs font-semibold text-slate-900 bg-white outline-none"
               >
                 <option value="ALL">All Municipal Departments</option>
                 <option value="Disaster Management">Disaster Management</option>
@@ -320,7 +301,7 @@ export const AuthorityCommandCenter: React.FC = () => {
                 placeholder={t('kanbanSearchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-8 pr-3 py-1.5 rounded-xl border border-slate-700 text-xs text-white bg-slate-900 placeholder-slate-500 outline-none focus:border-cyan-400 w-64"
+                className="pl-8 pr-3 py-1.5 rounded border border-slate-300 text-xs text-slate-900 outline-none w-56"
               />
             </div>
           </div>
@@ -332,14 +313,14 @@ export const AuthorityCommandCenter: React.FC = () => {
               return (
                 <div 
                   key={column.id}
-                  className="bg-slate-900/60 rounded-2xl border border-slate-800 p-3.5 flex flex-col min-h-[550px] space-y-3"
+                  className="bg-slate-50 rounded-lg border border-slate-200 p-3 flex flex-col min-h-[500px]"
                 >
-                  <div className={`px-3 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider border ${column.color} ${column.bg} flex justify-between items-center shadow-xs`}>
+                  <div className={`px-2.5 py-1.5 rounded text-[11px] font-bold uppercase tracking-wider mb-3 border ${column.color} flex justify-between items-center`}>
                     <span>{column.label}</span>
-                    <span className="font-mono text-xs px-2 py-0.5 rounded bg-black/40 text-white font-extrabold">{colIncidents.length}</span>
+                    <span className="font-mono text-xs">{colIncidents.length}</span>
                   </div>
 
-                  <div className="space-y-3 flex-1 overflow-y-auto">
+                  <div className="space-y-2.5 flex-1 overflow-y-auto">
                     {colIncidents.map((inc) => (
                       <div
                         key={inc.id}
@@ -347,32 +328,32 @@ export const AuthorityCommandCenter: React.FC = () => {
                           setSelectedIncident(inc);
                           setActiveView('case_tracking');
                         }}
-                        className="p-3.5 rounded-xl bg-[#090d16] hover:bg-slate-800/80 border border-slate-800 hover:border-cyan-500/50 transition cursor-pointer space-y-2.5 shadow-sm group"
+                        className="p-3 rounded bg-white border border-slate-200 hover:border-blue-500 hover:shadow-xs transition cursor-pointer space-y-2"
                       >
                         <div className="flex items-center justify-between">
-                          <span className="text-[11px] font-mono font-bold text-cyan-400">
+                          <span className="text-[11px] font-mono font-bold text-blue-900">
                             #{inc.id}
                           </span>
-                          <span className={`px-2 py-0.5 rounded text-[9px] font-mono font-bold ${
-                            inc.severity === 'CRITICAL' ? 'bg-red-950 text-red-300 border border-red-500/40' :
-                            inc.severity === 'HIGH' ? 'bg-amber-950 text-amber-300 border border-amber-500/40' :
-                            'bg-blue-950 text-blue-300 border border-blue-500/40'
+                          <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${
+                            inc.severity === 'CRITICAL' ? 'bg-red-100 text-red-800' :
+                            inc.severity === 'HIGH' ? 'bg-amber-100 text-amber-800' :
+                            'bg-blue-50 text-blue-800'
                           }`}>
                             {inc.severity}
                           </span>
                         </div>
 
-                        <div className="text-xs font-bold text-white group-hover:text-cyan-300 transition line-clamp-1">
+                        <div className="text-xs font-semibold text-slate-900 line-clamp-1">
                           {inc.title}
                         </div>
 
-                        <div className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">
+                        <div className="text-[11px] text-slate-500 line-clamp-2">
                           {inc.description}
                         </div>
 
-                        <div className="text-[10px] text-slate-400 font-mono flex items-center justify-between pt-1 border-t border-white/5">
-                          <span className="truncate max-w-[110px]">{inc.assignedDepartment}</span>
-                          <span className="text-amber-400">
+                        <div className="text-[10px] text-slate-400 font-mono flex items-center justify-between pt-1 border-t border-slate-100">
+                          <span className="truncate max-w-[100px]">{inc.assignedDepartment}</span>
+                          <span className="text-amber-700 font-bold">
                             {Math.floor(inc.sla.remainingSeconds / 3600)}h {Math.floor((inc.sla.remainingSeconds % 3600) / 60)}m
                           </span>
                         </div>
@@ -380,7 +361,7 @@ export const AuthorityCommandCenter: React.FC = () => {
                         {column.id !== 'RESOLVED' && (
                           <button
                             onClick={(e) => handleAdvanceStatus(inc, e)}
-                            className="w-full py-1.5 px-2 rounded-lg bg-cyan-950 hover:bg-cyan-900 text-cyan-300 border border-cyan-600/40 text-[10px] font-bold transition flex items-center justify-center space-x-1"
+                            className="w-full py-1 px-2 rounded bg-slate-100 hover:bg-blue-50 text-blue-900 border border-slate-300 hover:border-blue-300 text-[10px] font-semibold transition flex items-center justify-center space-x-1"
                           >
                             <span>Advance Stage</span>
                             <ArrowRight className="w-3 h-3" />
@@ -390,8 +371,8 @@ export const AuthorityCommandCenter: React.FC = () => {
                     ))}
 
                     {colIncidents.length === 0 && (
-                      <div className="text-center py-12 text-xs text-slate-600 font-mono">
-                        No grievances in this stage
+                      <div className="text-center py-8 text-xs text-slate-400">
+                        No incidents in this stage
                       </div>
                     )}
                   </div>

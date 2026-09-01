@@ -160,24 +160,22 @@ export const MunicipalAdminPortal: React.FC = () => {
   if (!isAdminAuthenticated) {
     return (
       <div className="max-w-md mx-auto px-4 py-12 animate-fade-in">
-        <div className="rounded-3xl p-8 bg-[#0D111A] border-2 border-cyan-500/40 shadow-2xl space-y-6 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-cyan-500/10 via-blue-500/5 to-transparent rounded-full blur-2xl pointer-events-none" />
-
+        <div className="rounded-2xl p-8 bg-white border border-slate-300 shadow-xl space-y-6">
           {/* Header */}
           <div className="text-center space-y-2">
-            <div className="w-14 h-14 mx-auto rounded-2xl bg-cyan-950/80 border border-cyan-400/40 text-cyan-400 flex items-center justify-center shadow-lg">
-              <Lock className="w-7 h-7 animate-pulse" />
+            <div className="w-14 h-14 mx-auto rounded-full bg-blue-900 text-white flex items-center justify-center shadow-md">
+              <Lock className="w-7 h-7" />
             </div>
 
-            <span className="px-3 py-1 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-700 text-[10px] font-mono font-bold uppercase tracking-wider inline-block">
+            <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-900 border border-blue-200 text-[10px] font-mono font-bold uppercase tracking-wider inline-block">
               GCC ADMINISTRATIVE GATEWAY
             </span>
 
-            <h2 className="text-xl font-extrabold text-white font-sans">
+            <h2 className="text-xl font-bold text-slate-900 font-sans">
               Municipal Corporation Admin Access
             </h2>
 
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-600">
               Restricted workstation for authorized GCC officers, zonal commissioners, and squad dispatch engineers.
             </p>
           </div>
@@ -185,19 +183,19 @@ export const MunicipalAdminPortal: React.FC = () => {
           {/* Form */}
           <form onSubmit={handleLoginSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
                 Officer Identifier / Badge:
               </label>
-              <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-300 font-mono flex items-center justify-between">
+              <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-800 font-mono flex items-center justify-between">
                 <span>OFFICER_GCC_ADMIN (Zone 13)</span>
-                <span className="text-[10px] text-emerald-400">● VERIFIED ID</span>
+                <span className="text-[10px] text-emerald-700 font-bold">● VERIFIED ID</span>
               </div>
             </div>
 
             <div>
-              <div className="flex items-center justify-between text-xs font-semibold text-slate-300 mb-1">
+              <div className="flex items-center justify-between text-xs font-semibold text-slate-700 mb-1">
                 <span>Administrative Password:</span>
-                <span className="text-[10px] text-cyan-400 font-mono">Required: GCC@admin</span>
+                <span className="text-[10px] text-blue-800 font-mono">Required: GCC@admin</span>
               </div>
 
               <div className="relative">
@@ -211,12 +209,12 @@ export const MunicipalAdminPortal: React.FC = () => {
                   }}
                   autoFocus
                   required
-                  className="w-full pl-3 pr-10 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white placeholder-slate-500 focus:border-cyan-400 outline-none font-mono"
+                  className="w-full pl-3 pr-10 py-2.5 rounded-lg bg-white border border-slate-300 text-sm text-slate-900 placeholder-slate-400 focus:border-blue-600 outline-none font-mono"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -225,14 +223,14 @@ export const MunicipalAdminPortal: React.FC = () => {
 
             {/* Error Message */}
             {authError && (
-              <div className="p-3 rounded-xl bg-red-950/80 border border-red-500 text-red-200 text-xs font-mono animate-shake">
+              <div className="p-3 rounded-lg bg-red-50 border border-red-300 text-red-800 text-xs font-mono">
                 {authError}
               </div>
             )}
 
             {/* Quick Demo Fill Button */}
-            <div className="p-3 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center justify-between text-xs">
-              <span className="text-[11px] text-slate-400">Demo Password:</span>
+            <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between text-xs">
+              <span className="text-[11px] text-slate-600">Demo Password:</span>
               <button
                 type="button"
                 onClick={() => {
@@ -240,7 +238,7 @@ export const MunicipalAdminPortal: React.FC = () => {
                   setAuthError(null);
                   playSound('beep');
                 }}
-                className="px-2.5 py-1 rounded-lg bg-cyan-950 hover:bg-cyan-900 text-cyan-300 border border-cyan-600 font-mono text-[11px] font-bold transition flex items-center space-x-1"
+                className="px-2.5 py-1 rounded bg-blue-50 hover:bg-blue-100 text-blue-900 border border-blue-300 font-mono text-[11px] font-bold transition flex items-center space-x-1"
               >
                 <KeyRound className="w-3 h-3" />
                 <span>Auto-Fill (GCC@admin)</span>
@@ -249,7 +247,7 @@ export const MunicipalAdminPortal: React.FC = () => {
 
             <button
               type="submit"
-              className="w-full py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs tracking-wider uppercase transition flex items-center justify-center space-x-2 shadow-lg shadow-cyan-500/20"
+              className="w-full py-2.5 rounded-lg bg-blue-800 hover:bg-blue-900 text-white font-bold text-xs tracking-wider uppercase transition flex items-center justify-center space-x-2 shadow-sm"
             >
               <Unlock className="w-4 h-4" />
               <span>Authorize & Enter Admin Panel</span>
@@ -257,13 +255,13 @@ export const MunicipalAdminPortal: React.FC = () => {
           </form>
 
           {/* Switch back to citizen portal */}
-          <div className="pt-2 text-center border-t border-white/5">
+          <div className="pt-2 text-center border-t border-slate-100">
             <button
               onClick={() => {
                 setPortalMode('CITIZEN');
                 setActiveView('citizen_home');
               }}
-              className="text-xs text-slate-400 hover:text-cyan-300 transition"
+              className="text-xs text-slate-500 hover:text-blue-800 transition font-medium"
             >
               ← Return to Citizen Public Grievance Portal
             </button>

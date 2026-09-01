@@ -9,36 +9,36 @@ interface DataProvenanceBadgeProps {
 export const DataProvenanceBadge: React.FC<DataProvenanceBadgeProps> = ({ provenance, showDetails = true }) => {
   const getStatusColor = (status: DataStatus) => {
     switch (status) {
-      case 'LIVE': return 'text-emerald-300 bg-emerald-950/60 border-emerald-500/40';
-      case 'UPDATING': return 'text-cyan-300 bg-cyan-950/60 border-cyan-500/40';
-      case 'STALE': return 'text-amber-300 bg-amber-950/60 border-amber-500/40';
-      case 'OFFLINE': return 'text-red-300 bg-red-950/60 border-red-500/40';
-      default: return 'text-slate-400 bg-slate-900 border-slate-700';
+      case 'LIVE': return 'text-emerald-700 bg-emerald-50 border-emerald-200';
+      case 'UPDATING': return 'text-blue-700 bg-blue-50 border-blue-200';
+      case 'STALE': return 'text-amber-700 bg-amber-50 border-amber-200';
+      case 'OFFLINE': return 'text-red-700 bg-red-50 border-red-200';
+      default: return 'text-slate-600 bg-slate-100 border-slate-200';
     }
   };
 
   const getStatusDot = (status: DataStatus) => {
     switch (status) {
-      case 'LIVE': return <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>;
-      case 'UPDATING': return <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-spin"></span>;
-      case 'STALE': return <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>;
-      case 'OFFLINE': return <span className="w-1.5 h-1.5 rounded-full bg-red-400"></span>;
+      case 'LIVE': return <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>;
+      case 'UPDATING': return <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-spin"></span>;
+      case 'STALE': return <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>;
+      case 'OFFLINE': return <span className="w-1.5 h-1.5 rounded-full bg-red-600"></span>;
       default: return <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span>;
     }
   };
 
   return (
-    <div className={`inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono border ${getStatusColor(provenance.status)} shadow-xs`}>
+    <div className={`inline-flex items-center space-x-1.5 px-2 py-0.5 rounded text-[10px] font-mono border ${getStatusColor(provenance.status)}`}>
       {getStatusDot(provenance.status)}
       <span className="font-bold">{provenance.status}</span>
       {showDetails && (
         <>
-          <span className="text-slate-600 font-sans">|</span>
-          <span className="text-slate-300 font-sans truncate max-w-[150px]" title={provenance.source}>
+          <span className="text-slate-300 font-sans">|</span>
+          <span className="text-slate-700 font-sans truncate max-w-[150px]" title={provenance.source}>
             {provenance.source}
           </span>
-          <span className="text-slate-600 font-sans">|</span>
-          <span className="text-slate-400 font-mono">{provenance.lastUpdated}</span>
+          <span className="text-slate-300 font-sans">|</span>
+          <span className="text-slate-500">{provenance.lastUpdated}</span>
         </>
       )}
     </div>
