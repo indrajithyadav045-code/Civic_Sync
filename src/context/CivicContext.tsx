@@ -3,6 +3,8 @@ import { Incident, EmergencyBroadcast, ForecastHotspot, IncidentStatus } from '.
 import { MOCK_INCIDENTS, MOCK_EMERGENCY_ALERTS, MOCK_FORECAST_HOTSPOTS } from '../data/mockData';
 import { simulateNlpTriage, simulateVisionAnalysis, runSpatialDeduplication, calculateSpatialRisk } from '../services/aiEngine';
 
+import { Language, translations } from '../i18n/translations';
+
 export type ActiveView = 
   | 'citizen_home'
   | 'report_issue'
@@ -34,6 +36,11 @@ interface CivicContextType {
   alerts: EmergencyBroadcast[];
   forecastHotspots: ForecastHotspot[];
   
+  // Multilingual System
+  language: Language;
+  setLanguage: (lang: Language) => void;
+  t: (key: keyof typeof translations.en) => string;
+
   // Submit workflow
   submitNewReport: (text: string, imageUrl: string, lat: number, lng: number, citizenName: string, phone: string) => Promise<Incident>;
   updateIncidentStatus: (incidentId: string, status: IncidentStatus) => void;
@@ -144,6 +151,21 @@ export const CivicProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [alerts, setAlerts] = useState<EmergencyBroadcast[]>(MOCK_EMERGENCY_ALERTS);
   const [forecastHotspots] = useState<ForecastHotspot[]>(MOCK_FORECAST_HOTSPOTS);
   const [soundEnabled, setSoundEnabled] = useState(true);
+
+  // Multilingual State (Defaults to English, supports Tamil, Telugu, Kannada, Malayalam, Hindi)
+  const [language, setLanguageState] = useState<Language>(() => {
+    return (localStorage.getItem('civic_sync_lang') as Language) || 'en';
+  });
+
+  const setLanguage = (lang: Language) => {
+    setLanguageState(lang);
+    localStorage.setItem('civic_sync_lang', lang);
+  };
+
+  const t = (key: keyof typeof translations.en): string => {
+    const langDict = translations[language] || translations.en;
+    return langDict[key] || translations.en[key] || (key as string);
+  };
 
   // Live Triage Animation Pipeline state
   const [currentTriageIncident, setCurrentTriageIncident] = useState<Incident | null>(MOCK_INCIDENTS[0]);
@@ -377,6 +399,9 @@ export const CivicProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         selectIncidentById,
         alerts,
         forecastHotspots,
+        language,
+        setLanguage,
+        t,
         submitNewReport,
         updateIncidentStatus,
         createEmergencyAlert,

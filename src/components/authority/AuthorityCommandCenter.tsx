@@ -32,7 +32,8 @@ export const AuthorityCommandCenter: React.FC = () => {
     updateIncidentStatus, 
     setSelectedIncident, 
     setActiveView, 
-    playSound 
+    playSound,
+    t 
   } = useCivic();
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -71,13 +72,13 @@ export const AuthorityCommandCenter: React.FC = () => {
         <div>
           <div className="inline-flex items-center space-x-2 px-2.5 py-0.5 rounded bg-blue-50 border border-blue-200 text-blue-900 text-xs font-semibold mb-1">
             <Building className="w-3.5 h-3.5" />
-            <span>GREATER CHENNAI CORPORATION (GCC) • ICCC DISPATCH OPERATIONS</span>
+            <span>{t('kanbanBadge')}</span>
           </div>
           <h1 className="text-xl sm:text-2xl font-bold text-slate-900 font-sans">
-            Municipal Incident Operations & Kanban Dispatch
+            {t('kanbanHeading')}
           </h1>
           <p className="text-xs sm:text-sm text-slate-600">
-            Real-time multi-departmental dispatch queue, dynamic SLA escalation, and remediation workflow.
+            {t('kanbanDesc')}
           </p>
         </div>
 
@@ -87,7 +88,7 @@ export const AuthorityCommandCenter: React.FC = () => {
             <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Search by ID, keyword..."
+              placeholder={t('kanbanSearchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-8 pr-3 py-1.5 rounded border border-slate-300 focus:border-blue-600 text-xs text-slate-900 outline-none w-48 sm:w-56"

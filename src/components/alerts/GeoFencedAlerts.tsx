@@ -23,7 +23,7 @@ import {
 } from '../../services/smsService';
 
 export const GeoFencedAlerts: React.FC = () => {
-  const { alerts, createEmergencyAlert, playSound, setActiveView } = useCivic();
+  const { alerts, createEmergencyAlert, playSound, setActiveView, t } = useCivic();
 
   const [alertTitle, setAlertTitle] = useState('CRITICAL INUNDATION & VELACHERY BYPASS CLOSURE');
   const [alertMessage, setAlertMessage] = useState('Severe flash flooding detected near DAV School & Velachery 100 Feet Bypass Road. Route blocked toward OMR. Avoid the low-lying underpasses. Heavy GCC de-watering pumps deployed.');
@@ -91,13 +91,13 @@ export const GeoFencedAlerts: React.FC = () => {
         <div>
           <div className="inline-flex items-center space-x-2 px-2.5 py-0.5 rounded bg-red-50 border border-red-200 text-red-900 text-xs font-semibold mb-1">
             <Building className="w-3.5 h-3.5" />
-            <span>DISASTER MANAGEMENT CELL • CHENNAI EMERGENCY BROADCAST</span>
+            <span>{t('alertsBadge')}</span>
           </div>
           <h1 className="text-xl sm:text-2xl font-bold text-slate-900 font-sans">
-            Geo-Fenced Emergency Broadcast Dispatcher
+            {t('alertsHeading')}
           </h1>
           <p className="text-xs sm:text-sm text-slate-600">
-            Define polygon / radius hazard perimeter and broadcast critical advisories directly to mobile subscribers inside the danger buffer.
+            {t('alertsDesc')}
           </p>
         </div>
 

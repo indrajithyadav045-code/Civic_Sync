@@ -15,7 +15,7 @@ import {
 import { useCivic } from '../../context/CivicContext';
 
 export const PredictiveRiskForecast: React.FC = () => {
-  const { forecastHotspots, setActiveView, playSound } = useCivic();
+  const { forecastHotspots, setActiveView, playSound, t } = useCivic();
   const [selectedHotspotId, setSelectedHotspotId] = useState<string>(forecastHotspots[0].id);
 
   const activeHotspot = forecastHotspots.find(h => h.id === selectedHotspotId) || forecastHotspots[0];
@@ -31,12 +31,12 @@ export const PredictiveRiskForecast: React.FC = () => {
           <div>
             <div className="flex items-center space-x-2">
               <span className="px-2 py-0.5 text-[10px] font-bold bg-blue-100 text-blue-900 rounded uppercase">
-                SPATIAL HYDROLOGICAL RISK MODEL (CHENNAI ZONES)
+                {t('forecastBadge')}
               </span>
               <span className="text-xs font-semibold text-amber-700">WINDOW: NEXT 6 HOURS</span>
             </div>
             <h1 className="text-xl sm:text-2xl font-bold text-slate-900 font-sans mt-0.5">
-              Chennai Civic Risk & Flood Hotspot Forecast
+              {t('forecastHeading')}
             </h1>
           </div>
         </div>

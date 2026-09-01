@@ -23,7 +23,7 @@ import { SENSITIVE_INFRASTRUCTURE } from '../../data/mockData';
 import L from 'leaflet';
 
 export const TacticalCommandMap: React.FC = () => {
-  const { incidents, selectedIncident, setSelectedIncident, setActiveView, alerts, playSound } = useCivic();
+  const { incidents, selectedIncident, setSelectedIncident, setActiveView, alerts, playSound, t } = useCivic();
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const userLocationMarkerRef = useRef<L.Marker | null>(null);
@@ -321,12 +321,12 @@ export const TacticalCommandMap: React.FC = () => {
           <div>
             <div className="flex items-center space-x-2">
               <span className="px-2 py-0.5 text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200 rounded">
-                GCC GIS OPERATIONS • CHENNAI ZONE 13
+                {t('mapBadge')}
               </span>
               <span className="text-xs text-slate-500 font-mono">{locationStatus}</span>
             </div>
             <h1 className="text-base sm:text-lg font-bold text-slate-900 font-sans mt-0.5">
-              Spatial Incident Management & Geo-Perimeter Map
+              {t('mapHeading')}
             </h1>
           </div>
         </div>
@@ -339,7 +339,7 @@ export const TacticalCommandMap: React.FC = () => {
             className="flex items-center space-x-1.5 px-3.5 py-1.5 rounded bg-blue-800 hover:bg-blue-900 text-white text-xs font-semibold transition shadow-sm disabled:opacity-50"
           >
             <Navigation className="w-3.5 h-3.5" />
-            <span>{isLocating ? 'Acquiring GPS...' : '📍 Use My Live Location'}</span>
+            <span>{isLocating ? 'Acquiring GPS...' : t('useMyLocationMapBtn')}</span>
           </button>
 
           <button
@@ -347,7 +347,7 @@ export const TacticalCommandMap: React.FC = () => {
             className="flex items-center space-x-1.5 px-3 py-1.5 rounded bg-red-50 hover:bg-red-100 text-red-800 border border-red-200 text-xs font-semibold transition"
           >
             <Radio className="w-3.5 h-3.5" />
-            <span>Issue Geo-Alert</span>
+            <span>{t('issueGeoAlertBtn')}</span>
           </button>
 
           <button

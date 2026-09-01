@@ -14,7 +14,7 @@ import {
 import { useCivic } from '../../context/CivicContext';
 
 export const SpatialDedupVisualizer: React.FC = () => {
-  const { incidents, selectedIncident, setSelectedIncident, setActiveView, playSound } = useCivic();
+  const { incidents, selectedIncident, setSelectedIncident, setActiveView, playSound, t } = useCivic();
   const [bufferRadius, setBufferRadius] = useState(50);
 
   const incident = selectedIncident || incidents[0];
@@ -27,13 +27,13 @@ export const SpatialDedupVisualizer: React.FC = () => {
         <div>
           <div className="inline-flex items-center space-x-2 px-2.5 py-0.5 rounded bg-blue-50 border border-blue-200 text-blue-900 text-xs font-semibold mb-1">
             <Building className="w-3.5 h-3.5" />
-            <span>POSTGIS GEOSPATIAL CLUSTERING ENGINE (CHENNAI ZONE 13)</span>
+            <span>{t('dedupBadge')}</span>
           </div>
           <h1 className="text-xl sm:text-2xl font-bold text-slate-900 font-sans">
-            50-Meter Haversine Spatial Deduplication Lab
+            {t('dedupHeading')}
           </h1>
           <p className="text-xs sm:text-sm text-slate-600">
-            Automated merging of duplicate citizen reports submitted within a 50m geographical radius into a single master ticket.
+            {t('dedupDesc')}
           </p>
         </div>
 

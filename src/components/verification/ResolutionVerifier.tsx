@@ -18,7 +18,7 @@ import { useCivic } from '../../context/CivicContext';
 import confetti from 'canvas-confetti';
 
 export const ResolutionVerifier: React.FC = () => {
-  const { incidents, selectedIncident, setSelectedIncident, playSound } = useCivic();
+  const { incidents, selectedIncident, setSelectedIncident, playSound, t } = useCivic();
   
   const [sliderPos, setSliderPos] = useState(50);
   const [mode, setMode] = useState<'slider' | 'side_by_side'>('slider');
@@ -45,13 +45,13 @@ export const ResolutionVerifier: React.FC = () => {
         <div>
           <div className="inline-flex items-center space-x-2 px-2.5 py-0.5 rounded bg-green-50 border border-green-200 text-green-900 text-xs font-semibold mb-1">
             <Award className="w-3.5 h-3.5" />
-            <span>MUNICIPAL AUDIT & QUALITY ASSURANCE WING (ISO 9001:2015)</span>
+            <span>{t('resolutionBadge')}</span>
           </div>
           <h1 className="text-xl sm:text-2xl font-bold text-slate-900 font-sans">
-            Before / After Computer Vision Resolution Audit
+            {t('resolutionHeading')}
           </h1>
           <p className="text-xs sm:text-sm text-slate-600">
-            Automated image pair analysis verifying remediated scene clearance, road accessibility, and EXIF GPS correlation.
+            {t('resolutionDesc')}
           </p>
         </div>
 
@@ -65,7 +65,7 @@ export const ResolutionVerifier: React.FC = () => {
                 : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
             }`}
           >
-            Split Comparison Slider
+            {t('splitSliderBtn')}
           </button>
           <button
             onClick={() => setMode('side_by_side')}
@@ -75,7 +75,7 @@ export const ResolutionVerifier: React.FC = () => {
                 : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
             }`}
           >
-            Side-by-Side View
+            {t('sideBySideBtn')}
           </button>
         </div>
       </div>

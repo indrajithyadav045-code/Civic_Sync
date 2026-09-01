@@ -17,10 +17,12 @@ import {
   AlertTriangle,
   Shield,
   Phone,
-  Globe
+  Globe,
+  ChevronDown
 } from 'lucide-react';
 import { useCivic, ActiveView } from '../../context/CivicContext';
 import { SmsSettingsModal } from './SmsSettingsModal';
+import { SUPPORTED_LANGUAGES, Language } from '../../i18n/translations';
 
 export const Header: React.FC = () => {
   const { 
@@ -31,23 +33,29 @@ export const Header: React.FC = () => {
     startHackathonDemo,
     isDemoRunning,
     incidents,
-    alerts
+    alerts,
+    language,
+    setLanguage,
+    t,
+    playSound
   } = useCivic();
 
-  const [language, setLanguage] = useState<'EN' | 'TA'>('EN');
   const [isSmsModalOpen, setIsSmsModalOpen] = useState(false);
+  const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
 
-  const navItems: { id: ActiveView; label: string; icon: React.FC<{ className?: string }>; badge?: number }[] = [
-    { id: 'citizen_home', label: 'Citizen Portal', icon: Activity },
-    { id: 'report_issue', label: 'Lodge Grievance', icon: PlusCircle },
-    { id: 'ai_triage', label: 'AI Triage Audit', icon: Cpu },
-    { id: 'dedup_lab', label: 'Spatial Dedup', icon: Layers, badge: 3 },
-    { id: 'command_map', label: 'GIS Incident Map', icon: Map },
-    { id: 'command_center', label: 'ICCC Operations', icon: LayoutDashboard, badge: incidents.filter(i => i.status !== 'RESOLVED').length },
-    { id: 'disaster_alerts', label: 'Disaster Alerts', icon: Radio, badge: alerts.length },
-    { id: 'case_tracking', label: 'Track Complaint', icon: Search },
-    { id: 'resolution_verification', label: 'Resolution Proof', icon: CheckCircle2 },
-    { id: 'risk_forecast', label: 'Risk Forecast', icon: TrendingUp },
+  const currentLangObj = SUPPORTED_LANGUAGES.find(l => l.code === language) || SUPPORTED_LANGUAGES[0];
+
+  const navItems: { id: ActiveView; labelKey: keyof typeof import('../../i18n/translations').translations.en; icon: React.FC<{ className?: string }>; badge?: number }[] = [
+    { id: 'citizen_home', labelKey: 'navCitizenHome', icon: Activity },
+    { id: 'report_issue', labelKey: 'navReportIssue', icon: PlusCircle },
+    { id: 'ai_triage', labelKey: 'navAiTriage', icon: Cpu },
+    { id: 'dedup_lab', labelKey: 'navDedupLab', icon: Layers, badge: 3 },
+    { id: 'command_map', labelKey: 'navCommandMap', icon: Map },
+    { id: 'command_center', labelKey: 'navCommandCenter', icon: LayoutDashboard, badge: incidents.filter(i => i.status !== 'RESOLVED').length },
+    { id: 'disaster_alerts', labelKey: 'navDisasterAlerts', icon: Radio, badge: alerts.length },
+    { id: 'case_tracking', labelKey: 'navCaseTracking', icon: Search },
+    { id: 'resolution_verification', labelKey: 'navResolutionVerification', icon: CheckCircle2 },
+    { id: 'risk_forecast', labelKey: 'navRiskForecast', icon: TrendingUp },
   ];
 
   return (
@@ -58,17 +66,17 @@ export const Header: React.FC = () => {
       {/* Top Accessibility & Official Helpline Bar */}
       <div className="bg-[#f1f5f9] border-b border-slate-200 px-4 sm:px-8 py-1 flex items-center justify-between text-xs text-slate-700">
         <div className="flex items-center space-x-3">
-          <span className="font-semibold text-slate-900 text-[11px]">GOVERNMENT OF TAMIL NADU</span>
+          <span className="font-semibold text-slate-900 text-[11px]">{t('govTitle')}</span>
           <span className="text-slate-300">|</span>
           <span className="text-[11px] text-slate-600 font-medium hidden sm:inline">
-            GREATER CHENNAI CORPORATION (GCC) • SMART CITY ICCC
+            {t('govSubtitle')}
           </span>
         </div>
 
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-3">
           <div className="flex items-center space-x-1 text-slate-700 font-medium">
             <Phone className="w-3.5 h-3.5 text-blue-700" />
-            <span className="text-[11px]">Emergency Helpline: <strong className="text-blue-900 font-bold">1913</strong></span>
+            <span className="text-[11px]">{t('emergencyHelpline')}</span>
           </div>
 
           <span className="text-slate-300">|</span>
@@ -78,19 +86,52 @@ export const Header: React.FC = () => {
             className="flex items-center space-x-1 px-2 py-0.5 rounded bg-blue-50 hover:bg-blue-100 text-blue-900 border border-blue-200 text-[11px] font-bold transition"
             title="Configure Phone Numbers for SMS Alerts"
           >
-            <span>📱 Live SMS Alerts</span>
+            <span>{t('smsAlertsBtn')}</span>
           </button>
 
           <span className="text-slate-300">|</span>
 
-          {/* Language Switch */}
-          <button
-            onClick={() => setLanguage(language === 'EN' ? 'TA' : 'EN')}
-            className="flex items-center space-x-1 text-[11px] font-semibold text-blue-800 hover:underline"
-          >
-            <Globe className="w-3.5 h-3.5" />
-            <span>{language === 'EN' ? 'தமிழ் (Tamil)' : 'English'}</span>
-          </button>
+          {/* 6-Language Dropdown Selector */}
+          <div className="relative">
+            <button
+              onClick={() => setIsLangDropdownOpen(!isLangDropdownOpen)}
+              className="flex items-center space-x-1 px-2 py-0.5 rounded bg-white hover:bg-slate-100 border border-slate-300 text-[11px] font-bold text-blue-900 transition shadow-sm"
+              title="Select Platform Language"
+            >
+              <Globe className="w-3.5 h-3.5 text-blue-700" />
+              <span>{currentLangObj.flag} {currentLangObj.nativeName}</span>
+              <ChevronDown className="w-3 h-3 text-slate-500" />
+            </button>
+
+            {isLangDropdownOpen && (
+              <div className="absolute right-0 mt-1 w-44 bg-white rounded-lg border border-slate-300 shadow-xl py-1 z-50 font-sans">
+                <div className="px-3 py-1 text-[10px] font-bold uppercase text-slate-400 border-b border-slate-100">
+                  Select Language (6 Languages)
+                </div>
+                {SUPPORTED_LANGUAGES.map((lang) => (
+                  <button
+                    key={lang.code}
+                    onClick={() => {
+                      setLanguage(lang.code);
+                      setIsLangDropdownOpen(false);
+                      playSound('beep');
+                    }}
+                    className={`w-full px-3 py-1.5 text-left text-xs flex items-center justify-between transition ${
+                      language === lang.code 
+                        ? 'bg-blue-50 text-blue-900 font-bold border-l-4 border-blue-800' 
+                        : 'text-slate-700 hover:bg-slate-50'
+                    }`}
+                  >
+                    <span className="flex items-center space-x-1.5">
+                      <span>{lang.flag}</span>
+                      <span>{lang.nativeName}</span>
+                    </span>
+                    <span className="text-[10px] text-slate-400 font-mono">({lang.name})</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
 
           <span className="text-slate-300 hidden md:inline">|</span>
 
@@ -119,14 +160,14 @@ export const Header: React.FC = () => {
             <div>
               <div className="flex items-center space-x-2">
                 <h1 className="font-bold text-lg sm:text-xl text-white tracking-tight leading-none">
-                  CIVIC-SYNC
+                  {t('appTitle')}
                 </h1>
                 <span className="px-2 py-0.5 text-[10px] font-semibold uppercase bg-amber-400 text-slate-900 rounded font-mono">
-                  GCC • ICCC PORTAL
+                  {t('appBadge')}
                 </span>
               </div>
               <p className="text-xs text-slate-200 mt-0.5">
-                Intelligent Citizen-Centric Spatial Governance & Disaster Response Platform
+                {t('appTagline')}
               </p>
             </div>
           </div>
@@ -142,7 +183,7 @@ export const Header: React.FC = () => {
               }`}
             >
               <Play className="w-3.5 h-3.5 fill-current" />
-              <span>{isDemoRunning ? 'EVALUATOR TOUR ACTIVE' : 'EVALUATOR WALKTHROUGH'}</span>
+              <span>{isDemoRunning ? t('evaluatorTourActive') : t('evaluatorTour')}</span>
             </button>
           </div>
         </div>
@@ -165,7 +206,7 @@ export const Header: React.FC = () => {
                 }`}
               >
                 <Icon className="w-3.5 h-3.5" />
-                <span>{item.label}</span>
+                <span>{t(item.labelKey)}</span>
                 {item.badge !== undefined && (
                   <span className={`px-1.5 py-0.2 text-[10px] font-mono rounded ${
                     isActive ? 'bg-white text-blue-900 font-bold' : 'bg-slate-700 text-slate-300'

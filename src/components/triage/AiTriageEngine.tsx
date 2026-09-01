@@ -26,7 +26,8 @@ export const AiTriageEngine: React.FC = () => {
     isTriageActive, 
     runTriageAnimation,
     setActiveView,
-    setSelectedIncident
+    setSelectedIncident,
+    t
   } = useCivic();
 
   const incident = currentTriageIncident || selectedIncident;
@@ -51,12 +52,12 @@ export const AiTriageEngine: React.FC = () => {
           <div>
             <div className="flex items-center space-x-2">
               <span className="px-2 py-0.5 text-[10px] font-bold bg-blue-100 text-blue-900 rounded uppercase">
-                GCC AI TRIAGE ENGINE v3.8 • AUDIT TRAIL
+                {t('triageAuditBadge')}
               </span>
               <span className="text-xs font-mono font-bold text-slate-700">COMPLAINT #{incident.id}</span>
             </div>
             <h1 className="text-lg sm:text-xl font-bold text-slate-900 font-sans mt-0.5">
-              Automated Triage & Inter-Agency Dispatch Audit
+              {t('triageHeading')}
             </h1>
           </div>
         </div>
@@ -68,7 +69,7 @@ export const AiTriageEngine: React.FC = () => {
             className="flex items-center space-x-2 px-3.5 py-2 rounded bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 font-semibold text-xs transition disabled:opacity-50"
           >
             <RotateCw className={`w-3.5 h-3.5 ${isTriageActive ? 'animate-spin text-blue-700' : ''}`} />
-            <span>{isTriageActive ? 'PIPELINE RUNNING...' : 'Re-Run AI Triage'}</span>
+            <span>{isTriageActive ? 'PIPELINE RUNNING...' : t('reRunTriageBtn')}</span>
           </button>
 
           <button
@@ -78,7 +79,7 @@ export const AiTriageEngine: React.FC = () => {
             }}
             className="flex items-center space-x-1.5 px-4 py-2 rounded bg-[#0f2a4a] hover:bg-[#1a3860] text-white font-semibold text-xs transition shadow-sm"
           >
-            <span>Proceed to GCC Operations</span>
+            <span>{t('proceedOperationsBtn')}</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -89,7 +90,7 @@ export const AiTriageEngine: React.FC = () => {
         {/* Category Card */}
         <div className="p-4 rounded-lg gov-card bg-white border border-slate-200 shadow-sm space-y-1.5">
           <div className="text-[11px] font-semibold uppercase text-slate-500 flex items-center justify-between">
-            <span>Classified Category</span>
+            <span>{t('classifiedCategory')}</span>
             <FileCode className="w-3.5 h-3.5 text-slate-400" />
           </div>
           <div className="text-sm sm:text-base font-bold text-slate-900 line-clamp-1">
@@ -103,7 +104,7 @@ export const AiTriageEngine: React.FC = () => {
         {/* Severity Card */}
         <div className="p-4 rounded-lg gov-card bg-white border border-slate-200 shadow-sm space-y-1.5">
           <div className="text-[11px] font-semibold uppercase text-slate-500 flex items-center justify-between">
-            <span>Evaluated Severity</span>
+            <span>{t('evaluatedSeverity')}</span>
             <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
           </div>
           <div className="flex items-center space-x-2">
@@ -126,7 +127,7 @@ export const AiTriageEngine: React.FC = () => {
         {/* Recommended Department Card */}
         <div className="p-4 rounded-lg gov-card bg-white border border-slate-200 shadow-sm space-y-1.5">
           <div className="text-[11px] font-semibold uppercase text-slate-500 flex items-center justify-between">
-            <span>Routed Department</span>
+            <span>{t('routedDepartment')}</span>
             <Building className="w-3.5 h-3.5 text-slate-400" />
           </div>
           <div className="text-sm sm:text-base font-bold text-slate-900 line-clamp-1">
@@ -140,7 +141,7 @@ export const AiTriageEngine: React.FC = () => {
         {/* Contextual SLA Card */}
         <div className="p-4 rounded-lg gov-card bg-white border border-slate-200 shadow-sm space-y-1.5">
           <div className="text-[11px] font-semibold uppercase text-slate-500 flex items-center justify-between">
-            <span>Dynamic Response SLA</span>
+            <span>{t('dynamicSlaLabel')}</span>
             <Clock className="w-3.5 h-3.5 text-green-600" />
           </div>
           <div className="text-lg font-bold text-green-800 font-mono">
@@ -160,7 +161,7 @@ export const AiTriageEngine: React.FC = () => {
           <div className="flex items-center space-x-2">
             <Activity className="w-4 h-4 text-blue-800" />
             <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wide">
-              Automated Decision Sequence Audit (7 Stages)
+              {t('pipelineAuditHeading')}
             </h2>
           </div>
           <span className="text-[11px] text-slate-500 font-semibold">
@@ -216,7 +217,7 @@ export const AiTriageEngine: React.FC = () => {
                 : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
             }`}
           >
-            AI Reasoning & Entity Logs
+            {t('tabAiReasoning')}
           </button>
 
           <button
@@ -227,7 +228,7 @@ export const AiTriageEngine: React.FC = () => {
                 : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
             }`}
           >
-            Computer Vision Bounding ({incident.detectedObjects.length})
+            {t('tabVision')} ({incident.detectedObjects.length})
           </button>
 
           <button
@@ -238,7 +239,7 @@ export const AiTriageEngine: React.FC = () => {
                 : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
             }`}
           >
-            Spatial Dedup & Risk Breakdown
+            {t('tabSpatialRisk')}
           </button>
         </div>
 

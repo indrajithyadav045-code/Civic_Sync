@@ -16,7 +16,7 @@ import {
 import { useCivic } from '../../context/CivicContext';
 
 export const CitizenCaseTracker: React.FC = () => {
-  const { incidents, selectedIncident, setSelectedIncident, setActiveView, playSound } = useCivic();
+  const { incidents, selectedIncident, setSelectedIncident, setActiveView, playSound, t } = useCivic();
   const [searchId, setSearchId] = useState(selectedIncident ? selectedIncident.id : 'CS-7421');
 
   const incident = incidents.find(i => i.id.toLowerCase() === searchId.toLowerCase()) || selectedIncident || incidents[0];
@@ -37,13 +37,13 @@ export const CitizenCaseTracker: React.FC = () => {
         <div>
           <div className="inline-flex items-center space-x-2 px-2.5 py-0.5 rounded bg-blue-50 border border-blue-200 text-blue-900 text-xs font-semibold mb-1">
             <Building className="w-3.5 h-3.5" />
-            <span>GREATER CHENNAI CORPORATION • PUBLIC GRIEVANCE REDRESSAL</span>
+            <span>{t('trackingBadge')}</span>
           </div>
           <h1 className="text-xl sm:text-2xl font-bold text-slate-900 font-sans">
-            Real-Time Grievance Tracking & Telemetry
+            {t('trackingHeading')}
           </h1>
           <p className="text-xs sm:text-sm text-slate-600">
-            Transparent, tamper-proof tracking of your civic incident with live officer telemetry.
+            {t('trackingDesc')}
           </p>
         </div>
 
@@ -60,7 +60,7 @@ export const CitizenCaseTracker: React.FC = () => {
             type="submit"
             className="px-4 py-2 rounded bg-[#0f2a4a] hover:bg-[#1a3860] text-white text-xs font-semibold transition"
           >
-            Track
+            {t('trackBtn')}
           </button>
         </form>
       </div>

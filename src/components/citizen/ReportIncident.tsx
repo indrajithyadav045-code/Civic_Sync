@@ -54,7 +54,7 @@ const PRESET_SCENARIOS = [
 ];
 
 export const ReportIncident: React.FC = () => {
-  const { submitNewReport, setActiveView, runTriageAnimation, playSound } = useCivic();
+  const { submitNewReport, setActiveView, runTriageAnimation, playSound, t } = useCivic();
 
   const [description, setDescription] = useState(PRESET_SCENARIOS[0].text);
   const [imagePreview, setImagePreview] = useState(PRESET_SCENARIOS[0].image);
@@ -164,20 +164,20 @@ export const ReportIncident: React.FC = () => {
         <div>
           <div className="inline-flex items-center space-x-2 px-2.5 py-0.5 rounded bg-blue-50 border border-blue-200 text-blue-900 text-xs font-semibold mb-1">
             <Shield className="w-3.5 h-3.5" />
-            <span>OFFICIAL COMPLAINT REGISTRATION (FORM C-1)</span>
+            <span>{t('reportFormBadge')}</span>
           </div>
           <h1 className="text-2xl font-bold text-slate-900 font-sans">
-            Lodge Citizen Civic Grievance
+            {t('reportFormHeading')}
           </h1>
           <p className="text-xs sm:text-sm text-slate-600">
-            Submit photographic evidence and details. Your report will be automatically geo-clustered with nearby complaints within 50m and routed to the Greater Chennai Corporation.
+            {t('reportFormDesc')}
           </p>
         </div>
 
         {/* Quick presets */}
         <div className="flex flex-col items-start sm:items-end">
           <span className="text-[11px] font-semibold text-slate-600 uppercase mb-1">
-            Official Demo Scenarios:
+            {t('officialScenarios')}
           </span>
           <div className="flex flex-wrap gap-1.5 max-w-md justify-start sm:justify-end">
             {PRESET_SCENARIOS.map((preset, idx) => (
@@ -205,14 +205,14 @@ export const ReportIncident: React.FC = () => {
           <div className="gov-card rounded-lg p-5 bg-white border border-slate-200 shadow-sm space-y-4">
             <div>
               <label className="block text-xs font-bold text-slate-800 uppercase tracking-wide mb-1.5">
-                1. Grievance Description <span className="text-red-600">*</span>
+                {t('fieldDescriptionLabel')} <span className="text-red-600">*</span>
               </label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={4}
                 required
-                placeholder="Provide detailed description of the civic issue (e.g. Heavy rain has blocked 100ft road near school)..."
+                placeholder={t('fieldDescriptionPlaceholder')}
                 className="w-full rounded border border-slate-300 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 p-3 text-sm text-slate-900 placeholder-slate-400 outline-none"
               />
               <div className="flex items-center justify-between text-[11px] text-slate-500 mt-1">
@@ -226,7 +226,7 @@ export const ReportIncident: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-1.5 text-xs font-bold text-slate-800">
                   <MapPin className="w-4 h-4 text-blue-700" />
-                  <span>2. GPS Geo-Location Verification ({gpsMessage})</span>
+                  <span>{t('fieldGpsLabel')} ({gpsMessage})</span>
                 </div>
                 <button
                   type="button"
@@ -234,7 +234,7 @@ export const ReportIncident: React.FC = () => {
                   className="px-2.5 py-1 rounded text-[11px] bg-blue-800 hover:bg-blue-900 text-white font-semibold transition flex items-center space-x-1"
                 >
                   <Navigation className="w-3 h-3" />
-                  <span>Use My Live GPS Location</span>
+                  <span>{t('useLiveGpsBtn')}</span>
                 </button>
               </div>
 
@@ -259,7 +259,7 @@ export const ReportIncident: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Citizen Full Name <span className="text-red-600">*</span>
+                  {t('citizenNameLabel')} <span className="text-red-600">*</span>
                 </label>
                 <input
                   type="text"
@@ -271,7 +271,7 @@ export const ReportIncident: React.FC = () => {
               </div>
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Mobile Number (SMS Updates) <span className="text-red-600">*</span>
+                  {t('mobileNumberLabel')} <span className="text-red-600">*</span>
                 </label>
                 <input
                   type="text"
@@ -290,7 +290,7 @@ export const ReportIncident: React.FC = () => {
           <div className="gov-card rounded-lg p-5 bg-white border border-slate-200 shadow-sm space-y-4">
             <div className="flex items-center justify-between">
               <label className="block text-xs font-bold text-slate-800 uppercase tracking-wide">
-                3. Photographic Evidence
+                {t('evidencePhotoLabel')}
               </label>
               <span className="text-[10px] font-semibold text-green-700">ViT-B Model Ready</span>
             </div>
@@ -341,12 +341,12 @@ export const ReportIncident: React.FC = () => {
               {isSubmitting ? (
                 <>
                   <Cpu className="w-4 h-4 animate-spin" />
-                  <span>INITIALIZING GRIEVANCE TRIAGE PIPELINE...</span>
+                  <span>{t('submittingBtn')}</span>
                 </>
               ) : (
                 <>
                   <Send className="w-4 h-4" />
-                  <span>SUBMIT GRIEVANCE & TRIGGER AI TRIAGE →</span>
+                  <span>{t('submitGrievanceBtn')}</span>
                 </>
               )}
             </button>

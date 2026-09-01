@@ -19,7 +19,7 @@ import {
 import { useCivic } from '../../context/CivicContext';
 
 export const CitizenHome: React.FC = () => {
-  const { setActiveView, incidents, alerts, setSelectedIncident, startHackathonDemo } = useCivic();
+  const { setActiveView, incidents, alerts, setSelectedIncident, startHackathonDemo, t } = useCivic();
 
   const activeAlert = alerts[0];
   const highPriorityIncidents = incidents.filter(i => i.severity === 'CRITICAL' || i.severity === 'HIGH');
@@ -31,15 +31,15 @@ export const CitizenHome: React.FC = () => {
       <div className="gov-card rounded-lg p-6 sm:p-8 bg-white border border-slate-200 shadow-sm">
         <div className="max-w-4xl space-y-3.5">
           <div className="inline-flex items-center space-x-2 px-2.5 py-0.5 rounded bg-blue-50 border border-blue-200 text-blue-900 text-xs font-semibold">
-            <span>OFFICIAL CITIZEN GRIEVANCE & EMERGENCY REDRESSAL SYSTEM</span>
+            <span>{t('homePortalBadge')}</span>
           </div>
 
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 font-sans tracking-tight">
-            Greater Chennai Corporation (GCC) Civic Incident & Disaster Response Platform
+            {t('homeHeading')}
           </h1>
 
           <p className="text-slate-600 text-sm leading-relaxed max-w-3xl">
-            Welcome to the centralized civic grievance portal for Chennai. Powered by spatial intelligence and automated computer vision, every report is geo-verified, checked for 50m spatial duplicates, evaluated against school and hospital safety zones, and dynamically routed to the appropriate municipal department.
+            {t('homeDescription')}
           </p>
 
           {/* Action Buttons */}
@@ -49,7 +49,7 @@ export const CitizenHome: React.FC = () => {
               className="flex items-center space-x-2 px-5 py-2.5 rounded bg-[#0f2a4a] hover:bg-[#1e3a5f] text-white font-semibold text-xs transition shadow-sm"
             >
               <PlusCircle className="w-4 h-4" />
-              <span>Lodge a New Grievance (Instant GPS)</span>
+              <span>{t('homeLodgeBtn')}</span>
             </button>
 
             <button
@@ -57,7 +57,7 @@ export const CitizenHome: React.FC = () => {
               className="flex items-center space-x-2 px-5 py-2.5 rounded bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs transition shadow-sm"
             >
               <FileText className="w-4 h-4" />
-              <span>Evaluator Demo Walkthrough</span>
+              <span>{t('homeDemoBtn')}</span>
             </button>
 
             <button
@@ -65,7 +65,7 @@ export const CitizenHome: React.FC = () => {
               className="flex items-center space-x-2 px-4 py-2.5 rounded bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 text-xs font-semibold transition"
             >
               <Search className="w-3.5 h-3.5 text-slate-500" />
-              <span>Track Complaint Status</span>
+              <span>{t('homeTrackBtn')}</span>
             </button>
           </div>
         </div>
@@ -73,25 +73,25 @@ export const CitizenHome: React.FC = () => {
         {/* Official Governance KPI Metrics Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-100">
           <div className="p-3.5 rounded bg-slate-50 border border-slate-200">
-            <div className="text-xs text-slate-500 font-semibold uppercase">AI Triage Precision</div>
+            <div className="text-xs text-slate-500 font-semibold uppercase">{t('kpiAiTriage')}</div>
             <div className="text-2xl font-bold text-slate-900 mt-1">94.2%</div>
             <div className="text-[11px] text-slate-500 mt-0.5">ViT-B / NLP Validated</div>
           </div>
 
           <div className="p-3.5 rounded bg-slate-50 border border-slate-200">
-            <div className="text-xs text-slate-500 font-semibold uppercase">50m Spatial Dedup</div>
+            <div className="text-xs text-slate-500 font-semibold uppercase">{t('kpiSpatialDedup')}</div>
             <div className="text-2xl font-bold text-blue-800 mt-1">50.0m</div>
             <div className="text-[11px] text-slate-500 mt-0.5">PostGIS Clustering</div>
           </div>
 
           <div className="p-3.5 rounded bg-slate-50 border border-slate-200">
-            <div className="text-xs text-slate-500 font-semibold uppercase">Average Dynamic SLA</div>
+            <div className="text-xs text-slate-500 font-semibold uppercase">{t('kpiDynamicSla')}</div>
             <div className="text-2xl font-bold text-amber-700 mt-1">02h:48m</div>
             <div className="text-[11px] text-slate-500 mt-0.5">Context-Accelerated</div>
           </div>
 
           <div className="p-3.5 rounded bg-slate-50 border border-slate-200">
-            <div className="text-xs text-slate-500 font-semibold uppercase">Resolutions Certified</div>
+            <div className="text-xs text-slate-500 font-semibold uppercase">{t('kpiResolutions')}</div>
             <div className="text-2xl font-bold text-green-700 mt-1">{resolvedCount} Audited</div>
             <div className="text-[11px] text-slate-500 mt-0.5">CV & EXIF Proven</div>
           </div>
@@ -135,13 +135,13 @@ export const CitizenHome: React.FC = () => {
       <div>
         <div className="flex items-center justify-between mb-3">
           <div>
-            <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wide">Key Municipal Capabilities</h2>
+            <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wide">{t('homeKeyCapabilities')}</h2>
           </div>
           <button
             onClick={() => setActiveView('command_map')}
             className="text-xs font-semibold text-blue-700 hover:underline flex items-center space-x-1"
           >
-            <span>Open GIS Operations Map</span>
+            <span>{t('homeOpenGisMap')}</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -155,10 +155,10 @@ export const CitizenHome: React.FC = () => {
               <Cpu className="w-4 h-4" />
             </div>
             <h3 className="font-bold text-slate-900 text-xs mb-1 group-hover:text-blue-700 transition">
-              1. Multi-Stage AI Triage
+              {t('capTriageTitle')}
             </h3>
             <p className="text-xs text-slate-600 leading-relaxed">
-              NLP semantic intent parsing and YOLOv8/ViT damage classification with explainable audit logs.
+              {t('capTriageDesc')}
             </p>
           </div>
 
@@ -170,10 +170,10 @@ export const CitizenHome: React.FC = () => {
               <Layers className="w-4 h-4" />
             </div>
             <h3 className="font-bold text-slate-900 text-xs mb-1 group-hover:text-green-700 transition">
-              2. 50m Spatial Deduplication
+              {t('capDedupTitle')}
             </h3>
             <p className="text-xs text-slate-600 leading-relaxed">
-              PostGIS Haversine clustering merges duplicate citizen complaints within 50m into 1 master work order.
+              {t('capDedupDesc')}
             </p>
           </div>
 
@@ -185,10 +185,10 @@ export const CitizenHome: React.FC = () => {
               <Shield className="w-4 h-4" />
             </div>
             <h3 className="font-bold text-slate-900 text-xs mb-1 group-hover:text-amber-700 transition">
-              3. Spatial Risk Scoring
+              {t('capRiskTitle')}
             </h3>
             <p className="text-xs text-slate-600 leading-relaxed">
-              Computes dynamic 0-100 risk scores cross-referencing school (180m), hospital, and flood basin GIS layers.
+              {t('capRiskDesc')}
             </p>
           </div>
 
@@ -200,10 +200,10 @@ export const CitizenHome: React.FC = () => {
               <CheckCircle2 className="w-4 h-4" />
             </div>
             <h3 className="font-bold text-slate-900 text-xs mb-1 group-hover:text-emerald-700 transition">
-              4. CV Resolution Audit
+              {t('capResolutionTitle')}
             </h3>
             <p className="text-xs text-slate-600 leading-relaxed">
-              Before/After image pair analysis with EXIF geo-correlation certifying 100% remediation.
+              {t('capResolutionDesc')}
             </p>
           </div>
         </div>
@@ -215,14 +215,14 @@ export const CitizenHome: React.FC = () => {
           <div className="flex items-center space-x-2">
             <span className="w-2.5 h-2.5 rounded-full bg-red-600"></span>
             <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wide">
-              Active Municipal Incidents (Chennai Zone 13 - Velachery / Guindy)
+              {t('activeIncidentsHeading')}
             </h2>
           </div>
           <button
             onClick={() => setActiveView('command_center')}
             className="text-xs font-semibold text-blue-700 hover:underline"
           >
-            View Full GCC Operations Board →
+            {t('viewFullOperations')}
           </button>
         </div>
 
