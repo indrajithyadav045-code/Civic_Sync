@@ -38,15 +38,15 @@ export const CitizenHome: React.FC = () => {
         <div className="max-w-4xl space-y-3.5">
           <div className="inline-flex items-center space-x-2 px-2.5 py-0.5 rounded bg-blue-50 border border-blue-200 text-blue-900 text-xs font-semibold">
             <Building2 className="w-3.5 h-3.5" />
-            <span>Smart City Governance & Urban Coordination Platform</span>
+            <span>{t('homePortalBadge')}</span>
           </div>
 
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 font-sans tracking-tight">
-            Greater Chennai Smart City Operations & Citizen Portal
+            {t('homeHeading')}
           </h1>
 
           <p className="text-slate-600 text-sm leading-relaxed max-w-3xl">
-            Unified digital twin platform integrating urban traffic, air quality telemetry, solid waste management, water distribution, street lighting, and AI-powered 50m spatial grievance resolution.
+            {t('homeDescription')}
           </p>
 
           {/* Action Buttons */}
@@ -56,7 +56,7 @@ export const CitizenHome: React.FC = () => {
               className="flex items-center space-x-2 px-5 py-2.5 rounded bg-[#0f2a4a] hover:bg-[#1e3a5f] text-white font-semibold text-xs transition shadow-sm"
             >
               <LayoutDashboard className="w-4 h-4" />
-              <span>Smart City ICCC Command Center</span>
+              <span>{t('icccCommandCenter')}</span>
             </button>
 
             <button
@@ -64,7 +64,7 @@ export const CitizenHome: React.FC = () => {
               className="flex items-center space-x-2 px-5 py-2.5 rounded bg-blue-800 hover:bg-blue-900 text-white font-semibold text-xs transition shadow-sm"
             >
               <Building className="w-4 h-4" />
-              <span>City Digital Twin Map</span>
+              <span>{t('cityDigitalTwinMap')}</span>
             </button>
 
             <button
@@ -80,9 +80,9 @@ export const CitizenHome: React.FC = () => {
         {/* Official Governance KPI Metrics Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-100">
           <div className="p-3.5 rounded bg-slate-50 border border-slate-200">
-            <div className="text-xs text-slate-500 font-semibold uppercase">CITY HEALTH SCORE</div>
+            <div className="text-xs text-slate-500 font-semibold uppercase">{t('cityHealthScore')}</div>
             <div className="text-2xl font-bold text-slate-900 mt-1">{cityHealth.overallScore} / 100</div>
-            <div className="text-[11px] text-emerald-700 font-semibold mt-0.5">Optimal • Live Multi-Signal</div>
+            <div className="text-[11px] text-emerald-700 font-semibold mt-0.5">{t('optimalMultiSignal')}</div>
           </div>
 
           <div className="p-3.5 rounded bg-slate-50 border border-slate-200">
@@ -115,7 +115,7 @@ export const CitizenHome: React.FC = () => {
             <div>
               <div className="flex items-center space-x-2">
                 <span className="px-2 py-0.5 rounded bg-blue-800 text-white font-mono text-[10px] font-bold uppercase tracking-wider">
-                  MUNICIPAL PUBLIC ADVISORY
+                  {t('municipalAdvisoryBadge')}
                 </span>
                 <span className="text-xs text-blue-900 font-bold uppercase">
                   {activeAlert.broadcastChannel}
@@ -126,7 +126,7 @@ export const CitizenHome: React.FC = () => {
                 {activeAlert.message}
               </p>
               <div className="text-[11px] text-slate-600 font-mono mt-1">
-                Advisory Zone: <strong>{activeAlert.targetZone}</strong> • Monitored Corridor: Velachery 100ft Road
+                {t('advisoryZone')}: <strong>{activeAlert.targetZone}</strong> • {t('monitoredCorridor')}
               </div>
             </div>
           </div>
@@ -135,7 +135,7 @@ export const CitizenHome: React.FC = () => {
             onClick={() => setActiveView('disaster_alerts')}
             className="px-4 py-2 rounded bg-blue-800 hover:bg-blue-900 text-white font-semibold text-xs whitespace-nowrap transition shadow-xs flex items-center justify-center space-x-1.5"
           >
-            <span>View Advisory Details</span>
+            <span>{t('viewAdvisoryDetails')}</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -156,9 +156,9 @@ export const CitizenHome: React.FC = () => {
               {smartTraffic.densityPct}% DENSITY
             </span>
           </div>
-          <h4 className="text-xs font-bold text-slate-900">Smart Traffic & Mobility</h4>
+          <h4 className="text-xs font-bold text-slate-900">{t('smartTrafficTitle')}</h4>
           <p className="text-[11px] text-slate-600 line-clamp-2">
-            Adaptive signal control, speed monitoring, and AI route diversions on arterial corridors.
+            {t('smartTrafficDesc')}
           </p>
         </div>
 
@@ -175,9 +175,9 @@ export const CitizenHome: React.FC = () => {
               AQI: {liveAqi?.aqi || 86}
             </span>
           </div>
-          <h4 className="text-xs font-bold text-slate-900">Environment & Clean Air</h4>
+          <h4 className="text-xs font-bold text-slate-900">{t('cleanAirTitle')}</h4>
           <p className="text-[11px] text-slate-600 line-clamp-2">
-            Continuous ambient air monitoring (CPCB), PM2.5/PM10 sensors, and weather Doppler integration.
+            {t('cleanAirDesc')}
           </p>
         </div>
 
@@ -191,12 +191,12 @@ export const CitizenHome: React.FC = () => {
               <Lightbulb className="w-5 h-5" />
             </div>
             <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">
-              94% LIGHTS ACTIVE
+              94% ACTIVE
             </span>
           </div>
-          <h4 className="text-xs font-bold text-slate-900">Smart Waste & Street Lighting</h4>
+          <h4 className="text-xs font-bold text-slate-900">{t('smartWasteTitle')}</h4>
           <p className="text-[11px] text-slate-600 line-clamp-2">
-            LoRaWAN ultrasonic bin fill monitoring and dark zone street light fault detection.
+            {t('smartWasteDesc')}
           </p>
         </div>
 
@@ -210,12 +210,12 @@ export const CitizenHome: React.FC = () => {
               <Droplet className="w-5 h-5" />
             </div>
             <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-cyan-50 text-cyan-800 border border-cyan-200">
-              97% SCADA HEALTH
+              97% SCADA
             </span>
           </div>
-          <h4 className="text-xs font-bold text-slate-900">Water Network & Drainage</h4>
+          <h4 className="text-xs font-bold text-slate-900">{t('waterNetworkTitle')}</h4>
           <p className="text-[11px] text-slate-600 line-clamp-2">
-            Pipeline pressure telemetry, automated leak detection, and storm-water drain surveillance.
+            {t('waterNetworkDesc')}
           </p>
         </div>
       </div>
@@ -278,15 +278,15 @@ export const CitizenHome: React.FC = () => {
               <Building className="w-5 h-5" />
             </div>
             <h3 className="font-bold text-slate-900 text-base">
-              City Digital Twin & Spatial Map
+              {t('featureMapTitle')}
             </h3>
             <p className="text-xs text-slate-600 leading-relaxed">
-              Multi-layer GIS operations map tracking traffic corridors, flood drainage basins, air quality stations, water telemetry, and emergency fleets.
+              {t('featureMapDesc')}
             </p>
           </div>
 
           <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-emerald-900">
-            <span>Open Spatial Twin</span>
+            <span>{t('openSpatialTwin')}</span>
             <ArrowRight className="w-4 h-4" />
           </div>
         </div>
@@ -296,8 +296,8 @@ export const CitizenHome: React.FC = () => {
       <div className="gov-card rounded-lg p-5 bg-white border border-slate-200 shadow-sm space-y-4">
         <div className="flex items-center justify-between pb-3 border-b border-slate-200">
           <div>
-            <h3 className="font-bold text-slate-900 text-base">Public Works & Grievance Redressal Feed</h3>
-            <p className="text-xs text-slate-500">Live municipal work orders triaged and assigned across GCC wards</p>
+            <h3 className="font-bold text-slate-900 text-base">{t('publicWorksFeedHeading')}</h3>
+            <p className="text-xs text-slate-500">{t('publicWorksFeedSubheading')}</p>
           </div>
 
           <button
