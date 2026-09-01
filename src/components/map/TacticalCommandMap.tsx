@@ -16,14 +16,33 @@ import {
   Filter,
   Navigation,
   Crosshair,
-  Building
+  Building,
+  Sliders
 } from 'lucide-react';
 import { useCivic } from '../../context/CivicContext';
 import { SENSITIVE_INFRASTRUCTURE } from '../../data/mockData';
+import { DigitalTwinLayerPanel } from '../smartcity/DigitalTwinLayerPanel';
 import L from 'leaflet';
 
 export const TacticalCommandMap: React.FC = () => {
-  const { incidents, selectedIncident, setSelectedIncident, setActiveView, alerts, playSound, t } = useCivic();
+  const { 
+    incidents, 
+    selectedIncident, 
+    setSelectedIncident, 
+    setActiveView, 
+    alerts, 
+    forecastHotspots,
+    digitalTwinLayers,
+    smartTraffic,
+    smartLighting,
+    smartWaste,
+    smartWater,
+    environmentAqi,
+    emergencyFleet,
+    playSound, 
+    t 
+  } = useCivic();
+
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const userLocationMarkerRef = useRef<L.Marker | null>(null);
@@ -31,23 +50,7 @@ export const TacticalCommandMap: React.FC = () => {
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [isLocating, setIsLocating] = useState(false);
   const [locationStatus, setLocationStatus] = useState<string>('Chennai Default (Velachery)');
-
-  // Toggleable Layer States
-  const [layers, setLayers] = useState({
-    critical: true,
-    high: true,
-    resolved: true,
-    schools: true,
-    hospitals: true,
-    floodZones: true,
-    dedupRings: true,
-    geofenceAlerts: true,
-  });
-
-  const toggleLayer = (key: keyof typeof layers) => {
-    setLayers(prev => ({ ...prev, [key]: !prev[key] }));
-    playSound('beep');
-  };
+  const [showLayerDrawer, setShowLayerDrawer] = useState(false);
 
   // Locate User via Browser Geolocation API
   const handleUseCurrentLocation = () => {
@@ -142,7 +145,7 @@ export const TacticalCommandMap: React.FC = () => {
     });
 
     // 1. Render Chennai Velachery Flood Risk Basin Zone
-    if (layers.floodZones) {
+    if (digitalTwinLayers.floodZones) {
       const floodCoords: [number, number][] = [
         [12.9900, 80.2050],
         [12.9950, 80.2280],
@@ -163,7 +166,7 @@ export const TacticalCommandMap: React.FC = () => {
     }
 
     // 2. Render Geo-fenced Emergency Alerts
-    if (layers.geofenceAlerts && alerts.length > 0) {
+    if (alerts.length > 0) {
       alerts.forEach(alert => {
         L.circle([alert.centerCoordinates.lat, alert.centerCoordinates.lng], {
           radius: alert.areaRadiusMeters,
@@ -183,7 +186,7 @@ export const TacticalCommandMap: React.FC = () => {
     }
 
     // 3. Render Sensitive Infrastructure (Schools & Hospitals)
-    if (layers.schools) {
+    if (digitalTwinLayers.schools) {
       SENSITIVE_INFRASTRUCTURE.filter(i => i.type === 'SCHOOL').forEach(infra => {
         const schoolIcon = L.divIcon({
           className: 'custom-school-icon',
@@ -205,7 +208,7 @@ export const TacticalCommandMap: React.FC = () => {
       });
     }
 
-    if (layers.hospitals) {
+    if (digitalTwinLayers.hospitals) {
       SENSITIVE_INFRASTRUCTURE.filter(i => i.type === 'HOSPITAL').forEach(infra => {
         const hospIcon = L.divIcon({
           className: 'custom-hosp-icon',
@@ -227,91 +230,188 @@ export const TacticalCommandMap: React.FC = () => {
       });
     }
 
-    // 4. Render Incidents & 50m Deduplication Rings
-    incidents.forEach(inc => {
-      if (inc.severity === 'CRITICAL' && !layers.critical) return;
-      if (inc.severity === 'HIGH' && !layers.high) return;
-      if (inc.status === 'RESOLVED' && !layers.resolved) return;
+    // 4. SMART TRAFFIC LAYER (Mount Road & Velachery Arterial)
+    if (digitalTwinLayers.traffic) {
+      const trafficLineCoords: [number, number][] = [
+        [12.9880, 80.2120],
+        [12.9815, 80.2180],
+        [12.9750, 80.2240]
+      ];
+      L.polyline(trafficLineCoords, {
+        color: '#ea580c',
+        weight: 6,
+        opacity: 0.8
+      }).addTo(map).bindTooltip(`🚦 Traffic Density: ${smartTraffic.densityPct}% (${smartTraffic.averageSpeedKmh} km/h - CONGESTED)`, {
+        sticky: true,
+        className: 'font-semibold text-xs bg-slate-900 text-white p-1 rounded'
+      });
+    }
 
-      const isResolved = inc.status === 'RESOLVED';
-      const isCritical = inc.severity === 'CRITICAL';
-      const isSelected = selectedIncident?.id === inc.id;
+    // 5. SMART STREET LIGHTING LAYER (Pole #SL-183)
+    if (digitalTwinLayers.streetLights) {
+      const lightIcon = L.divIcon({
+        className: 'custom-light-icon',
+        html: `<div style="background: #eab308; color: #000; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; font-size: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">💡</div>`,
+        iconSize: [24, 24],
+        iconAnchor: [12, 12]
+      });
+      L.marker([smartLighting.sampleIncident.lat, smartLighting.sampleIncident.lng], { icon: lightIcon }).addTo(map)
+        .bindPopup(`<strong style="color:#b45309;">${smartLighting.sampleIncident.poleId}</strong><br/><span style="font-size:11px;">Status: OFFLINE (Dark Zone Hazard)</span>`);
+    }
 
-      const color = isResolved ? '#15803d' : isCritical ? '#dc2626' : '#0284c7';
+    // 6. SMART WASTE LAYER (Bin #WB-092)
+    if (digitalTwinLayers.wasteBins) {
+      const wasteIcon = L.divIcon({
+        className: 'custom-waste-icon',
+        html: `<div style="background: #15803d; color: #fff; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; font-size: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">🗑️</div>`,
+        iconSize: [24, 24],
+        iconAnchor: [12, 12]
+      });
+      L.marker([smartWaste.lat, smartWaste.lng], { icon: wasteIcon }).addTo(map)
+        .bindPopup(`<strong style="color:#15803d;">${smartWaste.binId}</strong><br/><span style="font-size:11px;">Fill Level: ${smartWaste.fillLevelPct}% (Overflow Risk in ${smartWaste.predictedOverflow})</span>`);
+    }
 
-      // 50m Deduplication Radius Ring
-      if (layers.dedupRings && inc.isPrimaryMaster) {
-        L.circle([inc.coordinates.lat, inc.coordinates.lng], {
-          radius: 50,
-          color: '#475569',
+    // 7. SMART WATER NETWORK LAYER (Pipeline #WN-188)
+    if (digitalTwinLayers.waterNetwork) {
+      const waterIcon = L.divIcon({
+        className: 'custom-water-icon',
+        html: `<div style="background: #0284c7; color: #fff; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; font-size: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">💧</div>`,
+        iconSize: [24, 24],
+        iconAnchor: [12, 12]
+      });
+      L.marker([smartWater.riskPipeline.lat, smartWater.riskPipeline.lng], { icon: waterIcon }).addTo(map)
+        .bindPopup(`<strong style="color:#0284c7;">${smartWater.riskPipeline.id}</strong><br/><span style="font-size:11px;">Leak Risk: HIGH (${smartWater.riskPipeline.estimatedLossLitrePerHour.toLocaleString()} L/hr)</span>`);
+    }
+
+    // 8. AQI / ENVIRONMENT LAYER (Kathipara Hotspot)
+    if (digitalTwinLayers.aqiHotspots) {
+      L.circle([13.0070, 80.2030], {
+        radius: 400,
+        color: '#0d9488',
+        weight: 1.5,
+        dashArray: '3, 3',
+        fillColor: '#2dd4bf',
+        fillOpacity: 0.2
+      }).addTo(map).bindTooltip(`AQI Hotspot: ${environmentAqi.aqi} (PM2.5: ${environmentAqi.pm25} µg/m³)`, {
+        direction: 'center',
+        className: 'font-semibold text-xs bg-slate-900 text-white p-1 rounded'
+      });
+    }
+
+    // 9. EMERGENCY RESPONSE FLEET (AMB-04)
+    if (digitalTwinLayers.emergencyUnits) {
+      const ambIcon = L.divIcon({
+        className: 'custom-amb-icon',
+        html: `<div style="background: #dc2626; color: #fff; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; font-size: 13px; box-shadow: 0 2px 6px rgba(0,0,0,0.4);">🚑</div>`,
+        iconSize: [28, 28],
+        iconAnchor: [14, 14]
+      });
+      L.marker([emergencyFleet.activeIncidentDispatch.lat, emergencyFleet.activeIncidentDispatch.lng], { icon: ambIcon }).addTo(map)
+        .bindPopup(`<strong style="color:#dc2626;">${emergencyFleet.activeIncidentDispatch.nearestUnit}</strong><br/><span style="font-size:11px;">Status: ${emergencyFleet.activeIncidentDispatch.status} (ETA: ${emergencyFleet.activeIncidentDispatch.etaMinutesSeconds})</span>`);
+    }
+
+    // 10. PREDICTIVE RISK FORECAST ZONES
+    if (digitalTwinLayers.riskForecastZones) {
+      forecastHotspots.forEach(hotspot => {
+        const strokeColor = hotspot.riskTier === 'HIGH_RISK' ? '#dc2626' : hotspot.riskTier === 'MEDIUM_RISK' ? '#d97706' : '#15803d';
+        L.circle([hotspot.center.lat, hotspot.center.lng], {
+          radius: hotspot.radius,
+          color: strokeColor,
           weight: 1.5,
           dashArray: '4, 4',
-          fillColor: '#94a3b8',
-          fillOpacity: 0.15
-        }).addTo(map).bindTooltip(`50m PostGIS Dedup Buffer (${inc.duplicates.length} merged)`, {
+          fillColor: strokeColor,
+          fillOpacity: 0.12
+        }).addTo(map).bindTooltip(`Forecast (6h): ${hotspot.zoneName} (${hotspot.predictedScore}/100)`, {
           direction: 'top',
-          className: 'text-[11px] bg-white text-slate-800 border border-slate-300 font-semibold p-1 rounded'
+          className: 'text-[11px] bg-slate-900 text-white p-1 rounded font-semibold'
         });
-      }
-
-      // Incident Pin Icon
-      const markerHtml = `
-        <div style="
-          background: ${color}; 
-          color: #ffffff; 
-          width: ${isSelected ? '30px' : '24px'}; 
-          height: ${isSelected ? '30px' : '24px'}; 
-          border-radius: 50%; 
-          display: flex; 
-          align-items: center; 
-          justify-content: center; 
-          border: 2px solid #ffffff; 
-          font-weight: bold; 
-          font-size: 11px; 
-          box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-        ">
-          ${isResolved ? '✓' : '!'}
-        </div>
-      `;
-
-      const marker = L.marker([inc.coordinates.lat, inc.coordinates.lng], {
-        icon: L.divIcon({
-          className: 'custom-incident-pin',
-          html: markerHtml,
-          iconSize: [26, 26],
-          iconAnchor: [13, 13]
-        })
-      }).addTo(map);
-
-      marker.on('click', () => {
-        setSelectedIncident(inc);
-        playSound('beep');
       });
+    }
 
-      marker.bindPopup(`
-        <div style="font-family: 'Inter', sans-serif; min-width: 220px; padding: 2px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-            <span style="color:${color}; font-weight:bold; font-family:monospace; font-size:12px;">#${inc.id}</span>
-            <span style="font-size:10px; font-weight:bold; background:#f1f5f9; padding:2px 6px; border-radius:4px; color:#1e293b;">
-              ${inc.severity}
-            </span>
-          </div>
-          <div style="color:#0f172a; font-weight:bold; font-size:13px; margin-bottom:4px;">${inc.title}</div>
-          <div style="color:#64748b; font-size:11px; margin-bottom:8px;">${inc.locationName}</div>
-          <div style="font-family:monospace; font-size:11px; color:#0369a1; margin-bottom:6px;">
-            SLA: ${Math.floor(inc.sla.remainingSeconds / 3600)}h ${Math.floor((inc.sla.remainingSeconds % 3600) / 60)}m | Risk: ${inc.risk.totalScore}/100
-          </div>
-          <div style="border-top:1px solid #e2e8f0; padding-top:6px; font-size:11px; color:#15803d; font-weight:600;">
-            ${inc.duplicates.length} duplicate complaints merged (50m radius)
-          </div>
-        </div>
-      `);
-    });
+    // 11. Render Incidents & 50m Deduplication Rings
+    if (digitalTwinLayers.incidents) {
+      incidents.forEach(inc => {
+        if (inc.severity === 'CRITICAL' && !digitalTwinLayers.criticalIncidents) return;
+        if (inc.severity === 'HIGH' && !digitalTwinLayers.highPriority) return;
 
-  }, [incidents, layers, selectedIncident, alerts]);
+        const isResolved = inc.status === 'RESOLVED';
+        const isCritical = inc.severity === 'CRITICAL';
+        const isSelected = selectedIncident?.id === inc.id;
+
+        const color = isResolved ? '#15803d' : isCritical ? '#dc2626' : '#0284c7';
+
+        // 50m Deduplication Radius Ring
+        if (digitalTwinLayers.dedupRadius50m && inc.isPrimaryMaster) {
+          L.circle([inc.coordinates.lat, inc.coordinates.lng], {
+            radius: 50,
+            color: '#475569',
+            weight: 1.5,
+            dashArray: '4, 4',
+            fillColor: '#94a3b8',
+            fillOpacity: 0.15
+          }).addTo(map).bindTooltip(`50m PostGIS Dedup Buffer (${inc.duplicates.length} merged)`, {
+            direction: 'top',
+            className: 'text-[11px] bg-white text-slate-800 border border-slate-300 font-semibold p-1 rounded'
+          });
+        }
+
+        // Incident Pin Icon
+        const markerHtml = `
+          <div style="
+            background: ${color}; 
+            color: #ffffff; 
+            width: ${isSelected ? '30px' : '24px'}; 
+            height: ${isSelected ? '30px' : '24px'}; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            border: 2px solid #ffffff; 
+            font-weight: bold; 
+            font-size: 11px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+          ">
+            ${isResolved ? '✓' : '!'}
+          </div>
+        `;
+
+        const marker = L.marker([inc.coordinates.lat, inc.coordinates.lng], {
+          icon: L.divIcon({
+            className: 'custom-incident-pin',
+            html: markerHtml,
+            iconSize: [26, 26],
+            iconAnchor: [13, 13]
+          })
+        }).addTo(map);
+
+        marker.on('click', () => {
+          setSelectedIncident(inc);
+          playSound('beep');
+        });
+
+        marker.bindPopup(`
+          <div style="font-family: 'Inter', sans-serif; min-width: 220px; padding: 2px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+              <span style="color:${color}; font-weight:bold; font-family:monospace; font-size:12px;">#${inc.id}</span>
+              <span style="font-size:10px; font-weight:bold; background:#f1f5f9; padding:2px 6px; border-radius:4px; color:#1e293b;">
+                ${inc.severity}
+              </span>
+            </div>
+            <div style="color:#0f172a; font-weight:bold; font-size:13px; margin-bottom:4px;">${inc.title}</div>
+            <div style="color:#64748b; font-size:11px; margin-bottom:8px;">${inc.locationName}</div>
+            <div style="display:flex; justify-content:space-between; font-size:11px; border-top:1px solid #e2e8f0; padding-top:4px;">
+              <span>SLA Remaining:</span>
+              <strong style="color:#0284c7; font-family:monospace;">${Math.floor(inc.sla.remainingSeconds / 3600)}h ${Math.floor((inc.sla.remainingSeconds % 3600) / 60)}m</strong>
+            </div>
+          </div>
+        `);
+      });
+    }
+
+  }, [incidents, selectedIncident, alerts, digitalTwinLayers, forecastHotspots, smartTraffic, smartLighting, smartWaste, smartWater, environmentAqi, emergencyFleet]);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
       {/* Top Map Header */}
       <div className="gov-card rounded-lg p-4 bg-white border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center space-x-3">
@@ -326,13 +426,21 @@ export const TacticalCommandMap: React.FC = () => {
               <span className="text-xs text-slate-500 font-mono">{locationStatus}</span>
             </div>
             <h1 className="text-base sm:text-lg font-bold text-slate-900 font-sans mt-0.5">
-              {t('mapHeading')}
+              City Digital Twin & Spatial Operations Map
             </h1>
           </div>
         </div>
 
         {/* Action Shortcuts */}
         <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={() => setShowLayerDrawer(!showLayerDrawer)}
+            className="flex items-center space-x-1.5 px-3.5 py-1.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 text-xs font-semibold transition"
+          >
+            <Sliders className="w-3.5 h-3.5" />
+            <span>{showLayerDrawer ? 'Hide Layers' : 'Digital Twin Layers'}</span>
+          </button>
+
           <button
             onClick={handleUseCurrentLocation}
             disabled={isLocating}
@@ -344,143 +452,60 @@ export const TacticalCommandMap: React.FC = () => {
 
           <button
             onClick={() => setActiveView('disaster_alerts')}
-            className="flex items-center space-x-1.5 px-3 py-1.5 rounded bg-red-50 hover:bg-red-100 text-red-800 border border-red-200 text-xs font-semibold transition"
+            className="flex items-center space-x-1.5 px-3.5 py-1.5 rounded bg-red-50 hover:bg-red-100 text-red-800 border border-red-200 text-xs font-semibold transition"
           >
             <Radio className="w-3.5 h-3.5" />
             <span>{t('issueGeoAlertBtn')}</span>
           </button>
-
-          <button
-            onClick={() => setActiveView('command_center')}
-            className="flex items-center space-x-1.5 px-3 py-1.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold transition border border-slate-300"
-          >
-            <span>GCC Kanban</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
         </div>
       </div>
 
-      {/* Layer Filter Toolbar */}
-      <div className="gov-card rounded-lg p-2.5 bg-white border border-slate-200 shadow-sm flex items-center space-x-2 overflow-x-auto text-xs">
-        <span className="text-slate-700 font-bold flex items-center space-x-1 pl-1 pr-2 shrink-0">
-          <Filter className="w-3.5 h-3.5 text-blue-800" />
-          <span>GIS LAYERS:</span>
-        </span>
+      {/* Collapsible Layer Control Panel */}
+      {showLayerDrawer && (
+        <DigitalTwinLayerPanel />
+      )}
 
-        <button
-          onClick={() => toggleLayer('critical')}
-          className={`px-2.5 py-1 rounded border transition shrink-0 font-medium ${
-            layers.critical ? 'bg-red-100 text-red-800 border-red-300' : 'bg-slate-50 text-slate-500 border-slate-200'
-          }`}
-        >
-          🔴 Critical Hazards (T. Nagar)
-        </button>
+      {/* Main Map Canvas */}
+      <div className="gov-card rounded-lg overflow-hidden bg-white border border-slate-200 shadow-sm relative">
+        <div 
+          ref={mapContainerRef} 
+          className="w-full h-[540px] z-0"
+        />
 
-        <button
-          onClick={() => toggleLayer('high')}
-          className={`px-2.5 py-1 rounded border transition shrink-0 font-medium ${
-            layers.high ? 'bg-blue-100 text-blue-800 border-blue-300' : 'bg-slate-50 text-slate-500 border-slate-200'
-          }`}
-        >
-          🔵 High Priority (Velachery)
-        </button>
-
-        <button
-          onClick={() => toggleLayer('schools')}
-          className={`px-2.5 py-1 rounded border transition shrink-0 font-medium ${
-            layers.schools ? 'bg-amber-100 text-amber-800 border-amber-300' : 'bg-slate-50 text-slate-500 border-slate-200'
-          }`}
-        >
-          🏫 Schools Buffer (200m)
-        </button>
-
-        <button
-          onClick={() => toggleLayer('hospitals')}
-          className={`px-2.5 py-1 rounded border transition shrink-0 font-medium ${
-            layers.hospitals ? 'bg-indigo-100 text-indigo-800 border-indigo-300' : 'bg-slate-50 text-slate-500 border-slate-200'
-          }`}
-        >
-          🏥 Hospitals Corridor (300m)
-        </button>
-
-        <button
-          onClick={() => toggleLayer('floodZones')}
-          className={`px-2.5 py-1 rounded border transition shrink-0 font-medium ${
-            layers.floodZones ? 'bg-sky-100 text-sky-800 border-sky-300' : 'bg-slate-50 text-slate-500 border-slate-200'
-          }`}
-        >
-          🌊 Flood Drainage Basin
-        </button>
-
-        <button
-          onClick={() => toggleLayer('dedupRings')}
-          className={`px-2.5 py-1 rounded border transition shrink-0 font-medium ${
-            layers.dedupRings ? 'bg-purple-100 text-purple-800 border-purple-300' : 'bg-slate-50 text-slate-500 border-slate-200'
-          }`}
-        >
-          🎯 50m Dedup Rings
-        </button>
-      </div>
-
-      {/* Main Map Viewport */}
-      <div className="relative rounded-lg overflow-hidden border border-slate-300 bg-slate-100 shadow-sm h-[540px]">
-        <div ref={mapContainerRef} className="w-full h-full" />
-
-        {/* Selected Incident Floating Detail Card */}
-        {selectedIncident && (
-          <div className="absolute top-4 left-4 z-[1000] w-80 sm:w-96 bg-white rounded-lg p-4 border border-slate-300 shadow-lg space-y-2.5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2 font-mono text-xs">
-                <span className="text-blue-900 font-bold">#{selectedIncident.id}</span>
-                <span className={`px-1.5 py-0.2 rounded text-[10px] font-bold ${
-                  selectedIncident.severity === 'CRITICAL' 
-                    ? 'bg-red-100 text-red-800 border border-red-200' 
-                    : 'bg-blue-100 text-blue-800 border border-blue-200'
-                }`}>
-                  {selectedIncident.severity}
-                </span>
-              </div>
-              <span className="text-xs font-bold text-slate-700">
-                Risk Score: {selectedIncident.risk.totalScore}/100
-              </span>
+        {/* Map Legend Footer */}
+        <div className="p-3 bg-white border-t border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-700">
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="font-bold text-slate-900 text-[11px] uppercase">LEGEND:</span>
+            <div className="flex items-center space-x-1.5">
+              <span className="w-3 h-3 rounded-full bg-red-600 inline-block"></span>
+              <span className="text-[11px]">Critical Incident</span>
             </div>
-
-            <div>
-              <h3 className="font-bold text-slate-900 text-sm leading-snug">{selectedIncident.title}</h3>
-              <p className="text-xs text-slate-600 mt-0.5 line-clamp-2">{selectedIncident.description}</p>
+            <div className="flex items-center space-x-1.5">
+              <span className="w-3 h-3 rounded-full bg-blue-600 inline-block"></span>
+              <span className="text-[11px]">High / Medium</span>
             </div>
-
-            <div className="grid grid-cols-2 gap-2 text-[11px] font-mono pt-2 border-t border-slate-200">
-              <div className="p-1.5 rounded bg-slate-50 border border-slate-200">
-                <span className="text-slate-500 block text-[9px]">SLA REMAINING</span>
-                <span className="text-amber-800 font-bold">
-                  {Math.floor(selectedIncident.sla.remainingSeconds / 3600)}h {Math.floor((selectedIncident.sla.remainingSeconds % 3600) / 60)}m
-                </span>
-              </div>
-              <div className="p-1.5 rounded bg-slate-50 border border-slate-200">
-                <span className="text-slate-500 block text-[9px]">50M DEDUP</span>
-                <span className="text-purple-800 font-bold">
-                  {selectedIncident.duplicates.length} Duplicates Merged
-                </span>
-              </div>
+            <div className="flex items-center space-x-1.5">
+              <span className="w-3 h-3 rounded-full bg-green-600 inline-block"></span>
+              <span className="text-[11px]">Resolved</span>
             </div>
-
-            <div className="flex items-center space-x-2 pt-1">
-              <button
-                onClick={() => setActiveView('ai_triage')}
-                className="flex-1 py-1.5 rounded bg-blue-50 hover:bg-blue-100 text-blue-900 border border-blue-200 text-xs font-semibold transition text-center"
-              >
-                Inspect AI Triage
-              </button>
-              <button
-                onClick={() => setActiveView('case_tracking')}
-                className="flex-1 py-1.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 text-xs font-semibold transition text-center"
-              >
-                Track Case
-              </button>
+            <div className="flex items-center space-x-1.5">
+              <span className="w-3 h-3 rounded-full bg-orange-600 inline-block"></span>
+              <span className="text-[11px]">Traffic Congestion</span>
+            </div>
+            <div className="flex items-center space-x-1.5">
+              <span className="w-3 h-3 rounded-full bg-amber-500 inline-block"></span>
+              <span className="text-[11px]">School Buffer (180m)</span>
+            </div>
+            <div className="flex items-center space-x-1.5">
+              <span className="w-3 h-3 rounded-full bg-cyan-500 inline-block"></span>
+              <span className="text-[11px]">Water / Flood Basin</span>
             </div>
           </div>
-        )}
+
+          <div className="text-[11px] font-mono text-slate-500">
+            PostGIS EPSG:4326 • Leaflet CartoDB
+          </div>
+        </div>
       </div>
     </div>
   );

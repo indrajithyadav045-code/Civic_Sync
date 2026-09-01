@@ -1,6 +1,36 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Incident, EmergencyBroadcast, ForecastHotspot, IncidentStatus } from '../types';
+import { 
+  Incident, 
+  EmergencyBroadcast, 
+  ForecastHotspot, 
+  IncidentStatus,
+  CityHealthMetrics,
+  SmartTrafficData,
+  FloodDrainageIntelligence,
+  SmartStreetLighting,
+  SmartWasteData,
+  SmartWaterData,
+  EnvironmentAqiData,
+  EmergencyFleetTelemetry,
+  SmartParkingData,
+  CityLiveEvent,
+  AiCityInsight,
+  DigitalTwinLayers
+} from '../types';
 import { MOCK_INCIDENTS, MOCK_EMERGENCY_ALERTS, MOCK_FORECAST_HOTSPOTS } from '../data/mockData';
+import { 
+  MOCK_CITY_HEALTH, 
+  MOCK_SMART_TRAFFIC, 
+  MOCK_FLOOD_INTELLIGENCE, 
+  MOCK_SMART_LIGHTING, 
+  MOCK_SMART_WASTE, 
+  MOCK_SMART_WATER, 
+  MOCK_ENVIRONMENT_AQI, 
+  MOCK_EMERGENCY_FLEET, 
+  MOCK_SMART_PARKING, 
+  MOCK_LIVE_EVENTS, 
+  MOCK_AI_CITY_INSIGHT,
+  INITIAL_DIGITAL_TWIN_LAYERS
+} from '../data/smartCityData';
 import { simulateNlpTriage, simulateVisionAnalysis, runSpatialDeduplication, calculateSpatialRisk } from '../services/aiEngine';
 
 import { Language, translations } from '../i18n/translations';
@@ -40,6 +70,23 @@ interface CivicContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   t: (key: keyof typeof translations.en) => string;
+
+  // Smart City Digital Twin & Subsystems
+  cityHealth: CityHealthMetrics;
+  smartTraffic: SmartTrafficData;
+  floodIntelligence: FloodDrainageIntelligence;
+  smartLighting: SmartStreetLighting;
+  smartWaste: SmartWasteData;
+  smartWater: SmartWaterData;
+  environmentAqi: EnvironmentAqiData;
+  emergencyFleet: EmergencyFleetTelemetry;
+  smartParking: SmartParkingData;
+  liveEvents: CityLiveEvent[];
+  aiCityInsight: AiCityInsight;
+  digitalTwinLayers: DigitalTwinLayers;
+  toggleDigitalTwinLayer: (layerKey: keyof DigitalTwinLayers) => void;
+  highlightedSystemCategory: string | null;
+  setHighlightedSystemCategory: (cat: string | null) => void;
 
   // Submit workflow
   submitNewReport: (text: string, imageUrl: string, lat: number, lng: number, citizenName: string, phone: string) => Promise<Incident>;
@@ -151,6 +198,28 @@ export const CivicProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [alerts, setAlerts] = useState<EmergencyBroadcast[]>(MOCK_EMERGENCY_ALERTS);
   const [forecastHotspots] = useState<ForecastHotspot[]>(MOCK_FORECAST_HOTSPOTS);
   const [soundEnabled, setSoundEnabled] = useState(true);
+
+  // Smart City Subsystem States
+  const [cityHealth, setCityHealth] = useState<CityHealthMetrics>(MOCK_CITY_HEALTH);
+  const [smartTraffic, setSmartTraffic] = useState<SmartTrafficData>(MOCK_SMART_TRAFFIC);
+  const [floodIntelligence, setFloodIntelligence] = useState<FloodDrainageIntelligence>(MOCK_FLOOD_INTELLIGENCE);
+  const [smartLighting, setSmartLighting] = useState<SmartStreetLighting>(MOCK_SMART_LIGHTING);
+  const [smartWaste, setSmartWaste] = useState<SmartWasteData>(MOCK_SMART_WASTE);
+  const [smartWater, setSmartWater] = useState<SmartWaterData>(MOCK_SMART_WATER);
+  const [environmentAqi, setEnvironmentAqi] = useState<EnvironmentAqiData>(MOCK_ENVIRONMENT_AQI);
+  const [emergencyFleet, setEmergencyFleet] = useState<EmergencyFleetTelemetry>(MOCK_EMERGENCY_FLEET);
+  const [smartParking, setSmartParking] = useState<SmartParkingData>(MOCK_SMART_PARKING);
+  const [liveEvents, setLiveEvents] = useState<CityLiveEvent[]>(MOCK_LIVE_EVENTS);
+  const [aiCityInsight, setAiCityInsight] = useState<AiCityInsight>(MOCK_AI_CITY_INSIGHT);
+  const [digitalTwinLayers, setDigitalTwinLayers] = useState<DigitalTwinLayers>(INITIAL_DIGITAL_TWIN_LAYERS);
+  const [highlightedSystemCategory, setHighlightedSystemCategory] = useState<string | null>(null);
+
+  const toggleDigitalTwinLayer = (layerKey: keyof DigitalTwinLayers) => {
+    setDigitalTwinLayers(prev => ({
+      ...prev,
+      [layerKey]: !prev[layerKey]
+    }));
+  };
 
   // Multilingual State (Defaults to English, supports Tamil, Telugu, Kannada, Malayalam, Hindi)
   const [language, setLanguageState] = useState<Language>(() => {
@@ -402,6 +471,21 @@ export const CivicProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         language,
         setLanguage,
         t,
+        cityHealth,
+        smartTraffic,
+        floodIntelligence,
+        smartLighting,
+        smartWaste,
+        smartWater,
+        environmentAqi,
+        emergencyFleet,
+        smartParking,
+        liveEvents,
+        aiCityInsight,
+        digitalTwinLayers,
+        toggleDigitalTwinLayer,
+        highlightedSystemCategory,
+        setHighlightedSystemCategory,
         submitNewReport,
         updateIncidentStatus,
         createEmergencyAlert,

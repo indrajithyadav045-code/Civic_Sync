@@ -165,3 +165,150 @@ export interface ForecastHotspot {
   precipitationForecastMm: number;
   drainageCapacityPct: number;
 }
+
+// ==========================================
+// NEW SMART CITY DIGITAL TWIN & INTELLIGENCE TYPES
+// ==========================================
+
+export interface CityHealthMetrics {
+  overallScore: number;
+  mobility: number;
+  safety: number;
+  environment: number;
+  infrastructure: number;
+  emergency: number;
+  activeTrend: 'UP' | 'STABLE' | 'DOWN';
+  status: 'OPTIMAL' | 'MODERATE' | 'CRITICAL';
+}
+
+export interface SmartTrafficData {
+  corridor: string;
+  congestion: 'HIGH' | 'MODERATE' | 'LOW';
+  densityPct: number;
+  averageSpeedKmh: number;
+  activeBlockages: number;
+  activeAccidents: number;
+  aiRecommendation: string;
+  cameraFeedUrl?: string;
+}
+
+export interface FloodDrainageIntelligence {
+  ward: string;
+  riskScore: number; // 0-100
+  waterLevelFeet: number;
+  rainfallMmHr: number;
+  drainageFlowPct: number;
+  signals: string[];
+  recommendedActions: string[];
+  nearbyReportsCount: number;
+  sensitiveProximity: string;
+}
+
+export interface SmartStreetLighting {
+  operationalPct: number;
+  faultyPct: number;
+  darkZonesCount: number;
+  sampleIncident: {
+    poleId: string;
+    ward: string;
+    status: 'ONLINE' | 'OFFLINE' | 'DEGRADED';
+    aiPriority: 'HIGH' | 'MEDIUM' | 'LOW';
+    reason: string;
+    lat: number;
+    lng: number;
+  };
+}
+
+export interface SmartWasteData {
+  ward: string;
+  binId: string;
+  fillLevelPct: number;
+  status: 'NORMAL' | 'OVERFLOW_RISK' | 'OVERFLOWED';
+  predictedOverflow: string;
+  recommendedAction: string;
+  lat: number;
+  lng: number;
+}
+
+export interface SmartWaterData {
+  networkHealthPct: number;
+  normalPipeline: { id: string; pressure: string };
+  riskPipeline: {
+    id: string;
+    leakRisk: 'HIGH' | 'MODERATE' | 'LOW';
+    estimatedLossLitrePerHour: number;
+    recommendedAction: string;
+    lat: number;
+    lng: number;
+  };
+}
+
+export interface EnvironmentAqiData {
+  aqi: number;
+  pm25: number;
+  pm10: number;
+  pollutionHotspot: string;
+  exposureRisk: 'HIGH' | 'MEDIUM' | 'LOW';
+  temperatureC: number;
+  humidityPct: number;
+}
+
+export interface EmergencyFleetTelemetry {
+  ambulancesAvailable: number;
+  fireUnitsAvailable: number;
+  policeAvailable: number;
+  activeIncidentDispatch: {
+    incidentId: string;
+    nearestUnit: string;
+    etaMinutesSeconds: string;
+    status: 'DISPATCHED' | 'EN_ROUTE' | 'ON_SCENE';
+    lat: number;
+    lng: number;
+  };
+}
+
+export interface SmartParkingData {
+  zone: string;
+  occupancyPct: number;
+  availableSpaces: number;
+  totalCapacity: number;
+  violationsCount: number;
+  aiRecommendation: string;
+}
+
+export interface CityLiveEvent {
+  id: string;
+  timestamp: string;
+  category: 'FLOOD' | 'TRAFFIC' | 'LIGHTING' | 'WASTE' | 'EMERGENCY' | 'WATER' | 'AQI';
+  title: string;
+  location: string;
+  severity: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'INFO';
+  iconName?: string;
+}
+
+export interface AiCityInsight {
+  alertLevel: 'CRITICAL_WARNING' | 'ADVISORY' | 'STABLE';
+  headline: string;
+  zone: string;
+  confidencePct: number;
+  signals: string[];
+  recommendedActions: string[];
+  predictedImpactCitizens: number;
+}
+
+export interface DigitalTwinLayers {
+  incidents: boolean;
+  criticalIncidents: boolean;
+  highPriority: boolean;
+  dedupRadius50m: boolean;
+  floodZones: boolean;
+  schools: boolean;
+  hospitals: boolean;
+  traffic: boolean;
+  streetLights: boolean;
+  wasteBins: boolean;
+  waterNetwork: boolean;
+  aqiHotspots: boolean;
+  emergencyUnits: boolean;
+  riskForecastZones: boolean;
+}
