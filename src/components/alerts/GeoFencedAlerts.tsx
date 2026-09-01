@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Radio, 
   AlertTriangle, 
@@ -9,9 +9,18 @@ import {
   CheckCircle2, 
   Volume2,
   Layers,
-  Building
+  Building,
+  Smartphone,
+  Plus
 } from 'lucide-react';
 import { useCivic } from '../../context/CivicContext';
+import { 
+  getStoredRecipients, 
+  saveStoredRecipients, 
+  dispatchSmsAlert, 
+  SmsRecipient, 
+  SmsDispatchResult 
+} from '../../services/smsService';
 
 export const GeoFencedAlerts: React.FC = () => {
   const { alerts, createEmergencyAlert, playSound, setActiveView } = useCivic();
@@ -28,14 +37,28 @@ export const GeoFencedAlerts: React.FC = () => {
     siren: false
   });
   const [isBroadcasting, setIsBroadcasting] = useState(false);
+  const [recipients, setRecipients] = useState<SmsRecipient[]>(getStoredRecipients());
+  const [smsDeliveryLog, setSmsDeliveryLog] = useState<SmsDispatchResult[] | null>(null);
 
   const areaM2 = Math.PI * Math.pow(radiusMeters, 2);
   const calculatedAffectedCitizens = Math.round((areaM2 / 1000) * 2.15);
 
-  const handleBroadcast = (e: React.FormEvent) => {
+  const handleUpdatePhone = (id: string, phone: string) => {
+    const updated = recipients.map(r => r.id === id ? { ...r, phone } : r);
+    setRecipients(updated);
+    saveStoredRecipients(updated);
+  };
+
+  const handleBroadcast = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsBroadcasting(true);
     playSound('alert');
+
+    // Trigger SMS to configured phone numbers (User + Friend)
+    if (channels.sms) {
+      const results = await dispatchSmsAlert(alertTitle, alertMessage, recipients);
+      setSmsDeliveryLog(results);
+    }
 
     setTimeout(() => {
       const selectedChannels: ('SMS_CELL_BROADCAST' | 'MOBILE_APP_PUSH' | 'DIGITAL_SIGNAGE' | 'SIREN_NETWORK')[] = [];
@@ -58,7 +81,7 @@ export const GeoFencedAlerts: React.FC = () => {
 
       setIsBroadcasting(false);
       playSound('success');
-    }, 1000);
+    }, 1200);
   };
 
   return (
@@ -198,6 +221,34 @@ export const GeoFencedAlerts: React.FC = () => {
               </div>
             </div>
 
+            {/* SMS Mobile Recipient Inputs */}
+            {channels.sms && (
+              <div className="p-3.5 rounded bg-blue-50 border border-blue-200 space-y-2">
+                <div className="flex items-center justify-between text-xs font-bold text-blue-900">
+                  <span className="flex items-center space-x-1.5">
+                    <Smartphone className="w-4 h-4 text-blue-800" />
+                    <span>Live SMS Recipient Numbers (Your Phone & Friend's Phone)</span>
+                  </span>
+                  <span className="text-[10px] text-blue-700 font-normal">Fast2SMS / 3GPP Gateway</span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {recipients.map((rec) => (
+                    <div key={rec.id} className="space-y-0.5">
+                      <span className="text-[10px] font-semibold text-slate-600 uppercase">{rec.name}:</span>
+                      <input
+                        type="tel"
+                        placeholder="+91 98401 23456"
+                        value={rec.phone}
+                        onChange={(e) => handleUpdatePhone(rec.id, e.target.value)}
+                        className="w-full px-2.5 py-1.5 rounded border border-slate-300 text-xs font-mono text-slate-900 bg-white"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Broadcast Action Button */}
             <button
               type="submit"
@@ -212,10 +263,32 @@ export const GeoFencedAlerts: React.FC = () => {
               ) : (
                 <>
                   <Send className="w-4 h-4" />
-                  <span>DISPATCH EMERGENCY BROADCAST ({calculatedAffectedCitizens.toLocaleString()} CITIZENS)</span>
+                  <span>DISPATCH EMERGENCY BROADCAST & SEND LIVE SMS</span>
                 </>
               )}
             </button>
+
+            {/* Live SMS Delivery Confirmation Log */}
+            {smsDeliveryLog && (
+              <div className="p-3 rounded bg-green-50 border border-green-200 space-y-1.5 font-mono text-xs">
+                <div className="flex items-center justify-between text-green-900 font-bold">
+                  <span className="flex items-center space-x-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-green-700" />
+                    <span>Live SMS Transmission Confirmed ({smsDeliveryLog.length} messages)</span>
+                  </span>
+                  <span className="text-[10px]">{smsDeliveryLog[0]?.timestamp}</span>
+                </div>
+
+                <div className="space-y-1 text-[11px] pt-1">
+                  {smsDeliveryLog.map((log, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-1.5 rounded bg-white border border-green-200">
+                      <span>📱 {log.recipient} ({log.phone || 'Configured'})</span>
+                      <span className="text-green-800 font-bold">{log.provider} • {log.messageId}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </form>
 

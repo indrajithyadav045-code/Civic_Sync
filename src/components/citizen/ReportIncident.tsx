@@ -12,9 +12,11 @@ import {
   Layers,
   Navigation,
   FileText,
-  Shield
+  Shield,
+  Smartphone
 } from 'lucide-react';
 import { useCivic } from '../../context/CivicContext';
+import { dispatchSmsAlert, getStoredRecipients } from '../../services/smsService';
 
 const PRESET_SCENARIOS = [
   {
@@ -135,6 +137,19 @@ export const ReportIncident: React.FC = () => {
       coordinates.lng,
       citizenName,
       phone
+    );
+
+    // Dispatch Grievance Registration SMS to citizen phone + configured friend's phone
+    const configuredRecipients = getStoredRecipients();
+    const smsTargets = [
+      { id: 'citizen', name: citizenName, phone: phone, enabled: true },
+      ...configuredRecipients.filter(r => r.enabled && r.phone.trim().length >= 10)
+    ];
+
+    dispatchSmsAlert(
+      `GRIEVANCE REGISTERED (#${createdIncident.id})`,
+      `Thank you ${citizenName}. Your report "${description.slice(0, 50)}..." at ${locationName} is queued for AI triage and GCC dispatch.`,
+      smsTargets
     );
 
     setIsSubmitting(false);

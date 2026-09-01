@@ -20,6 +20,7 @@ import {
   Globe
 } from 'lucide-react';
 import { useCivic, ActiveView } from '../../context/CivicContext';
+import { SmsSettingsModal } from './SmsSettingsModal';
 
 export const Header: React.FC = () => {
   const { 
@@ -34,6 +35,7 @@ export const Header: React.FC = () => {
   } = useCivic();
 
   const [language, setLanguage] = useState<'EN' | 'TA'>('EN');
+  const [isSmsModalOpen, setIsSmsModalOpen] = useState(false);
 
   const navItems: { id: ActiveView; label: string; icon: React.FC<{ className?: string }>; badge?: number }[] = [
     { id: 'citizen_home', label: 'Citizen Portal', icon: Activity },
@@ -68,6 +70,16 @@ export const Header: React.FC = () => {
             <Phone className="w-3.5 h-3.5 text-blue-700" />
             <span className="text-[11px]">Emergency Helpline: <strong className="text-blue-900 font-bold">1913</strong></span>
           </div>
+
+          <span className="text-slate-300">|</span>
+
+          <button
+            onClick={() => setIsSmsModalOpen(true)}
+            className="flex items-center space-x-1 px-2 py-0.5 rounded bg-blue-50 hover:bg-blue-100 text-blue-900 border border-blue-200 text-[11px] font-bold transition"
+            title="Configure Phone Numbers for SMS Alerts"
+          >
+            <span>📱 Live SMS Alerts</span>
+          </button>
 
           <span className="text-slate-300">|</span>
 
@@ -166,6 +178,11 @@ export const Header: React.FC = () => {
           })}
         </div>
       </div>
+
+      <SmsSettingsModal 
+        isOpen={isSmsModalOpen} 
+        onClose={() => setIsSmsModalOpen(false)} 
+      />
     </header>
   );
 };
