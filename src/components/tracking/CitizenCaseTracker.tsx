@@ -88,13 +88,10 @@ export const CitizenCaseTracker: React.FC = () => {
           </div>
 
           <div className="flex items-center space-x-2">
-            <button
-              onClick={() => setActiveView('resolution_verification')}
-              className="px-3.5 py-2 rounded bg-green-50 hover:bg-green-100 text-green-900 border border-green-200 text-xs font-semibold transition flex items-center space-x-1.5"
-            >
-              <CheckCircle2 className="w-3.5 h-3.5 text-green-700" />
-              <span>Inspect Resolution Proof</span>
-            </button>
+            <span className="px-3 py-1.5 rounded bg-blue-50 text-blue-900 border border-blue-200 text-xs font-semibold flex items-center space-x-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-blue-700" />
+              <span>GCC Real-Time Tracked</span>
+            </span>
           </div>
         </div>
 

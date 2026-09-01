@@ -63,7 +63,6 @@ export const Header: React.FC = () => {
     { id: 'command_center', labelKey: 'navCommandCenter', icon: LayoutDashboard, badge: incidents.filter(i => i.status !== 'RESOLVED').length },
     { id: 'disaster_alerts', labelKey: 'navDisasterAlerts', icon: Radio, badge: alerts.length },
     { id: 'case_tracking', labelKey: 'navCaseTracking', icon: Search },
-    { id: 'resolution_verification', labelKey: 'navResolutionVerification', icon: CheckCircle2 },
     { id: 'risk_forecast', labelKey: 'navRiskForecast', icon: TrendingUp },
   ];
 
