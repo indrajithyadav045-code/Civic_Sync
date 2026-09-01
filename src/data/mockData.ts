@@ -57,7 +57,7 @@ export const MOCK_INCIDENTS: Incident[] = [
       lat: 12.9815,
       lng: 80.2180
     },
-    image: 'https://images.unsplash.com/photo-1547683905-f686c993aae5?auto=format&fit=crop&w=1000&q=80',
+    image: 'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?auto=format&fit=crop&w=1000&q=80',
     createdAt: '2026-09-01T14:15:00Z',
     updatedAt: '2026-09-01T14:38:00Z',
     citizenName: 'Karthik Subramanian',
@@ -174,8 +174,8 @@ export const MOCK_INCIDENTS: Incident[] = [
       ]
     },
     resolution: {
-      beforeImage: 'https://images.unsplash.com/photo-1547683905-f686c993aae5?auto=format&fit=crop&w=1000&q=80',
-      afterImage: 'https://images.unsplash.com/photo-1517649763962-0c623266ddc0?auto=format&fit=crop&w=1000&q=80',
+      beforeImage: 'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?auto=format&fit=crop&w=1000&q=80',
+      afterImage: 'https://images.unsplash.com/photo-1578836537282-3171d77f8632?auto=format&fit=crop&w=1000&q=80',
       resolvedAt: 'Pending Completion (82% De-watered)',
       resolvedByStaff: 'Team Lead S. Thangavel',
       staffBadge: 'GCC-DM-CREW-04',

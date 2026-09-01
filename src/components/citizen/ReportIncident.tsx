@@ -20,36 +20,44 @@ import { dispatchSmsAlert, getStoredRecipients } from '../../services/smsService
 
 const PRESET_SCENARIOS = [
   {
-    label: '🌊 Velachery Road Flooding (Demo)',
+    label: '🌊 Velachery Road Flooding (Waterlogging)',
     text: 'Heavy northeast monsoon rain has blocked 100 Feet Bypass Road near DAV School, Velachery. Water level is over 2.5 feet and vehicles cannot pass.',
-    image: 'https://images.unsplash.com/photo-1547683905-f686c993aae5?auto=format&fit=crop&w=1000&q=80',
+    image: 'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?auto=format&fit=crop&w=1000&q=80',
     lat: 12.9815,
     lng: 80.2180,
     location: '100 Feet Bypass Road, Velachery, Chennai'
   },
   {
-    label: '⚡ Live Conductor Wire at T. Nagar',
-    text: '11kV overhead electrical wire snapped and dangling dangerously across pedestrian walkway at Ranganathan Street, T. Nagar with active sparks.',
-    image: 'https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=1000&q=80',
+    label: '🕳️ Major Asphalt Crater / Pothole',
+    text: 'Severe 4-foot wide asphalt crater pothole on Anna Salai near Guindy Industrial Estate damaging passing two-wheelers.',
+    image: 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=1000&q=80',
+    lat: 13.0067,
+    lng: 80.2025,
+    location: 'Anna Salai near Guindy Industrial Estate, Chennai'
+  },
+  {
+    label: '🗑️ Overflowing Municipal Waste Bin',
+    text: 'Large municipal waste bin #WB-092 overflowing onto pedestrian sidewalk on Ranganathan Street, T. Nagar creating public health hazard.',
+    image: 'https://images.unsplash.com/photo-1605600659908-0ef719419d41?auto=format&fit=crop&w=1000&q=80',
     lat: 13.0410,
     lng: 80.2330,
     location: 'Ranganathan Street, T. Nagar, Chennai'
   },
   {
-    label: '🌳 Fallen Tree at Greams Road (Apollo)',
-    text: 'Huge banyan tree uprooted blocking both lanes on Greams Road toward Apollo Hospital emergency corridor.',
-    image: 'https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&w=1000&q=80',
+    label: '💡 Offline Street Light (Dark Zone)',
+    text: 'Pole #SL-183 street light fixture completely offline creating zero-visibility dark zone on pedestrian corridor near school.',
+    image: 'https://images.unsplash.com/photo-1517646287270-a5a9ca602e5c?auto=format&fit=crop&w=1000&q=80',
+    lat: 13.0450,
+    lng: 80.2280,
+    location: 'Ward 8 Pedestrian Corridor, T. Nagar, Chennai'
+  },
+  {
+    label: '💧 CMWSSB Pipeline Burst / Water Loss',
+    text: 'CMWSSB 36-inch water main pipe burst leaking over 1,200 L/hr and flooding roadway near Greams Road.',
+    image: 'https://images.unsplash.com/photo-1541888946425-d0fbb18086f6?auto=format&fit=crop&w=1000&q=80',
     lat: 13.0585,
     lng: 80.2520,
     location: 'Greams Road, Thousand Lights, Chennai'
-  },
-  {
-    label: '🕳️ Anna Salai Water Main Sinkhole',
-    text: 'CMWSSB 36-inch water pipe burst creating deep crater sinkhole on Anna Salai near Guindy.',
-    image: 'https://images.unsplash.com/photo-1578836537282-3171d77f8632?auto=format&fit=crop&w=1000&q=80',
-    lat: 13.0067,
-    lng: 80.2025,
-    location: 'Anna Salai near Guindy Industrial Estate, Chennai'
   }
 ];
 
