@@ -49,10 +49,10 @@ export const MOCK_FLOOD_INTELLIGENCE: FloodDrainageIntelligence = {
     'High arterial traffic density corridor'
   ],
   recommendedActions: [
-    'Dispatch Drainage & De-watering Rapid Squad Alpha-4',
+    'Dispatch Disaster Management Unit Alpha-4',
     'Mobilize 150HP de-watering super-sucker pumps',
     'Apply 500m geofence perimeter on 100ft road',
-    'Broadcast cell-tower municipal advisory to subscribers'
+    'Broadcast cell-tower emergency warning to subscribers'
   ],
   nearbyReportsCount: 4,
   sensitiveProximity: '180m from DAV School & Apollo Clinic'
@@ -197,10 +197,10 @@ export const MOCK_AI_CITY_INSIGHT: AiCityInsight = {
     'High arterial traffic density & slow movement'
   ],
   recommendedActions: [
-    'Dispatch Drainage & De-watering Rapid Squad Alpha-4',
+    'Dispatch Disaster Management Unit Alpha-4',
     'Clear drainage bottlenecks with de-watering rigs',
     'Geo-fence 100ft road with detour signage',
-    'Broadcast SMS municipal advisory alert'
+    'Broadcast SMS & emergency advisory warning'
   ],
   predictedImpactCitizens: 2847
 };

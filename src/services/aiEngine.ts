@@ -44,7 +44,7 @@ export function simulateNlpTriage(text: string): NlpTriageResult {
       category: 'Flooding / Drainage Blockage',
       severity: 'HIGH',
       confidence: 94,
-      recommendedDepartment: 'Drainage & Stormwater Management',
+      recommendedDepartment: 'Disaster Management',
       keywordsDetected: ['heavy rain', 'blocked road', 'school vicinity', 'waterlogging'],
       reasoning: [
         'Heavy precipitation & surface water accumulation detected',

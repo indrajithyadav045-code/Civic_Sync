@@ -37,7 +37,7 @@ export const Footer: React.FC = () => {
             </h4>
             <ul className="space-y-1 text-[11px] text-slate-400">
               <li>• Greater Chennai Corporation (chennaicorporation.gov.in)</li>
-              <li>• Tamil Nadu Smart Cities Mission (tn.gov.in)</li>
+              <li>• Tamil Nadu State Disaster Management (tnsdma.tn.gov.in)</li>
               <li>• Chennai Metro Water CMWSSB (chennaimetrowater.tn.gov.in)</li>
               <li>• TANGEDCO Power Grid (tangedco.gov.in)</li>
             </ul>

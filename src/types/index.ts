@@ -10,12 +10,12 @@ export type IncidentCategory =
   | 'Garbage Accumulation';
 
 export type Department = 
-  | 'Drainage & Stormwater Management'
-  | 'Public Works & Roads (PWD)'
-  | 'Power & Utilities (ED)'
-  | 'Solid Waste & Sanitation (WMD)'
-  | 'Water Supply & Sewerage (WSD)'
-  | 'Traffic & Smart Mobility';
+  | 'Disaster Management'
+  | 'Public Works & Roads'
+  | 'Power & Utilities'
+  | 'Municipal Health & Sanitation'
+  | 'Fire & Emergency Services'
+  | 'Traffic Police';
 
 export type IncidentStatus = 
   | 'NEW'
