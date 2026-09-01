@@ -21,12 +21,17 @@ import {
   RefreshCw, 
   FileText, 
   Eye, 
+  EyeOff,
   ChevronRight, 
   ExternalLink,
   Award,
   Zap,
   CheckCheck,
-  X
+  X,
+  Lock,
+  Unlock,
+  KeyRound,
+  LogOut
 } from 'lucide-react';
 import { useCivic } from '../../context/CivicContext';
 import { Incident, IncidentSeverity, IncidentStatus, Department } from '../../types';
@@ -58,6 +63,9 @@ export const MunicipalAdminPortal: React.FC = () => {
     setPortalMode,
     adminRole, 
     setAdminRole,
+    isAdminAuthenticated,
+    loginAdmin,
+    logoutAdmin,
     assignFieldSquad,
     resolveIncidentWithProof,
     overrideIncidentSeverity,
@@ -65,6 +73,12 @@ export const MunicipalAdminPortal: React.FC = () => {
     playSound 
   } = useCivic();
 
+  // Authentication Lock Screen States
+  const [passwordInput, setPasswordInput] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+
+  // Search & Filters
   const [searchTerm, setSearchTerm] = useState('');
   const [filterDept, setFilterDept] = useState<string>('ALL');
   const [filterSeverity, setFilterSeverity] = useState<string>('ALL');
@@ -87,6 +101,17 @@ export const MunicipalAdminPortal: React.FC = () => {
   const totalDuplicatesMerged = incidents.reduce((acc, curr) => acc + (curr.duplicates ? curr.duplicates.length : 0), 0);
 
   const currentRoleObj = OFFICER_ROLES.find(r => r.id === adminRole) || OFFICER_ROLES[0];
+
+  const handleLoginSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const success = loginAdmin(passwordInput);
+    if (!success) {
+      setAuthError('❌ Invalid Officer Password. Please enter "GCC@admin" to proceed.');
+      setPasswordInput('');
+    } else {
+      setAuthError(null);
+    }
+  };
 
   const filteredIncidents = incidents.filter(inc => {
     const matchesSearch = inc.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -131,6 +156,123 @@ export const MunicipalAdminPortal: React.FC = () => {
     setTimeout(() => setSmsNotificationMsg(null), 6000);
   };
 
+  // IF NOT AUTHENTICATED: RENDER GCC OFFICER LOGIN GATEWAY
+  if (!isAdminAuthenticated) {
+    return (
+      <div className="max-w-md mx-auto px-4 py-12 animate-fade-in">
+        <div className="rounded-3xl p-8 bg-[#0D111A] border-2 border-cyan-500/40 shadow-2xl space-y-6 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-cyan-500/10 via-blue-500/5 to-transparent rounded-full blur-2xl pointer-events-none" />
+
+          {/* Header */}
+          <div className="text-center space-y-2">
+            <div className="w-14 h-14 mx-auto rounded-2xl bg-cyan-950/80 border border-cyan-400/40 text-cyan-400 flex items-center justify-center shadow-lg">
+              <Lock className="w-7 h-7 animate-pulse" />
+            </div>
+
+            <span className="px-3 py-1 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-700 text-[10px] font-mono font-bold uppercase tracking-wider inline-block">
+              GCC ADMINISTRATIVE GATEWAY
+            </span>
+
+            <h2 className="text-xl font-extrabold text-white font-sans">
+              Municipal Corporation Admin Access
+            </h2>
+
+            <p className="text-xs text-slate-400">
+              Restricted workstation for authorized GCC officers, zonal commissioners, and squad dispatch engineers.
+            </p>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleLoginSubmit} className="space-y-4">
+            <div>
+              <label className="block text-xs font-semibold text-slate-300 mb-1">
+                Officer Identifier / Badge:
+              </label>
+              <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-300 font-mono flex items-center justify-between">
+                <span>OFFICER_GCC_ADMIN (Zone 13)</span>
+                <span className="text-[10px] text-emerald-400">● VERIFIED ID</span>
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between text-xs font-semibold text-slate-300 mb-1">
+                <span>Administrative Password:</span>
+                <span className="text-[10px] text-cyan-400 font-mono">Required: GCC@admin</span>
+              </div>
+
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Enter administrator password..."
+                  value={passwordInput}
+                  onChange={(e) => {
+                    setPasswordInput(e.target.value);
+                    if (authError) setAuthError(null);
+                  }}
+                  autoFocus
+                  required
+                  className="w-full pl-3 pr-10 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white placeholder-slate-500 focus:border-cyan-400 outline-none font-mono"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            {/* Error Message */}
+            {authError && (
+              <div className="p-3 rounded-xl bg-red-950/80 border border-red-500 text-red-200 text-xs font-mono animate-shake">
+                {authError}
+              </div>
+            )}
+
+            {/* Quick Demo Fill Button */}
+            <div className="p-3 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center justify-between text-xs">
+              <span className="text-[11px] text-slate-400">Demo Password:</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setPasswordInput('GCC@admin');
+                  setAuthError(null);
+                  playSound('beep');
+                }}
+                className="px-2.5 py-1 rounded-lg bg-cyan-950 hover:bg-cyan-900 text-cyan-300 border border-cyan-600 font-mono text-[11px] font-bold transition flex items-center space-x-1"
+              >
+                <KeyRound className="w-3 h-3" />
+                <span>Auto-Fill (GCC@admin)</span>
+              </button>
+            </div>
+
+            <button
+              type="submit"
+              className="w-full py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs tracking-wider uppercase transition flex items-center justify-center space-x-2 shadow-lg shadow-cyan-500/20"
+            >
+              <Unlock className="w-4 h-4" />
+              <span>Authorize & Enter Admin Panel</span>
+            </button>
+          </form>
+
+          {/* Switch back to citizen portal */}
+          <div className="pt-2 text-center border-t border-white/5">
+            <button
+              onClick={() => {
+                setPortalMode('CITIZEN');
+                setActiveView('citizen_home');
+              }}
+              className="text-xs text-slate-400 hover:text-cyan-300 transition"
+            >
+              ← Return to Citizen Public Grievance Portal
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 py-2">
       {/* SMS Alert Flash Banner */}
@@ -156,7 +298,7 @@ export const MunicipalAdminPortal: React.FC = () => {
               <span className="px-2.5 py-0.5 rounded text-[11px] font-mono font-bold bg-cyan-950 text-cyan-300 border border-cyan-500/40">
                 MUNICIPAL CORPORATION ADMIN PORTAL
               </span>
-              <span className="text-xs font-mono text-slate-400">GCC Integrated Command HQ</span>
+              <span className="text-xs font-mono text-emerald-400 font-semibold">● AUTHENTICATED [GCC@admin]</span>
             </div>
 
             <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight font-sans">
@@ -168,7 +310,7 @@ export const MunicipalAdminPortal: React.FC = () => {
             </p>
           </div>
 
-          {/* Quick Portal Switcher to Citizen Consumer View */}
+          {/* Quick Portal Switcher & Logout Buttons */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <button
               onClick={() => {
@@ -185,14 +327,12 @@ export const MunicipalAdminPortal: React.FC = () => {
             </button>
 
             <button
-              onClick={() => {
-                setActiveView('command_map');
-                playSound('beep');
-              }}
-              className="px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition flex items-center justify-center space-x-2 shadow-sm"
+              onClick={logoutAdmin}
+              className="px-3.5 py-2.5 rounded-xl bg-red-950 hover:bg-red-900 text-red-200 border border-red-700 text-xs font-bold transition flex items-center justify-center space-x-1.5 shadow-sm"
+              title="Lock and Log Out of Admin Workstation"
             >
-              <Building className="w-4 h-4" />
-              <span>Open Tactical GIS Map</span>
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Lock / Logout</span>
             </button>
           </div>
         </div>
@@ -257,7 +397,7 @@ export const MunicipalAdminPortal: React.FC = () => {
         <div className="p-4 rounded-xl bg-[#0D111A] border border-emerald-500/30 space-y-1">
           <span className="text-[10px] font-mono text-emerald-300 uppercase font-bold">50m DEDUP MERGED</span>
           <div className="text-2xl font-bold text-emerald-400 font-mono">{totalDuplicatesMerged}</div>
-          <span className="text-[10px] text-emerald-400">Dispatches Suppressed</span>
+          <span className="text-[10px] text-emerald-400">Dispatches Saved</span>
         </div>
 
         <div className="p-4 rounded-xl bg-[#0D111A] border border-cyan-500/30 space-y-1">

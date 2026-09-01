@@ -92,11 +92,14 @@ interface CivicContextType {
   setLanguage: (lang: Language) => void;
   t: (key: keyof typeof translations.en) => string;
 
-  // Portal Mode & Municipal Admin Role
+  // Portal Mode & Municipal Admin Role & Auth
   portalMode: PortalMode;
   setPortalMode: (mode: PortalMode) => void;
   adminRole: AdminOfficerRole;
   setAdminRole: (role: AdminOfficerRole) => void;
+  isAdminAuthenticated: boolean;
+  loginAdmin: (password: string) => boolean;
+  logoutAdmin: () => void;
   assignFieldSquad: (incidentId: string, squadName: string, staffName: string, vehicleNo: string, etaMinutes: number) => void;
   resolveIncidentWithProof: (incidentId: string, proof: Partial<ResolutionProof>) => void;
   overrideIncidentSeverity: (incidentId: string, severity: IncidentSeverity) => void;
@@ -246,6 +249,37 @@ export const CivicProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [activeView, setActiveView] = useState<ActiveView>('citizen_home');
   const [portalMode, setPortalMode] = useState<PortalMode>('CITIZEN');
   const [adminRole, setAdminRole] = useState<AdminOfficerRole>('ZONAL_COMMISSIONER');
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(() => {
+    try {
+      return sessionStorage.getItem('civic_admin_auth') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const loginAdmin = (password: string): boolean => {
+    if (password === 'GCC@admin') {
+      setIsAdminAuthenticated(true);
+      try {
+        sessionStorage.setItem('civic_admin_auth', 'true');
+      } catch {}
+      playSound('success');
+      return true;
+    } else {
+      playSound('alert');
+      return false;
+    }
+  };
+
+  const logoutAdmin = () => {
+    setIsAdminAuthenticated(false);
+    try {
+      sessionStorage.removeItem('civic_admin_auth');
+    } catch {}
+    setPortalMode('CITIZEN');
+    setActiveView('citizen_home');
+    playSound('beep');
+  };
   const [incidents, setIncidents] = useState<Incident[]>(MOCK_INCIDENTS);
   const [selectedIncident, setSelectedIncident] = useState<Incident>(MOCK_INCIDENTS[0]);
   const [alerts, setAlerts] = useState<EmergencyBroadcast[]>(MOCK_EMERGENCY_ALERTS);
@@ -734,6 +768,9 @@ export const CivicProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setPortalMode,
         adminRole,
         setAdminRole,
+        isAdminAuthenticated,
+        loginAdmin,
+        logoutAdmin,
         assignFieldSquad,
         resolveIncidentWithProof,
         overrideIncidentSeverity,
