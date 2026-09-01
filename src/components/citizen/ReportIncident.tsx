@@ -49,7 +49,7 @@ const PRESET_SCENARIOS = [
   {
     label: '💡 Offline Street Light (Dark Zone)',
     text: 'Pole #SL-183 street light fixture completely offline creating zero-visibility dark zone on pedestrian corridor near school.',
-    image: 'https://images.unsplash.com/photo-1517646287270-a5a9ca602e5c?auto=format&fit=crop&w=1000&q=80',
+    image: '/images/offline_street_light.jpg',
     lat: 13.0450,
     lng: 80.2280,
     location: 'Ward 8 Pedestrian Corridor, T. Nagar, Chennai'
