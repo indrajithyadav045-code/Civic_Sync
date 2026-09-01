@@ -21,6 +21,11 @@ export const SmartLightingCard: React.FC = () => {
     setTimeout(() => setLightsBoosted(false), 5000);
   };
 
+  const operationalPct = smartLighting?.operationalPct ?? 94;
+  const faultyPct = smartLighting?.faultyPct ?? 6;
+  const darkZonesCount = smartLighting?.darkZonesCount ?? 3;
+  const sampleIncident = smartLighting?.sampleIncident;
+
   return (
     <div className="rounded-2xl p-4 bg-[#0D111A] border border-slate-800 shadow-xl space-y-3">
       {/* Header */}
@@ -38,9 +43,11 @@ export const SmartLightingCard: React.FC = () => {
       {/* Grid Telemetry */}
       <div className="space-y-2">
         <div className="flex items-center justify-between text-xs">
-          <span className="font-semibold text-slate-200">Total Feeders: {smartLighting.totalPoles.toLocaleString()}</span>
+          <span className="font-semibold text-slate-200">
+            {sampleIncident?.ward || 'T. Nagar Pedestrian Zone'}
+          </span>
           <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-yellow-950 text-yellow-300 border border-yellow-500/40">
-            {smartLighting.energySavingsPct}% ENERGY SAVINGS
+            {operationalPct}% OPERATIONAL
           </span>
         </div>
 
@@ -48,26 +55,28 @@ export const SmartLightingCard: React.FC = () => {
         <div className="grid grid-cols-3 gap-2 text-xs font-mono">
           <div className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-center">
             <span className="text-[10px] text-slate-400 block font-sans">Active Poles</span>
-            <span className="text-sm font-bold text-emerald-400">{smartLighting.activePoles.toLocaleString()}</span>
+            <span className="text-sm font-bold text-emerald-400">{operationalPct}%</span>
           </div>
           <div className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-center">
             <span className="text-[10px] text-slate-400 block font-sans">Dark Faults</span>
-            <span className="text-sm font-bold text-red-400">{smartLighting.faultyPoles} Outages</span>
+            <span className="text-sm font-bold text-red-400">{darkZonesCount} Zones</span>
           </div>
           <div className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-center">
-            <span className="text-[10px] text-slate-400 block font-sans">Dimming</span>
-            <span className="text-sm font-bold text-cyan-400">{smartLighting.dimmingLevelPct}% PWM</span>
+            <span className="text-[10px] text-slate-400 block font-sans">Outage Rate</span>
+            <span className="text-sm font-bold text-amber-400">{faultyPct}%</span>
           </div>
         </div>
 
         {/* Energy Optimization Status */}
         <div className="p-2.5 rounded-xl bg-yellow-950/40 border border-yellow-500/30 text-xs text-yellow-200 space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="font-bold text-[11px] block">Smart Lux Adaptive Dimming:</span>
+            <span className="font-bold text-[11px] block">
+              {sampleIncident?.poleId || 'Pole #SL-183'} ({sampleIncident?.status || 'OFFLINE'})
+            </span>
             <span className="text-[10px] font-mono text-yellow-300">Sensor Active</span>
           </div>
           <p className="text-[10px] text-slate-300 leading-relaxed">
-            Automatic astronomical clock & ambient light sensors adjusting 14,200 LED luminaires.
+            {sampleIncident?.reason || 'Automatic astronomical clock & ambient light sensors adjusting 14,200 LED luminaires.'}
           </p>
           <button
             onClick={handleBoostIllumination}

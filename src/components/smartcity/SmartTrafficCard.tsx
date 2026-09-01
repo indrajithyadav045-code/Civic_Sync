@@ -21,6 +21,13 @@ export const SmartTrafficCard: React.FC = () => {
     setTimeout(() => setCorridorCleared(false), 5000);
   };
 
+  const corridor = smartTraffic?.corridor || 'Mount Road Arterial Corridor';
+  const congestion = smartTraffic?.congestion || 'HIGH';
+  const densityPct = smartTraffic?.densityPct ?? 88;
+  const averageSpeedKmh = smartTraffic?.averageSpeedKmh ?? 14;
+  const activeBlockages = smartTraffic?.activeBlockages ?? 3;
+  const aiRecommendation = smartTraffic?.aiRecommendation || 'Divert heavy vehicular transit to Sardar Patel Road. Apply adaptive 90s signal timing.';
+
   return (
     <div className="rounded-2xl p-4 bg-[#0D111A] border border-slate-800 shadow-xl space-y-3">
       {/* Header */}
@@ -38,13 +45,13 @@ export const SmartTrafficCard: React.FC = () => {
       {/* Corridor & Congestion Status */}
       <div className="space-y-2">
         <div className="flex items-center justify-between text-xs">
-          <span className="font-semibold text-slate-200 line-clamp-1">{smartTraffic.corridor}</span>
+          <span className="font-semibold text-slate-200 line-clamp-1">{corridor}</span>
           <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
-            smartTraffic.congestion === 'HIGH' 
+            congestion === 'HIGH' 
               ? 'bg-red-950 text-red-300 border border-red-500/40' 
               : 'bg-amber-950 text-amber-300 border border-amber-500/40'
           }`}>
-            CONGESTION: {smartTraffic.congestion}
+            CONGESTION: {congestion}
           </span>
         </div>
 
@@ -52,15 +59,15 @@ export const SmartTrafficCard: React.FC = () => {
         <div className="grid grid-cols-3 gap-2 text-xs font-mono">
           <div className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-center">
             <span className="text-[10px] text-slate-400 block font-sans">Density</span>
-            <span className="text-sm font-bold text-white">{smartTraffic.densityPct}%</span>
+            <span className="text-sm font-bold text-white">{densityPct}%</span>
           </div>
           <div className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-center">
             <span className="text-[10px] text-slate-400 block font-sans">Avg Speed</span>
-            <span className="text-sm font-bold text-cyan-400">{smartTraffic.averageSpeedKmh} km/h</span>
+            <span className="text-sm font-bold text-cyan-400">{averageSpeedKmh} km/h</span>
           </div>
           <div className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-center">
             <span className="text-[10px] text-slate-400 block font-sans">Blockages</span>
-            <span className="text-sm font-bold text-red-400">{smartTraffic.activeBlockages} Active</span>
+            <span className="text-sm font-bold text-red-400">{activeBlockages} Active</span>
           </div>
         </div>
 
@@ -70,7 +77,7 @@ export const SmartTrafficCard: React.FC = () => {
           <div className="space-y-1 w-full">
             <span className="font-bold text-[11px] block">AI Route Diversion Advisory:</span>
             <p className="text-[10px] text-slate-300 leading-relaxed">
-              {smartTraffic.rerouteRecommendation}
+              {aiRecommendation}
             </p>
             <button
               onClick={handleClearCorridor}

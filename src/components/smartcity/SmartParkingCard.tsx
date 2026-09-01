@@ -14,6 +14,13 @@ export const SmartParkingCard: React.FC = () => {
     providerName: 'Intelligent Parking Management System'
   };
 
+  const zone = smartParking?.zone || 'T. Nagar Smart Parking Facility';
+  const occupancyPct = smartParking?.occupancyPct ?? 78;
+  const availableSpaces = smartParking?.availableSpaces ?? 54;
+  const totalCapacity = smartParking?.totalCapacity ?? 250;
+  const violationsCount = smartParking?.violationsCount ?? 2;
+  const aiRecommendation = smartParking?.aiRecommendation || 'Display lot availability on Usman Road variable message sign.';
+
   return (
     <div className="rounded-2xl p-4 bg-[#0D111A] border border-slate-800 shadow-xl space-y-3">
       {/* Header */}
@@ -31,9 +38,9 @@ export const SmartParkingCard: React.FC = () => {
       {/* Lot & Availability */}
       <div className="space-y-2">
         <div className="flex items-center justify-between text-xs">
-          <span className="font-semibold text-slate-200 line-clamp-1">{smartParking.lotName}</span>
+          <span className="font-semibold text-slate-200 line-clamp-1">{zone}</span>
           <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-purple-950 text-purple-300 border border-purple-500/40">
-            OCCUPANCY: {smartParking.occupancyPct}%
+            OCCUPANCY: {occupancyPct}%
           </span>
         </div>
 
@@ -41,15 +48,15 @@ export const SmartParkingCard: React.FC = () => {
         <div className="grid grid-cols-3 gap-2 text-xs font-mono">
           <div className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-center">
             <span className="text-[10px] text-slate-400 block font-sans">Available</span>
-            <span className="text-sm font-bold text-emerald-400">{smartParking.availableSpots} Slots</span>
+            <span className="text-sm font-bold text-emerald-400">{availableSpaces} Slots</span>
           </div>
           <div className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-center">
             <span className="text-[10px] text-slate-400 block font-sans">Total</span>
-            <span className="text-sm font-bold text-white">{smartParking.totalSpots} Slots</span>
+            <span className="text-sm font-bold text-white">{totalCapacity} Slots</span>
           </div>
           <div className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-center">
-            <span className="text-[10px] text-slate-400 block font-sans">EV Ports</span>
-            <span className="text-sm font-bold text-cyan-400">{smartParking.evChargingSpots} Fast</span>
+            <span className="text-[10px] text-slate-400 block font-sans">Violations</span>
+            <span className="text-sm font-bold text-red-400">{violationsCount} Tow Alert</span>
           </div>
         </div>
 
@@ -60,7 +67,7 @@ export const SmartParkingCard: React.FC = () => {
             <span className="text-[10px] font-mono text-purple-400">Synchronized</span>
           </div>
           <p className="text-[10px] text-slate-300 leading-relaxed">
-            Real-time optical guidance active on arterial approach roads.
+            {aiRecommendation}
           </p>
         </div>
       </div>

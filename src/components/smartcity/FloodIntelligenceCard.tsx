@@ -21,6 +21,13 @@ export const FloodIntelligenceCard: React.FC = () => {
     setTimeout(() => setPumpDispatched(false), 5000);
   };
 
+  const ward = floodIntelligence?.ward || 'Ward 12 (Velachery South Basin)';
+  const riskScore = floodIntelligence?.riskScore ?? 89;
+  const waterLevelFeet = floodIntelligence?.waterLevelFeet ?? 2.8;
+  const drainageFlowPct = floodIntelligence?.drainageFlowPct ?? 42;
+  const rainfallMmHr = floodIntelligence?.rainfallMmHr ?? 48;
+  const sensitiveProximity = floodIntelligence?.sensitiveProximity || '180m from DAV School & Apollo Clinic';
+
   return (
     <div className="rounded-2xl p-4 bg-[#0D111A] border border-slate-800 shadow-xl space-y-3">
       {/* Header */}
@@ -38,9 +45,9 @@ export const FloodIntelligenceCard: React.FC = () => {
       {/* Critical Basin & Inundation Level */}
       <div className="space-y-2">
         <div className="flex items-center justify-between text-xs">
-          <span className="font-semibold text-slate-200 line-clamp-1">{floodIntelligence.criticalBasin}</span>
+          <span className="font-semibold text-slate-200 line-clamp-1">{ward}</span>
           <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-red-950 text-red-300 border border-red-500/40">
-            RISK: {floodIntelligence.waterloggingRisk}
+            RISK: {riskScore}/100
           </span>
         </div>
 
@@ -48,26 +55,26 @@ export const FloodIntelligenceCard: React.FC = () => {
         <div className="grid grid-cols-3 gap-2 text-xs font-mono">
           <div className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-center">
             <span className="text-[10px] text-slate-400 block font-sans">Water Level</span>
-            <span className="text-sm font-bold text-cyan-400">{floodIntelligence.waterLevelFeet} ft</span>
+            <span className="text-sm font-bold text-cyan-400">{waterLevelFeet} ft</span>
           </div>
           <div className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-center">
             <span className="text-[10px] text-slate-400 block font-sans">Drain Cap</span>
-            <span className="text-sm font-bold text-white">{floodIntelligence.drainageCapacityPct}%</span>
+            <span className="text-sm font-bold text-white">{drainageFlowPct}%</span>
           </div>
           <div className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-center">
-            <span className="text-[10px] text-slate-400 block font-sans">Pumps Active</span>
-            <span className="text-sm font-bold text-emerald-400">{floodIntelligence.pumpsActive} Units</span>
+            <span className="text-[10px] text-slate-400 block font-sans">Rainfall</span>
+            <span className="text-sm font-bold text-emerald-400">{rainfallMmHr} mm/h</span>
           </div>
         </div>
 
         {/* Early Warning Message */}
         <div className="p-2.5 rounded-xl bg-cyan-950/40 border border-cyan-500/30 text-xs text-cyan-200 space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="font-bold text-[11px] block">Stormwater De-watering Status:</span>
-            <span className="text-[10px] font-mono text-cyan-400">High Inflow Rate</span>
+            <span className="font-bold text-[11px] block">Stormwater Inundation Status:</span>
+            <span className="text-[10px] font-mono text-cyan-400">{sensitiveProximity}</span>
           </div>
           <p className="text-[10px] text-slate-300 leading-relaxed">
-            {floodIntelligence.earlyWarningMessage}
+            Severe runoff accumulation detected on 100ft bypass. 150HP auxiliary pumps on standby.
           </p>
           <button
             onClick={handleTriggerPumps}
