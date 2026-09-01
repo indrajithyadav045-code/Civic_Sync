@@ -7,11 +7,11 @@ export const CityHealthCard: React.FC = () => {
   const { cityHealth, highlightedSystemCategory, setHighlightedSystemCategory, playSound } = useCivic();
 
   const categories = [
-    { key: 'mobility', label: 'Mobility', score: cityHealth.mobility, icon: Car, color: 'text-blue-700 bg-blue-50 border-blue-200' },
-    { key: 'safety', label: 'Safety', score: cityHealth.safety, icon: Shield, color: 'text-emerald-700 bg-emerald-50 border-emerald-200' },
-    { key: 'environment', label: 'Environment', score: cityHealth.environment, icon: Trees, color: 'text-teal-700 bg-teal-50 border-teal-200' },
-    { key: 'infrastructure', label: 'Infrastructure', score: cityHealth.infrastructure, icon: Building2, color: 'text-indigo-700 bg-indigo-50 border-indigo-200' },
-    { key: 'emergency', label: 'Emergency', score: cityHealth.emergency, icon: Radio, color: 'text-red-700 bg-red-50 border-red-200' },
+    { key: 'mobility', label: 'Mobility', score: cityHealth.mobility, icon: Car, color: 'text-blue-400 bg-blue-950/40 border-blue-500/30' },
+    { key: 'safety', label: 'Safety', score: cityHealth.safety, icon: Shield, color: 'text-emerald-400 bg-emerald-950/40 border-emerald-500/30' },
+    { key: 'environment', label: 'Environment', score: cityHealth.environment, icon: Trees, color: 'text-teal-400 bg-teal-950/40 border-teal-500/30' },
+    { key: 'infrastructure', label: 'Infrastructure', score: cityHealth.infrastructure, icon: Building2, color: 'text-indigo-400 bg-indigo-950/40 border-indigo-500/30' },
+    { key: 'emergency', label: 'Emergency', score: cityHealth.emergency, icon: Radio, color: 'text-red-400 bg-red-950/40 border-red-500/30' },
   ];
 
   const handleCategoryClick = (key: string) => {
@@ -28,13 +28,13 @@ export const CityHealthCard: React.FC = () => {
   };
 
   return (
-    <div className="gov-card rounded-lg p-4 bg-white border border-slate-200 shadow-sm space-y-3">
+    <div className="rounded-2xl p-5 bg-[#0D111A] border border-slate-800 shadow-xl space-y-4">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-slate-100 gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-white/10 gap-2">
         <div className="flex items-center space-x-2">
-          <Activity className="w-4 h-4 text-blue-800" />
-          <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wide">
-            City Health Score (Dynamic Real-Time Index)
+          <Activity className="w-4 h-4 text-cyan-400" />
+          <h3 className="text-xs font-bold text-white uppercase tracking-wider font-mono">
+            City Health Score (Dynamic Real-Time Multi-Signal Index)
           </h3>
         </div>
 
@@ -42,23 +42,23 @@ export const CityHealthCard: React.FC = () => {
       </div>
 
       {/* Main Score & Subsystem Pillars */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
         {/* Overall Big Circle Score */}
-        <div className="flex items-center space-x-3 shrink-0">
-          <div className="w-14 h-14 rounded-full bg-slate-900 text-white flex flex-col items-center justify-center shadow">
-            <span className="text-lg font-bold font-mono leading-none">{cityHealth.overallScore}</span>
-            <span className="text-[9px] text-slate-300 font-sans">/ 100</span>
+        <div className="flex items-center space-x-3.5 shrink-0">
+          <div className="w-16 h-16 rounded-2xl bg-cyan-950/80 border-2 border-cyan-400/50 text-white flex flex-col items-center justify-center shadow-lg shadow-cyan-950/50">
+            <span className="text-2xl font-black font-mono leading-none text-cyan-300">{cityHealth.overallScore}</span>
+            <span className="text-[9px] text-cyan-400 font-mono">/ 100</span>
           </div>
           <div>
-            <div className="text-xs font-bold text-slate-900">Greater Chennai EOC</div>
-            <div className="text-[10px] text-slate-500 font-mono">
-              Status: <strong className="text-emerald-700">{cityHealth.status}</strong> • Trend: {cityHealth.activeTrend}
+            <div className="text-sm font-bold text-white font-sans">Greater Chennai EOC</div>
+            <div className="text-[11px] text-slate-400 font-mono mt-0.5">
+              Status: <strong className="text-emerald-400">{cityHealth.status}</strong> • Trend: <span className="text-cyan-300">{cityHealth.activeTrend}</span>
             </div>
           </div>
         </div>
 
         {/* Subsystem category buttons */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5 flex-1">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 flex-1">
           {categories.map((cat) => {
             const Icon = cat.icon;
             const isSelected = highlightedSystemCategory === cat.key;
@@ -67,18 +67,18 @@ export const CityHealthCard: React.FC = () => {
                 key={cat.key}
                 type="button"
                 onClick={() => handleCategoryClick(cat.key)}
-                className={`p-2 rounded border text-center transition flex flex-col items-center justify-between ${
+                className={`p-3 rounded-xl border text-center transition flex flex-col items-center justify-between ${
                   isSelected 
-                    ? 'bg-blue-900 text-white border-blue-900 shadow-sm' 
-                    : `${cat.color} hover:shadow-xs`
+                    ? 'bg-cyan-500 text-slate-950 border-cyan-400 ring-2 ring-cyan-400/30 font-bold shadow-lg' 
+                    : `${cat.color} hover:border-slate-600`
                 }`}
                 title={`Click to filter/highlight ${cat.label} subsystem`}
               >
-                <Icon className={`w-3.5 h-3.5 mb-1 ${isSelected ? 'text-white' : ''}`} />
-                <span className={`text-[10px] font-semibold leading-tight line-clamp-1 ${isSelected ? 'text-white' : 'text-slate-700'}`}>
+                <Icon className={`w-4 h-4 mb-1 ${isSelected ? 'text-slate-950' : ''}`} />
+                <span className={`text-[11px] font-bold leading-tight line-clamp-1 ${isSelected ? 'text-slate-950' : 'text-slate-300'}`}>
                   {cat.label}
                 </span>
-                <span className={`text-xs font-bold font-mono mt-0.5 ${isSelected ? 'text-amber-300' : 'text-slate-900'}`}>
+                <span className={`text-xs font-mono font-extrabold mt-0.5 ${isSelected ? 'text-slate-950' : 'text-white'}`}>
                   {cat.score}
                 </span>
               </button>

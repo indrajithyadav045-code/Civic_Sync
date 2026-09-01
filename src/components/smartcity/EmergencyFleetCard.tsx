@@ -1,75 +1,81 @@
-import React from 'react';
-import { Siren, Shield, Flame, Radio, Clock, Navigation } from 'lucide-react';
+import React, { useState } from 'react';
+import { Shield, Truck, PhoneCall, Radio, CheckCircle2, Zap } from 'lucide-react';
 import { useCivic } from '../../context/CivicContext';
 import { DataProvenanceBadge } from '../common/DataProvenanceBadge';
 
 export const EmergencyFleetCard: React.FC = () => {
-  const { emergencyFleet } = useCivic();
+  const { emergencyFleet, playSound } = useCivic();
+  const [squadDispatched, setSquadDispatched] = useState(false);
 
   const provenance = {
-    source: '108 EMRI / Tamil Nadu Fire & Rescue Services',
+    source: '108 / 100 / GCC Emergency Mesh (GPS AIS-140)',
     lastUpdated: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
     status: 'LIVE' as const,
     refreshIntervalMs: 15000,
-    providerName: 'State Emergency Response Center (SERC)'
+    providerName: 'Integrated Emergency Response Management'
+  };
+
+  const handleDispatchRapidSquad = () => {
+    playSound('alert');
+    setSquadDispatched(true);
+    setTimeout(() => setSquadDispatched(false), 5000);
   };
 
   return (
-    <div className="gov-card rounded-lg p-4 bg-white border border-slate-200 shadow-sm space-y-3">
+    <div className="rounded-2xl p-4 bg-[#0D111A] border border-slate-800 shadow-xl space-y-3">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-slate-100 gap-1">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-white/10 gap-1">
         <div className="flex items-center space-x-2">
-          <Siren className="w-4 h-4 text-red-700" />
-          <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wide">
-            Emergency Fleet Telemetry
+          <Radio className="w-4 h-4 text-red-400" />
+          <h3 className="text-xs font-bold text-white uppercase tracking-wider font-mono">
+            Emergency Response Fleet
           </h3>
         </div>
 
         <DataProvenanceBadge provenance={provenance} />
       </div>
 
-      {/* Resource Count Badges */}
-      <div className="grid grid-cols-3 gap-2 text-xs font-mono">
-        <div className="p-2 rounded bg-red-50 border border-red-200 text-center">
-          <div className="flex items-center justify-center space-x-1 text-red-800 text-[10px] font-sans font-semibold mb-0.5">
-            <Radio className="w-3 h-3" />
-            <span>AMBULANCES</span>
-          </div>
-          <span className="text-sm font-bold text-red-900">{emergencyFleet.ambulancesAvailable} AVAILABLE</span>
+      {/* Fleet Readiness */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between text-xs">
+          <span className="font-semibold text-slate-200">Total Municipal Fleet: {emergencyFleet.totalVehicles} Units</span>
+          <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-red-950 text-red-300 border border-red-500/40">
+            AVG ETA: {emergencyFleet.avgResponseTimeMinutes} MINS
+          </span>
         </div>
 
-        <div className="p-2 rounded bg-amber-50 border border-amber-200 text-center">
-          <div className="flex items-center justify-center space-x-1 text-amber-800 text-[10px] font-sans font-semibold mb-0.5">
-            <Flame className="w-3 h-3" />
-            <span>FIRE UNITS</span>
+        {/* Metrics Grid */}
+        <div className="grid grid-cols-3 gap-2 text-xs font-mono">
+          <div className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-center">
+            <span className="text-[10px] text-slate-400 block font-sans">Ambulance</span>
+            <span className="text-sm font-bold text-emerald-400">{emergencyFleet.availableAmbulances} Standby</span>
           </div>
-          <span className="text-sm font-bold text-amber-900">{emergencyFleet.fireUnitsAvailable} AVAILABLE</span>
+          <div className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-center">
+            <span className="text-[10px] text-slate-400 block font-sans">Fire Tenders</span>
+            <span className="text-sm font-bold text-white">{emergencyFleet.availableFireTenders} Ready</span>
+          </div>
+          <div className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-center">
+            <span className="text-[10px] text-slate-400 block font-sans">Active Mission</span>
+            <span className="text-sm font-bold text-red-400">{emergencyFleet.activeDispatches} Dispatched</span>
+          </div>
         </div>
 
-        <div className="p-2 rounded bg-blue-50 border border-blue-200 text-center">
-          <div className="flex items-center justify-center space-x-1 text-blue-800 text-[10px] font-sans font-semibold mb-0.5">
+        {/* Live Mission Status */}
+        <div className="p-2.5 rounded-xl bg-red-950/40 border border-red-500/30 text-xs text-red-200 space-y-1.5">
+          <div className="flex items-center justify-between">
+            <span className="font-bold text-[11px] block">Disaster Fleet Allocation:</span>
+            <span className="text-[10px] font-mono text-red-400">Sector 13</span>
+          </div>
+          <p className="text-[10px] text-slate-300 leading-relaxed">
+            GPS AIS-140 live tracking active on all 36 rapid response utility squads.
+          </p>
+          <button
+            onClick={handleDispatchRapidSquad}
+            className="w-full mt-1 px-2.5 py-1 rounded-lg bg-red-600 hover:bg-red-500 text-white font-bold text-[10px] transition flex items-center justify-center space-x-1"
+          >
             <Shield className="w-3 h-3" />
-            <span>POLICE</span>
-          </div>
-          <span className="text-sm font-bold text-blue-900">{emergencyFleet.policeAvailable} AVAILABLE</span>
-        </div>
-      </div>
-
-      {/* Active Incident Dispatch Box */}
-      <div className="p-2.5 rounded bg-slate-50 border border-slate-200 space-y-1 text-xs">
-        <div className="flex items-center justify-between">
-          <span className="font-bold text-slate-900 font-mono">{emergencyFleet.activeIncidentDispatch.incidentId}</span>
-          <span className="px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">
-            {emergencyFleet.activeIncidentDispatch.status}
-          </span>
-        </div>
-
-        <div className="flex items-center justify-between text-[11px] text-slate-700">
-          <span>Nearest Unit: <strong className="text-blue-900">{emergencyFleet.activeIncidentDispatch.nearestUnit}</strong></span>
-          <span className="text-red-700 font-mono font-bold flex items-center space-x-1">
-            <Clock className="w-3 h-3 inline" />
-            <span>ETA: {emergencyFleet.activeIncidentDispatch.etaMinutesSeconds}</span>
-          </span>
+            <span>{squadDispatched ? '✓ Emergency Response Squad Alpha En Route' : 'Dispatch High-Priority Response Squad'}</span>
+          </button>
         </div>
       </div>
     </div>

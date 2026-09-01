@@ -1,69 +1,82 @@
-import React from 'react';
-import { Waves, CloudRain, AlertTriangle, CheckCircle2, ArrowRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { CloudRain, Waves, AlertTriangle, ArrowUpRight, Zap, CheckCircle2 } from 'lucide-react';
 import { useCivic } from '../../context/CivicContext';
 import { DataProvenanceBadge } from '../common/DataProvenanceBadge';
 
 export const FloodIntelligenceCard: React.FC = () => {
-  const { floodIntelligence } = useCivic();
+  const { floodIntelligence, playSound } = useCivic();
+  const [pumpDispatched, setPumpDispatched] = useState(false);
 
   const provenance = {
-    source: 'IMD Doppler & SCADA Mesh',
+    source: 'GCC Stormwater / IMD Telemetry',
     lastUpdated: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
     status: 'LIVE' as const,
-    refreshIntervalMs: 45000,
-    providerName: 'Ripon Building Hydrological Network'
+    refreshIntervalMs: 60000,
+    providerName: 'Disaster Early Warning System (DEWS)'
+  };
+
+  const handleTriggerPumps = () => {
+    playSound('success');
+    setPumpDispatched(true);
+    setTimeout(() => setPumpDispatched(false), 5000);
   };
 
   return (
-    <div className="gov-card rounded-lg p-4 bg-white border border-slate-200 shadow-sm space-y-3">
+    <div className="rounded-2xl p-4 bg-[#0D111A] border border-slate-800 shadow-xl space-y-3">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-slate-100 gap-1">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-white/10 gap-1">
         <div className="flex items-center space-x-2">
-          <Waves className="w-4 h-4 text-blue-700" />
-          <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wide">
-            Flood & Drainage Intelligence
+          <Waves className="w-4 h-4 text-cyan-400" />
+          <h3 className="text-xs font-bold text-white uppercase tracking-wider font-mono">
+            Flood & Sump Inundation
           </h3>
         </div>
 
         <DataProvenanceBadge provenance={provenance} />
       </div>
 
-      {/* Ward & Risk Score */}
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="text-xs font-bold text-slate-900">{floodIntelligence.ward}</div>
-          <div className="text-[11px] text-slate-500 font-mono">
-            Rainfall: <strong className="text-slate-900">{floodIntelligence.rainfallMmHr} mm/hr</strong> | Water: <strong className="text-blue-800">{floodIntelligence.waterLevelFeet} ft</strong>
-          </div>
+      {/* Critical Basin & Inundation Level */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between text-xs">
+          <span className="font-semibold text-slate-200 line-clamp-1">{floodIntelligence.criticalBasin}</span>
+          <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-red-950 text-red-300 border border-red-500/40">
+            RISK: {floodIntelligence.waterloggingRisk}
+          </span>
         </div>
-        <div className="px-2.5 py-1 rounded bg-red-100 border border-red-200 text-red-800 font-mono font-bold text-xs">
-          DYNAMIC RISK: {floodIntelligence.riskScore} / 100
-        </div>
-      </div>
 
-      {/* Signals Checklist */}
-      <div className="p-2.5 rounded bg-slate-50 border border-slate-200 space-y-1 text-xs text-slate-700">
-        <div className="font-bold text-[10px] uppercase text-slate-500">Live Spatial Signals:</div>
-        {floodIntelligence.signals.map((sig, idx) => (
-          <div key={idx} className="flex items-center space-x-1.5 text-[11px] text-slate-800">
-            <CheckCircle2 className="w-3 h-3 text-green-700 shrink-0" />
-            <span>{sig}</span>
+        {/* Metrics Grid */}
+        <div className="grid grid-cols-3 gap-2 text-xs font-mono">
+          <div className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-center">
+            <span className="text-[10px] text-slate-400 block font-sans">Water Level</span>
+            <span className="text-sm font-bold text-cyan-400">{floodIntelligence.waterLevelFeet} ft</span>
           </div>
-        ))}
-      </div>
-
-      {/* Recommended Municipal Actions */}
-      <div className="p-2.5 rounded bg-amber-50 border border-amber-200 space-y-1 text-xs text-amber-950">
-        <div className="font-bold text-[10px] uppercase text-amber-900 flex items-center space-x-1">
-          <AlertTriangle className="w-3 h-3 text-amber-700" />
-          <span>Recommended Preemptive Actions:</span>
+          <div className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-center">
+            <span className="text-[10px] text-slate-400 block font-sans">Drain Cap</span>
+            <span className="text-sm font-bold text-white">{floodIntelligence.drainageCapacityPct}%</span>
+          </div>
+          <div className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-center">
+            <span className="text-[10px] text-slate-400 block font-sans">Pumps Active</span>
+            <span className="text-sm font-bold text-emerald-400">{floodIntelligence.pumpsActive} Units</span>
+          </div>
         </div>
-        {floodIntelligence.recommendedActions.map((action, idx) => (
-          <div key={idx} className="flex items-center space-x-1.5 text-[11px] text-amber-950">
-            <ArrowRight className="w-3 h-3 text-amber-700 shrink-0" />
-            <span>{action}</span>
+
+        {/* Early Warning Message */}
+        <div className="p-2.5 rounded-xl bg-cyan-950/40 border border-cyan-500/30 text-xs text-cyan-200 space-y-1.5">
+          <div className="flex items-center justify-between">
+            <span className="font-bold text-[11px] block">Stormwater De-watering Status:</span>
+            <span className="text-[10px] font-mono text-cyan-400">High Inflow Rate</span>
           </div>
-        ))}
+          <p className="text-[10px] text-slate-300 leading-relaxed">
+            {floodIntelligence.earlyWarningMessage}
+          </p>
+          <button
+            onClick={handleTriggerPumps}
+            className="w-full mt-1 px-2.5 py-1 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-[10px] transition flex items-center justify-center space-x-1"
+          >
+            <Zap className="w-3 h-3" />
+            <span>{pumpDispatched ? '✓ Heavy Diesel Pumps Running (+14,000 LPM)' : 'Trigger Auxiliary De-watering Pumps'}</span>
+          </button>
+        </div>
       </div>
     </div>
   );

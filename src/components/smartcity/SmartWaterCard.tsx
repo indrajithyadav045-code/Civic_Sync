@@ -1,64 +1,81 @@
-import React from 'react';
-import { Droplet, AlertTriangle, CheckCircle2, Activity } from 'lucide-react';
+import React, { useState } from 'react';
+import { Droplet, Activity, AlertTriangle, CheckCircle2, Zap } from 'lucide-react';
 import { useCivic } from '../../context/CivicContext';
 import { DataProvenanceBadge } from '../common/DataProvenanceBadge';
 
 export const SmartWaterCard: React.FC = () => {
-  const { smartWater } = useCivic();
+  const { smartWater, playSound } = useCivic();
+  const [pressureBalanced, setPressureBalanced] = useState(false);
 
   const provenance = {
-    source: 'CMWSSB SCADA Pressure Telemetry',
+    source: 'CMWSSB SCADA / DMA Mesh',
     lastUpdated: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
     status: 'LIVE' as const,
-    refreshIntervalMs: 45000,
-    providerName: 'Chennai Metro Water Supply & Sewerage Board'
+    refreshIntervalMs: 60000,
+    providerName: 'Metropolitan Water Supply & Pipeline SCADA'
+  };
+
+  const handleBalancePressure = () => {
+    playSound('success');
+    setPressureBalanced(true);
+    setTimeout(() => setPressureBalanced(false), 5000);
   };
 
   return (
-    <div className="gov-card rounded-lg p-4 bg-white border border-slate-200 shadow-sm space-y-3">
+    <div className="rounded-2xl p-4 bg-[#0D111A] border border-slate-800 shadow-xl space-y-3">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-slate-100 gap-1">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-white/10 gap-1">
         <div className="flex items-center space-x-2">
-          <Droplet className="w-4 h-4 text-cyan-700" />
-          <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wide">
-            Water Network Intelligence
+          <Droplet className="w-4 h-4 text-cyan-400" />
+          <h3 className="text-xs font-bold text-white uppercase tracking-wider font-mono">
+            MetroWater Pipeline SCADA
           </h3>
         </div>
 
         <DataProvenanceBadge provenance={provenance} />
       </div>
 
-      {/* Network Health */}
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="text-xs font-bold text-slate-900">CMWSSB Pipeline Telemetry</div>
-          <div className="text-[11px] text-slate-500 font-mono">SCADA Pressure Monitoring</div>
-        </div>
-        <div className="px-2 py-0.5 rounded bg-cyan-50 border border-cyan-200 text-cyan-900 font-mono font-bold text-xs">
-          HEALTH: {smartWater.networkHealthPct}%
-        </div>
-      </div>
-
-      {/* Pipeline Status Breakdown */}
-      <div className="space-y-2 text-xs font-mono">
-        <div className="p-2 rounded bg-slate-50 border border-slate-200 flex items-center justify-between">
-          <span>{smartWater.normalPipeline.id}</span>
-          <span className="text-emerald-700 font-bold">{smartWater.normalPipeline.pressure}</span>
+      {/* Reservoir & Pressure Status */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between text-xs">
+          <span className="font-semibold text-slate-200 line-clamp-1">{smartWater.reservoirName}</span>
+          <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-cyan-950 text-cyan-300 border border-cyan-500/40">
+            STORAGE: {smartWater.storageLevelPct}%
+          </span>
         </div>
 
-        <div className="p-2.5 rounded bg-red-50 border border-red-200 space-y-1">
+        {/* Metrics Grid */}
+        <div className="grid grid-cols-3 gap-2 text-xs font-mono">
+          <div className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-center">
+            <span className="text-[10px] text-slate-400 block font-sans">Pressure</span>
+            <span className="text-sm font-bold text-cyan-400">{smartWater.pipelinePressureBar} Bar</span>
+          </div>
+          <div className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-center">
+            <span className="text-[10px] text-slate-400 block font-sans">Water Loss</span>
+            <span className="text-sm font-bold text-amber-400">{smartWater.leakageRatePct}% NRW</span>
+          </div>
+          <div className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-center">
+            <span className="text-[10px] text-slate-400 block font-sans">Quality</span>
+            <span className="text-sm font-bold text-emerald-400">{smartWater.waterQualityIndex} (Good)</span>
+          </div>
+        </div>
+
+        {/* Action Status */}
+        <div className="p-2.5 rounded-xl bg-cyan-950/40 border border-cyan-500/30 text-xs text-cyan-200 space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="font-bold text-slate-900">{smartWater.riskPipeline.id}</span>
-            <span className="text-red-700 font-bold text-[10px]">
-              LEAK RISK: {smartWater.riskPipeline.leakRisk}
-            </span>
+            <span className="font-bold text-[11px] block">Acoustic Hydrophone Mesh:</span>
+            <span className="text-[10px] font-mono text-emerald-400">DMA Monitored</span>
           </div>
-          <div className="text-[11px] text-slate-700">
-            Estimated Water Loss: <strong className="text-red-700">{smartWater.riskPipeline.estimatedLossLitrePerHour.toLocaleString()} L/hr</strong>
-          </div>
-          <div className="text-[10px] text-slate-600 font-sans pt-0.5">
-            Recommended: {smartWater.riskPipeline.recommendedAction}
-          </div>
+          <p className="text-[10px] text-slate-300 leading-relaxed">
+            Real-time pipeline pressure balancing across Southern Chennai distribution lines.
+          </p>
+          <button
+            onClick={handleBalancePressure}
+            className="w-full mt-1 px-2.5 py-1 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-[10px] transition flex items-center justify-center space-x-1"
+          >
+            <Zap className="w-3 h-3" />
+            <span>{pressureBalanced ? '✓ Pressure Regulated to 3.2 Bar' : 'Execute Automated Valve Balancing'}</span>
+          </button>
         </div>
       </div>
     </div>
