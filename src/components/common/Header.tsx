@@ -21,7 +21,8 @@ import {
   ChevronDown,
   Database,
   CloudRain,
-  Wind
+  Wind,
+  Compass
 } from 'lucide-react';
 import { useCivic, ActiveView } from '../../context/CivicContext';
 import { SmsSettingsModal } from './SmsSettingsModal';
@@ -66,6 +67,7 @@ export const Header: React.FC = () => {
     { id: 'disaster_alerts', labelKey: 'navDisasterAlerts', icon: Radio, badge: alerts.length },
     { id: 'case_tracking', labelKey: 'navCaseTracking', icon: Search },
     { id: 'risk_forecast', labelKey: 'navRiskForecast', icon: TrendingUp },
+    { id: 'future_matrix', labelKey: 'navFutureMatrix', icon: Compass },
   ];
 
   return (

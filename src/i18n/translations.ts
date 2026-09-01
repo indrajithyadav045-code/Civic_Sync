@@ -40,6 +40,7 @@ export const translations = {
     navCaseTracking: 'Track Complaint',
     navResolutionVerification: 'Resolution Proof',
     navRiskForecast: 'Risk Forecast',
+    navFutureMatrix: 'Future Matrix',
 
     // Citizen Home
     homePortalBadge: 'CROWDSOURCED CIVIC ISSUE REPORTING & RESOLUTION PLATFORM',
@@ -208,6 +209,7 @@ export const translations = {
     navCaseTracking: 'புகார் கண்காணிப்பு',
     navResolutionVerification: 'தீர்வு சான்றிதழ்',
     navRiskForecast: 'இடர் முன்னறிவிப்பு',
+    navFutureMatrix: 'எதிர்கால மேட்ரிக்ஸ்',
 
     // Citizen Home
     homePortalBadge: 'குடிமக்கள் புகார் பதிவு மற்றும் நகராட்சி தீர்வு தளம்',
@@ -376,6 +378,7 @@ export const translations = {
     navCaseTracking: 'ఫిర్యాదు ట్రాకింగ్',
     navResolutionVerification: 'పరిష్కార రుజువు',
     navRiskForecast: 'ప్రమాద అంచనా',
+    navFutureMatrix: 'ఫ్యూచర్ మ్యాట్రిక్స్',
 
     // Citizen Home
     homePortalBadge: 'పౌర సమస్యల నివేదన & పరిష్కార వేదిక',
@@ -544,6 +547,7 @@ export const translations = {
     navCaseTracking: 'ದೂರು ಟ್ರ್ಯಾಕಿಂಗ್',
     navResolutionVerification: 'ಪರಿಹಾರ ಪುರಾವೆ',
     navRiskForecast: 'ಅಪಾಯ ಮುನ್ಸೂಚನೆ',
+    navFutureMatrix: 'ಫ್ಯೂಚರ್ ಮ್ಯಾಟ್ರಿಕ್ಸ್',
 
     // Citizen Home
     homePortalBadge: 'ನಾಗರಿಕ ಸಮಸ್ಯೆ ವರದಿ ಮತ್ತು ಪರಿಹಾರ ವೇದಿಕೆ',
@@ -712,6 +716,7 @@ export const translations = {
     navCaseTracking: 'പരാതി ട്രാക്കിംഗ്',
     navResolutionVerification: 'പരിഹാര തെളിവ്',
     navRiskForecast: 'അപകട സാധ്യത പ്രവചനം',
+    navFutureMatrix: 'ഫ്യൂച്ചർ മാട്രിക്സ്',
 
     // Citizen Home
     homePortalBadge: 'പൗര പരാതി പരിഹാര പ്ലാറ്റ്‌ഫോം',
@@ -854,7 +859,7 @@ export const translations = {
     footerTitle: 'CIVIC-SYNC – സ്മാർട്ട് സിറ്റി പൗര പരിഹാര പ്ലാറ്റ്‌ഫോം',
     footerSubtitle: 'ഗ്രേറ്റർ ചെന്നൈ കോർപ്പറേഷനും സ്മാർട്ട് സിറ്റീസ് മിഷനുമായി വികസിപ്പിച്ചത്.',
     footerRights: '© 2026 ഗ്രേറ്റർ ചെന്നൈ കോർപ്പറേഷൻ. സർവ്വ അവകാശങ്ങളും നിക്ഷിപ്തം.',
-    footerCompliance: 'WCAG 2.1 AA മാനദಂಡങ്ങൾ പാലിക്കുന്നു',
+    footerCompliance: 'WCAG 2.1 AA മാനദണ്ഡങ്ങൾ പാലിക്കുന്നു',
   },
 
   hi: {
@@ -880,6 +885,7 @@ export const translations = {
     navCaseTracking: 'शिकायत ट्रैकिंग',
     navResolutionVerification: 'समाधान प्रमाण',
     navRiskForecast: 'जोखिम पूर्वानुमान',
+    navFutureMatrix: 'फ्यूचर मैट्रिक्स',
 
     // Citizen Home
     homePortalBadge: 'नागरिक शिकायत निवारण एवं समाधान मंच',

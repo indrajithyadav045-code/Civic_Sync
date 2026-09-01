@@ -12,6 +12,7 @@ import { GeoFencedAlerts } from './components/alerts/GeoFencedAlerts';
 import { CitizenCaseTracker } from './components/tracking/CitizenCaseTracker';
 import { ResolutionVerifier } from './components/verification/ResolutionVerifier';
 import { PredictiveRiskForecast } from './components/forecast/PredictiveRiskForecast';
+import { StrategicFutureMatrix } from './components/future-matrix/StrategicFutureMatrix';
 import { HackathonTourModal } from './components/guided-demo/HackathonTourModal';
 
 export const AppContent: React.FC = () => {
@@ -32,6 +33,7 @@ export const AppContent: React.FC = () => {
         {activeView === 'case_tracking' && <CitizenCaseTracker />}
         {activeView === 'resolution_verification' && <ResolutionVerifier />}
         {activeView === 'risk_forecast' && <PredictiveRiskForecast />}
+        {activeView === 'future_matrix' && <StrategicFutureMatrix />}
       </main>
 
       <Footer />

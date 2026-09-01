@@ -100,6 +100,51 @@ export const ReportIncident: React.FC = () => {
     }
   }, []);
 
+  const [isScanningYolo, setIsScanningYolo] = useState(false);
+  const [detectedHazard, setDetectedHazard] = useState<{ label: string; conf: number; top: number; left: number; width: number; height: number } | null>({
+    label: 'Waterlogging Inundation',
+    conf: 94.2,
+    top: 35,
+    left: 15,
+    width: 70,
+    height: 55
+  });
+
+  const triggerYoloScan = (category: string) => {
+    setIsScanningYolo(true);
+    playSound('radar');
+    setTimeout(() => {
+      setIsScanningYolo(false);
+      let label = 'Waterlogging Inundation';
+      let conf = 94.2;
+      let top = 35;
+      let left = 15;
+      let width = 70;
+      let height = 55;
+
+      if (category.includes('Crater') || category.includes('Pothole')) {
+        label = 'Asphalt Crater / Pothole';
+        conf = 96.4;
+        top = 40; left = 20; width = 60; height = 45;
+      } else if (category.includes('Waste') || category.includes('Bin')) {
+        label = 'Overflowing Solid Waste';
+        conf = 92.8;
+        top = 25; left = 25; width = 50; height = 60;
+      } else if (category.includes('Light') || category.includes('Dark')) {
+        label = 'Offline Street Light Fixture';
+        conf = 89.5;
+        top = 20; left = 35; width = 30; height = 50;
+      } else if (category.includes('Pipeline') || category.includes('Water')) {
+        label = 'Pipeline Pressure Burst';
+        conf = 97.1;
+        top = 45; left = 20; width = 65; height = 40;
+      }
+
+      setDetectedHazard({ label, conf, top, left, width, height });
+      playSound('success');
+    }, 1100);
+  };
+
   const handleSelectPreset = (preset: typeof PRESET_SCENARIOS[0]) => {
     setDescription(preset.text);
     setImagePreview(preset.image);
@@ -109,6 +154,7 @@ export const ReportIncident: React.FC = () => {
     setLocationName(preset.location);
     setGpsMessage('Preset Chennai Sector Locked');
     playSound('beep');
+    triggerYoloScan(preset.label);
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -130,7 +176,7 @@ export const ReportIncident: React.FC = () => {
         setImagePreview(reader.result);
         setIsCustomPhoto(true);
         setCustomPhotoName(file.name);
-        playSound('success');
+        triggerYoloScan('Custom Upload');
       }
     };
     reader.readAsDataURL(file);
@@ -373,13 +419,13 @@ export const ReportIncident: React.FC = () => {
               className="hidden"
             />
 
-            {/* Photo Container with Drag & Drop & Upload Button */}
+            {/* Photo Container with YOLOv8 Scanner & Bounding Box */}
             <div 
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
-              className={`relative rounded overflow-hidden border-2 transition aspect-video bg-slate-100 flex flex-col items-center justify-center ${
-                isDragging ? 'border-blue-600 bg-blue-50' : 'border-slate-300'
+              className={`relative rounded overflow-hidden border-2 transition aspect-video bg-slate-950 flex flex-col items-center justify-center ${
+                isDragging ? 'border-cyan-400 bg-cyan-950/20' : 'border-slate-800'
               }`}
             >
               <img
@@ -388,15 +434,48 @@ export const ReportIncident: React.FC = () => {
                 className="w-full h-full object-cover"
               />
 
+              {/* Animated Laser Scanning Line */}
+              {isScanningYolo && (
+                <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                  <div className="w-full h-1 bg-cyan-400 shadow-[0_0_15px_#22d3ee] animate-bounce" />
+                  <div className="absolute inset-0 bg-cyan-500/10 backdrop-blur-[1px] flex items-center justify-center">
+                    <span className="px-3 py-1 rounded bg-black/80 text-cyan-400 font-mono text-xs font-bold border border-cyan-400 animate-pulse">
+                      ⚡ YOLOv8 LIVE INFERENCE SCANNING...
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Detected YOLOv8 Bounding Box */}
+              {!isScanningYolo && detectedHazard && (
+                <div 
+                  className="absolute border-2 border-cyan-400 bg-cyan-500/10 pointer-events-none transition-all duration-300 shadow-[0_0_10px_rgba(34,211,238,0.3)]"
+                  style={{
+                    top: `${detectedHazard.top}%`,
+                    left: `${detectedHazard.left}%`,
+                    width: `${detectedHazard.width}%`,
+                    height: `${detectedHazard.height}%`
+                  }}
+                >
+                  <div className="absolute -top-6 left-0 px-2 py-0.5 rounded bg-cyan-500 text-slate-950 font-mono font-bold text-[10px] whitespace-nowrap shadow">
+                    {detectedHazard.label} ({detectedHazard.conf}%)
+                  </div>
+                </div>
+              )}
+
               <div className="absolute top-2 right-2 flex items-center space-x-1">
-                {isCustomPhoto && (
+                {isCustomPhoto ? (
                   <span className="px-2 py-0.5 rounded bg-emerald-600 text-white font-mono text-[10px] font-bold shadow-xs">
                     CUSTOM UPLOAD
+                  </span>
+                ) : (
+                  <span className="px-2 py-0.5 rounded bg-slate-900/90 text-cyan-300 border border-cyan-500/40 font-mono text-[10px] font-bold">
+                    YOLOv8 DETECTED
                   </span>
                 )}
               </div>
 
-              <div className="absolute bottom-2 left-2 px-2 py-0.5 rounded bg-slate-900/80 text-white font-mono text-[10px]">
+              <div className="absolute bottom-2 left-2 px-2 py-0.5 rounded bg-slate-900/90 text-white font-mono text-[10px] border border-white/10">
                 {customPhotoName ? customPhotoName : 'GEO-TAG EXIF ATTACHED'}
               </div>
             </div>

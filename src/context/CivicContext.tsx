@@ -55,7 +55,8 @@ export type ActiveView =
   | 'disaster_alerts'
   | 'resolution_verification'
   | 'risk_forecast'
-  | 'dedup_lab';
+  | 'dedup_lab'
+  | 'future_matrix';
 
 export interface TriageStepProgress {
   stepIndex: number;

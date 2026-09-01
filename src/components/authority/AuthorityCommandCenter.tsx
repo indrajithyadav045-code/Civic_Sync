@@ -84,8 +84,47 @@ export const AuthorityCommandCenter: React.FC = () => {
     return matchesSearch && matchesDept;
   });
 
+  const [isCapAlertActive, setIsCapAlertActive] = useState(false);
+
+  const handleTriggerCapAlert = () => {
+    setIsCapAlertActive(true);
+    playSound('alert');
+    setTimeout(() => {
+      setIsCapAlertActive(false);
+    }, 8000);
+  };
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 relative">
+      {/* Geo-Targeted CAP Cell Broadcast Banner Overlay */}
+      {isCapAlertActive && (
+        <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 max-w-xl w-full px-4 animate-bounce">
+          <div className="p-4 rounded-2xl bg-red-600 border-2 border-white text-white shadow-2xl space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <span className="p-1 rounded bg-white text-red-600 font-bold text-xs">CAP v1.2</span>
+                <span className="font-mono text-xs font-bold uppercase tracking-wider">
+                  NDMA / CIVIC-SYNC EMERGENCY ALERT
+                </span>
+              </div>
+              <button 
+                onClick={() => setIsCapAlertActive(false)}
+                className="text-white hover:text-slate-200 text-xs font-bold"
+              >
+                ✕ DISMISS
+              </button>
+            </div>
+            <p className="text-xs font-bold leading-relaxed">
+              🚨 MUNICIPAL ALERT: Severe urban waterlogging & road inundation reported within 1000m of your GPS sector. Automated bus transit diversions active on 100ft Bypass Road.
+            </p>
+            <div className="flex items-center justify-between text-[10px] font-mono text-red-100 pt-1 border-t border-red-500/50">
+              <span>Target Perimeter: 1000m Geofence</span>
+              <span>Cell Broadcast Transmitted: 142,000 Nodes</span>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Operations Dashboard Header */}
       <div className="gov-card rounded-lg p-5 bg-white border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -103,6 +142,15 @@ export const AuthorityCommandCenter: React.FC = () => {
 
         {/* View Switcher Tabs & Simulator Toggle */}
         <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={handleTriggerCapAlert}
+            className="px-3 py-1.5 rounded-lg text-xs font-bold bg-red-600 hover:bg-red-700 text-white transition flex items-center space-x-1.5 shadow-sm animate-pulse"
+            title="Simulate Geo-Targeted Common Alerting Protocol (CAP) Broadcast"
+          >
+            <Radio className="w-3.5 h-3.5" />
+            <span>🚨 Trigger CAP Alert</span>
+          </button>
+
           <button
             onClick={() => setShowSimulator(!showSimulator)}
             className={`px-3 py-1.5 rounded text-xs font-semibold transition flex items-center space-x-1.5 ${

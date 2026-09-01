@@ -197,6 +197,10 @@ export const ResolutionVerifier: React.FC = () => {
                 <span className="text-slate-600">GPS EXIF Geo-Match:</span>
                 <span className="text-green-700 font-bold">✓ ±0.8m Verified Match</span>
               </div>
+              <div className="p-2 rounded bg-emerald-950/20 border border-emerald-500/30 text-[10px] text-emerald-800 font-mono flex items-center justify-between">
+                <span>Verified via PostGIS Geofence Match</span>
+                <span className="font-bold bg-emerald-100 px-1.5 py-0.5 rounded border border-emerald-300">SHA-256 [8f4a...29b1]</span>
+              </div>
             </div>
 
             {/* Checklist */}

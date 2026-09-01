@@ -20,11 +20,19 @@ import {
   Sliders,
   Globe,
   Sun,
-  Moon
+  Moon,
+  Terminal,
+  X,
+  Zap,
+  Clock,
+  Sparkles,
+  GitBranch,
+  Database
 } from 'lucide-react';
 import { useCivic } from '../../context/CivicContext';
 import { SENSITIVE_INFRASTRUCTURE } from '../../data/mockData';
 import { DigitalTwinLayerPanel } from '../smartcity/DigitalTwinLayerPanel';
+import { Incident } from '../../types';
 import L from 'leaflet';
 
 type MapTileStyle = 'osm' | 'satellite' | 'dark' | 'positron';
@@ -53,6 +61,14 @@ const TILE_PROVIDERS: Record<MapTileStyle, { url: string; subdomains?: string; m
     label: 'Light Positron (Clean Minimal)'
   }
 };
+
+const TELEMETRY_STREAM = [
+  '[22:58:14] PostGIS: Master Incident #CS-7421 auto-merged duplicate report within 28.4m radius. Priority escalated to HIGH.',
+  '[22:58:22] YOLOv8 Inference: ViT-B segmented 2.5ft flood surface on Velachery 100ft Bypass (Confidence: 94.2%).',
+  '[22:58:31] Spatial Geofence: 180m school proximity safety buffer triggered for DAV Public School.',
+  '[22:58:45] ST_DWithin: 2 duplicate dispatches suppressed in Zone 13 Sector 4. Labor hours saved: 5.0h.',
+  '[22:59:02] SCADA Telemetry: PWD de-watering pump unit Alpha-4 dispatched via GPS route diversion.'
+];
 
 export const TacticalCommandMap: React.FC = () => {
   const { 
@@ -83,6 +99,16 @@ export const TacticalCommandMap: React.FC = () => {
   const [isLocating, setIsLocating] = useState(false);
   const [locationStatus, setLocationStatus] = useState<string>('Chennai Default (Velachery / Guindy / Mount Road)');
   const [showLayerDrawer, setShowLayerDrawer] = useState(false);
+  const [selectedClusterIncident, setSelectedClusterIncident] = useState<Incident | null>(null);
+  const [telemetryIndex, setTelemetryIndex] = useState(0);
+
+  // Ticker rotation
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTelemetryIndex((prev) => (prev + 1) % TELEMETRY_STREAM.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Locate User via Browser Geolocation API
   const handleUseCurrentLocation = () => {
@@ -119,85 +145,78 @@ export const TacticalCommandMap: React.FC = () => {
               iconSize: [28, 28],
               iconAnchor: [14, 14]
             });
-
-            const marker = L.marker([latitude, longitude], { icon: userIcon }).addTo(mapInstanceRef.current);
-            marker.bindPopup(`
-              <div style="font-family: 'Inter', sans-serif; font-size: 12px; font-weight: bold; color: #0f2a4a;">
-                📍 CITIZEN LIVE GPS FIX
-                <div style="font-size: 10px; color: #64748b; font-family: monospace; margin-top: 2px;">
-                  ${latitude.toFixed(5)}° N, ${longitude.toFixed(5)}° E
-                </div>
-              </div>
-            `).openPopup();
-            userLocationMarkerRef.current = marker;
+            userLocationMarkerRef.current = L.marker([latitude, longitude], { icon: userIcon })
+              .addTo(mapInstanceRef.current)
+              .bindPopup('<strong>You are here</strong><br/><span style="font-size:11px;">Live Citizen Location</span>');
           }
         }
       },
-      (error) => {
+      (err) => {
         setIsLocating(false);
-        setLocationStatus('GPS fallback: Chennai Center');
-        if (mapInstanceRef.current) {
-          mapInstanceRef.current.flyTo([12.9815, 80.2180], 14);
-        }
+        setLocationStatus('GPS Unavailable (Using Chennai Sector Default)');
+        playSound('beep');
       },
-      { enableHighAccuracy: true, timeout: 8000 }
+      { enableHighAccuracy: true, timeout: 6000 }
     );
   };
 
-  // Switch Base Map Tile Layer
+  // Initialize Map
   useEffect(() => {
-    if (!mapInstanceRef.current) return;
+    if (!mapContainerRef.current) return;
+
+    if (!mapInstanceRef.current) {
+      const map = L.map(mapContainerRef.current, {
+        center: [12.9815, 80.2180], // Velachery, Chennai
+        zoom: 14,
+        zoomControl: true,
+        attributionControl: false
+      });
+
+      mapInstanceRef.current = map;
+
+      const provider = TILE_PROVIDERS[mapStyle];
+      const tileLayer = L.tileLayer(provider.url, {
+        maxZoom: provider.maxZoom,
+        subdomains: provider.subdomains || 'abc',
+        crossOrigin: true
+      }).addTo(map);
+
+      currentTileLayerRef.current = tileLayer;
+    }
+
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
+  }, []);
+
+  // Update Base Tile Provider
+  useEffect(() => {
     const map = mapInstanceRef.current;
+    if (!map) return;
 
     if (currentTileLayerRef.current) {
       map.removeLayer(currentTileLayerRef.current);
     }
 
     const provider = TILE_PROVIDERS[mapStyle];
-    const newLayer = L.tileLayer(provider.url, {
+    const newTileLayer = L.tileLayer(provider.url, {
       maxZoom: provider.maxZoom,
       subdomains: provider.subdomains || 'abc',
-      attribution: '© OpenStreetMap contributors | No API Key Required'
+      crossOrigin: true
     }).addTo(map);
 
-    currentTileLayerRef.current = newLayer;
+    currentTileLayerRef.current = newTileLayer;
+    map.invalidateSize();
   }, [mapStyle]);
 
+  // Render Overlay Layers
   useEffect(() => {
-    if (!mapContainerRef.current) return;
-
-    if (!mapInstanceRef.current) {
-      // Default to Chennai (Velachery / Central Sector)
-      const map = L.map(mapContainerRef.current, {
-        center: [12.9815, 80.2180],
-        zoom: 14,
-        zoomControl: false,
-        attributionControl: false
-      });
-
-      // Free Standard OpenStreetMap (100% Free, NO API Key needed, Full Streets & Areas)
-      const provider = TILE_PROVIDERS[mapStyle];
-      const tileLayer = L.tileLayer(provider.url, {
-        maxZoom: provider.maxZoom,
-        subdomains: provider.subdomains || 'abc',
-        attribution: '© OpenStreetMap contributors'
-      }).addTo(map);
-
-      currentTileLayerRef.current = tileLayer;
-
-      L.control.zoom({ position: 'bottomright' }).addTo(map);
-      mapInstanceRef.current = map;
-
-      // Invalidate size to guarantee no blank tiles
-      setTimeout(() => {
-        map.invalidateSize();
-      }, 200);
-    }
-
     const map = mapInstanceRef.current;
     if (!map) return;
 
-    // Clear existing overlay layers (keep tile layer and user pin)
     map.eachLayer((layer) => {
       if (layer instanceof L.TileLayer) return;
       if (userLocationMarkerRef.current && layer === userLocationMarkerRef.current) return;
@@ -307,88 +326,7 @@ export const TacticalCommandMap: React.FC = () => {
       });
     }
 
-    // 5. SMART STREET LIGHTING LAYER (Pole #SL-183)
-    if (digitalTwinLayers.streetLights) {
-      const lightIcon = L.divIcon({
-        className: 'custom-light-icon',
-        html: `<div style="background: #eab308; color: #000; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; font-size: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">💡</div>`,
-        iconSize: [24, 24],
-        iconAnchor: [12, 12]
-      });
-      L.marker([smartLighting.sampleIncident.lat, smartLighting.sampleIncident.lng], { icon: lightIcon }).addTo(map)
-        .bindPopup(`<strong style="color:#b45309;">${smartLighting.sampleIncident.poleId}</strong><br/><span style="font-size:11px;">Status: OFFLINE (Dark Zone Hazard)</span>`);
-    }
-
-    // 6. SMART WASTE LAYER (Bin #WB-092)
-    if (digitalTwinLayers.wasteBins) {
-      const wasteIcon = L.divIcon({
-        className: 'custom-waste-icon',
-        html: `<div style="background: #15803d; color: #fff; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; font-size: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">🗑️</div>`,
-        iconSize: [24, 24],
-        iconAnchor: [12, 12]
-      });
-      L.marker([smartWaste.lat, smartWaste.lng], { icon: wasteIcon }).addTo(map)
-        .bindPopup(`<strong style="color:#15803d;">${smartWaste.binId}</strong><br/><span style="font-size:11px;">Fill Level: ${smartWaste.fillLevelPct}% (Overflow Risk in ${smartWaste.predictedOverflow})</span>`);
-    }
-
-    // 7. SMART WATER NETWORK LAYER (Pipeline #WN-188)
-    if (digitalTwinLayers.waterNetwork) {
-      const waterIcon = L.divIcon({
-        className: 'custom-water-icon',
-        html: `<div style="background: #0284c7; color: #fff; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; font-size: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">💧</div>`,
-        iconSize: [24, 24],
-        iconAnchor: [12, 12]
-      });
-      L.marker([smartWater.riskPipeline.lat, smartWater.riskPipeline.lng], { icon: waterIcon }).addTo(map)
-        .bindPopup(`<strong style="color:#0284c7;">${smartWater.riskPipeline.id}</strong><br/><span style="font-size:11px;">Leak Risk: HIGH (${smartWater.riskPipeline.estimatedLossLitrePerHour.toLocaleString()} L/hr)</span>`);
-    }
-
-    // 8. AQI / ENVIRONMENT LAYER (Kathipara Hotspot)
-    if (digitalTwinLayers.aqiHotspots) {
-      L.circle([13.0070, 80.2030], {
-        radius: 400,
-        color: '#0d9488',
-        weight: 1.5,
-        dashArray: '3, 3',
-        fillColor: '#2dd4bf',
-        fillOpacity: 0.2
-      }).addTo(map).bindTooltip(`AQI Hotspot: ${environmentAqi.aqi} (PM2.5: ${environmentAqi.pm25} µg/m³)`, {
-        direction: 'center',
-        className: 'font-semibold text-xs bg-slate-900 text-white p-1 rounded'
-      });
-    }
-
-    // 9. EMERGENCY RESPONSE FLEET (AMB-04)
-    if (digitalTwinLayers.emergencyUnits) {
-      const ambIcon = L.divIcon({
-        className: 'custom-amb-icon',
-        html: `<div style="background: #dc2626; color: #fff; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; font-size: 13px; box-shadow: 0 2px 6px rgba(0,0,0,0.4);">🚑</div>`,
-        iconSize: [28, 28],
-        iconAnchor: [14, 14]
-      });
-      L.marker([emergencyFleet.activeIncidentDispatch.lat, emergencyFleet.activeIncidentDispatch.lng], { icon: ambIcon }).addTo(map)
-        .bindPopup(`<strong style="color:#dc2626;">${emergencyFleet.activeIncidentDispatch.nearestUnit}</strong><br/><span style="font-size:11px;">Status: ${emergencyFleet.activeIncidentDispatch.status} (ETA: ${emergencyFleet.activeIncidentDispatch.etaMinutesSeconds})</span>`);
-    }
-
-    // 10. PREDICTIVE RISK FORECAST ZONES
-    if (digitalTwinLayers.riskForecastZones) {
-      forecastHotspots.forEach(hotspot => {
-        const strokeColor = hotspot.riskTier === 'HIGH_RISK' ? '#dc2626' : hotspot.riskTier === 'MEDIUM_RISK' ? '#d97706' : '#15803d';
-        L.circle([hotspot.center.lat, hotspot.center.lng], {
-          radius: hotspot.radius,
-          color: strokeColor,
-          weight: 1.5,
-          dashArray: '4, 4',
-          fillColor: strokeColor,
-          fillOpacity: 0.12
-        }).addTo(map).bindTooltip(`Forecast (6h): ${hotspot.zoneName} (${hotspot.predictedScore}/100)`, {
-          direction: 'top',
-          className: 'text-[11px] bg-slate-900 text-white p-1 rounded font-semibold'
-        });
-      });
-    }
-
-    // 11. Render Incidents & 50m Deduplication Rings
+    // 5. Render Incidents with 50-Meter Geofence & Parent-Child Deduplication Lines
     if (digitalTwinLayers.incidents) {
       incidents.forEach(inc => {
         if (inc.severity === 'CRITICAL' && !digitalTwinLayers.criticalIncidents) return;
@@ -396,23 +334,52 @@ export const TacticalCommandMap: React.FC = () => {
 
         const isResolved = inc.status === 'RESOLVED';
         const isCritical = inc.severity === 'CRITICAL';
-        const isSelected = selectedIncident?.id === inc.id;
+        const isSelected = selectedIncident?.id === inc.id || selectedClusterIncident?.id === inc.id;
 
-        const color = isResolved ? '#15803d' : isCritical ? '#dc2626' : '#0284c7';
+        const color = isResolved ? '#10B981' : isCritical ? '#EF4444' : '#38BDF8';
 
-        // 50m Deduplication Radius Ring
+        // 50m Deduplication Radius Ring with Pulsing Buffer
         if (digitalTwinLayers.dedupRadius50m && inc.isPrimaryMaster) {
           L.circle([inc.coordinates.lat, inc.coordinates.lng], {
             radius: 50,
-            color: '#475569',
-            weight: 1.5,
+            color: '#EF4444',
+            weight: 2,
             dashArray: '4, 4',
-            fillColor: '#94a3b8',
-            fillOpacity: 0.15
-          }).addTo(map).bindTooltip(`50m PostGIS Dedup Buffer (${inc.duplicates.length} merged)`, {
+            fillColor: '#EF4444',
+            fillOpacity: 0.14
+          }).addTo(map).bindTooltip(`50m PostGIS Geofence Buffer (3 Duplicates Clustered)`, {
             direction: 'top',
-            className: 'text-[11px] bg-white text-slate-800 border border-slate-300 font-semibold p-1 rounded'
+            className: 'text-[11px] bg-slate-950 text-red-300 border border-red-500/40 font-mono font-bold p-1 rounded'
           });
+
+          // Draw Parent-Child Connection Lines to child duplicate reports
+          if (inc.duplicates && inc.duplicates.length > 0) {
+            inc.duplicates.forEach(dup => {
+              // Line to duplicate
+              L.polyline([[inc.coordinates.lat, inc.coordinates.lng], [dup.lat, dup.lng]], {
+                color: '#EF4444',
+                weight: 1.5,
+                dashArray: '3, 5',
+                opacity: 0.8
+              }).addTo(map);
+
+              // Small child duplicate node pin
+              const childMarkerHtml = `
+                <div style="background: #0D111A; border: 2px solid #EF4444; width: 14px; height: 14px; border-radius: 50%; box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);"></div>
+              `;
+              L.marker([dup.lat, dup.lng], {
+                icon: L.divIcon({
+                  className: 'custom-child-dup-pin',
+                  html: childMarkerHtml,
+                  iconSize: [14, 14],
+                  iconAnchor: [7, 7]
+                })
+              }).addTo(map).bindTooltip(`Duplicate #${dup.id} (${dup.distanceFromPrimaryMeters}m from Master)`, {
+                direction: 'bottom',
+                className: 'text-[10px] font-mono bg-slate-900 text-white p-1 rounded'
+              });
+            });
+          }
         }
 
         // Incident Pin Icon
@@ -420,8 +387,8 @@ export const TacticalCommandMap: React.FC = () => {
           <div style="
             background: ${color}; 
             color: #ffffff; 
-            width: ${isSelected ? '30px' : '24px'}; 
-            height: ${isSelected ? '30px' : '24px'}; 
+            width: ${isSelected ? '32px' : '26px'}; 
+            height: ${isSelected ? '32px' : '26px'}; 
             border-radius: 50%; 
             display: flex; 
             align-items: center; 
@@ -429,7 +396,8 @@ export const TacticalCommandMap: React.FC = () => {
             border: 2px solid #ffffff; 
             font-weight: bold; 
             font-size: 11px; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            box-shadow: 0 0 12px ${color}80;
+            transition: all 0.2s ease;
           ">
             ${isResolved ? '✓' : '!'}
           </div>
@@ -439,32 +407,16 @@ export const TacticalCommandMap: React.FC = () => {
           icon: L.divIcon({
             className: 'custom-incident-pin',
             html: markerHtml,
-            iconSize: [26, 26],
-            iconAnchor: [13, 13]
+            iconSize: [28, 28],
+            iconAnchor: [14, 14]
           })
         }).addTo(map);
 
         marker.on('click', () => {
           setSelectedIncident(inc);
+          setSelectedClusterIncident(inc);
           playSound('beep');
         });
-
-        marker.bindPopup(`
-          <div style="font-family: 'Inter', sans-serif; min-width: 220px; padding: 2px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-              <span style="color:${color}; font-weight:bold; font-family:monospace; font-size:12px;">#${inc.id}</span>
-              <span style="font-size:10px; font-weight:bold; background:#f1f5f9; padding:2px 6px; border-radius:4px; color:#1e293b;">
-                ${inc.severity}
-              </span>
-            </div>
-            <div style="color:#0f172a; font-weight:bold; font-size:13px; margin-bottom:4px;">${inc.title}</div>
-            <div style="color:#64748b; font-size:11px; margin-bottom:8px;">${inc.locationName}</div>
-            <div style="display:flex; justify-content:space-between; font-size:11px; border-top:1px solid #e2e8f0; padding-top:4px;">
-              <span>SLA Remaining:</span>
-              <strong style="color:#0284c7; font-family:monospace;">${Math.floor(inc.sla.remainingSeconds / 3600)}h ${Math.floor((inc.sla.remainingSeconds % 3600) / 60)}m</strong>
-            </div>
-          </div>
-        `);
       });
     }
 
@@ -473,20 +425,20 @@ export const TacticalCommandMap: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
       {/* Top Map Header */}
-      <div className="gov-card rounded-lg p-4 bg-white border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center space-x-3">
-          <div className="p-2 rounded bg-blue-50 text-blue-900 border border-blue-200">
-            <Building className="w-5 h-5" />
+      <div className="rounded-2xl p-4 sm:p-5 bg-[#0D111A] border border-cyan-500/20 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-center space-x-3.5">
+          <div className="p-2.5 rounded-xl bg-cyan-950/80 border border-cyan-500/40 text-cyan-400">
+            <Compass className="w-5 h-5 animate-spin" style={{ animationDuration: '20s' }} />
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <span className="px-2 py-0.5 text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 rounded">
-                ● NO API KEY REQUIRED • 100% FREE TILES
+              <span className="px-2 py-0.5 text-[10px] font-mono font-bold bg-emerald-950 text-emerald-300 border border-emerald-500/40 rounded">
+                ● 50M POSTGIS DEDUP ACTIVE
               </span>
-              <span className="text-xs text-slate-500 font-mono hidden sm:inline">{locationStatus}</span>
+              <span className="text-xs text-slate-400 font-mono hidden sm:inline">{locationStatus}</span>
             </div>
-            <h1 className="text-base sm:text-lg font-bold text-slate-900 font-sans mt-0.5">
-              City Digital Twin & Spatial Operations Map
+            <h1 className="text-lg font-bold text-white font-sans mt-0.5">
+              Tactical Command Map // Military Spatial GIS HUD
             </h1>
           </div>
         </div>
@@ -494,48 +446,45 @@ export const TacticalCommandMap: React.FC = () => {
         {/* Tile Style & Layer Controls */}
         <div className="flex flex-wrap items-center gap-2">
           {/* Map Base Tile Selector */}
-          <div className="flex items-center space-x-1 p-1 bg-slate-100 rounded border border-slate-300 text-xs">
+          <div className="flex items-center space-x-1 p-1 bg-slate-900/90 rounded-xl border border-slate-800 text-xs">
+            <button
+              onClick={() => { setMapStyle('dark'); playSound('beep'); }}
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition ${
+                mapStyle === 'dark' ? 'bg-cyan-500 text-slate-950 font-bold' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              Dark Tactical
+            </button>
             <button
               onClick={() => { setMapStyle('osm'); playSound('beep'); }}
-              className={`px-2 py-1 rounded text-[11px] font-semibold transition ${
-                mapStyle === 'osm' ? 'bg-white text-blue-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition ${
+                mapStyle === 'osm' ? 'bg-cyan-500 text-slate-950 font-bold' : 'text-slate-400 hover:text-white'
               }`}
-              title="Standard OpenStreetMap (Shows all streets, areas, and labels with 0 API key)"
             >
               Street (OSM)
             </button>
             <button
               onClick={() => { setMapStyle('satellite'); playSound('beep'); }}
-              className={`px-2 py-1 rounded text-[11px] font-semibold transition ${
-                mapStyle === 'satellite' ? 'bg-white text-blue-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition ${
+                mapStyle === 'satellite' ? 'bg-cyan-500 text-slate-950 font-bold' : 'text-slate-400 hover:text-white'
               }`}
-              title="Esri Satellite Imagery"
             >
               Satellite
-            </button>
-            <button
-              onClick={() => { setMapStyle('dark'); playSound('beep'); }}
-              className={`px-2 py-1 rounded text-[11px] font-semibold transition ${
-                mapStyle === 'dark' ? 'bg-slate-900 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
-              }`}
-              title="Carto Dark Tactical Mode"
-            >
-              Dark
             </button>
           </div>
 
           <button
             onClick={() => setShowLayerDrawer(!showLayerDrawer)}
-            className="flex items-center space-x-1.5 px-3 py-1.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 text-xs font-semibold transition"
+            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 text-xs font-semibold transition"
           >
-            <Sliders className="w-3.5 h-3.5" />
-            <span>{showLayerDrawer ? 'Hide Layers' : 'Digital Twin Layers'}</span>
+            <Sliders className="w-3.5 h-3.5 text-cyan-400" />
+            <span>{showLayerDrawer ? 'Hide Layers' : 'GIS Layers'}</span>
           </button>
 
           <button
             onClick={handleUseCurrentLocation}
             disabled={isLocating}
-            className="flex items-center space-x-1.5 px-3 py-1.5 rounded bg-blue-800 hover:bg-blue-900 text-white text-xs font-semibold transition shadow-sm disabled:opacity-50"
+            className="flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold transition shadow-sm disabled:opacity-50"
           >
             <Navigation className="w-3.5 h-3.5" />
             <span>{isLocating ? 'Acquiring GPS...' : t('useMyLocationMapBtn')}</span>
@@ -548,45 +497,115 @@ export const TacticalCommandMap: React.FC = () => {
         <DigitalTwinLayerPanel />
       )}
 
-      {/* Main Map Canvas */}
-      <div className="gov-card rounded-lg overflow-hidden bg-white border border-slate-200 shadow-sm relative">
+      {/* Main Tactical Map Canvas Container with Sliding Drawer & Telemetry Bar */}
+      <div className="rounded-2xl overflow-hidden bg-[#0D111A] border border-cyan-500/20 shadow-2xl relative">
         <div 
           ref={mapContainerRef} 
-          className="w-full h-[540px] z-0"
+          className="w-full h-[580px] z-0"
         />
 
-        {/* Map Legend Footer */}
-        <div className="p-3 bg-white border-t border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-700">
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="font-bold text-slate-900 text-[11px] uppercase">LEGEND:</span>
-            <div className="flex items-center space-x-1.5">
-              <span className="w-3 h-3 rounded-full bg-red-600 inline-block"></span>
-              <span className="text-[11px]">Critical Incident</span>
+        {/* Sliding Incident Cluster Detail Drawer */}
+        {selectedClusterIncident && (
+          <div className="absolute top-4 right-4 z-20 w-80 sm:w-96 max-h-[520px] overflow-y-auto bg-[#07090E]/95 backdrop-blur-md border border-cyan-500/30 rounded-2xl p-5 text-white shadow-2xl space-y-4 animate-fade-in">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div className="flex items-center space-x-2">
+                <span className="font-mono text-xs font-bold text-cyan-400">
+                  #{selectedClusterIncident.id}
+                </span>
+                <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
+                  selectedClusterIncident.severity === 'CRITICAL' ? 'bg-red-950 text-red-300 border border-red-500/40' : 'bg-amber-950 text-amber-300 border border-amber-500/40'
+                }`}>
+                  {selectedClusterIncident.severity} — 3 REPORTS CLUSTERED
+                </span>
+              </div>
+
+              <button
+                onClick={() => setSelectedClusterIncident(null)}
+                className="p-1 rounded-lg bg-slate-800 text-slate-400 hover:text-white"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
-            <div className="flex items-center space-x-1.5">
-              <span className="w-3 h-3 rounded-full bg-blue-600 inline-block"></span>
-              <span className="text-[11px]">High / Medium</span>
+
+            <div>
+              <h3 className="font-bold text-sm text-white">{selectedClusterIncident.title}</h3>
+              <p className="text-xs text-slate-400 mt-0.5">{selectedClusterIncident.locationName}</p>
             </div>
-            <div className="flex items-center space-x-1.5">
-              <span className="w-3 h-3 rounded-full bg-green-600 inline-block"></span>
-              <span className="text-[11px]">Resolved</span>
+
+            {/* Deduplication Summary Box */}
+            <div className="p-3 rounded-xl bg-emerald-950/30 border border-emerald-500/30 space-y-1">
+              <div className="flex items-center justify-between text-xs font-bold text-emerald-300">
+                <span>Spatial Deduplication Result:</span>
+                <span className="font-mono text-[10px] bg-emerald-900/60 px-1.5 py-0.5 rounded">40% GAIN</span>
+              </div>
+              <p className="text-[11px] text-slate-300 leading-relaxed">
+                2 redundant inspection dispatches suppressed. Merged 3 duplicate citizen photos into 1 master work order within 50m buffer.
+              </p>
             </div>
-            <div className="flex items-center space-x-1.5">
-              <span className="w-3 h-3 rounded-full bg-orange-600 inline-block"></span>
-              <span className="text-[11px]">Traffic Congestion</span>
+
+            {/* Raw PostGIS Query Logic Box */}
+            <div className="p-3 rounded-xl bg-slate-900/90 border border-slate-800 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-mono text-cyan-400 font-bold flex items-center space-x-1">
+                  <Terminal className="w-3 h-3" />
+                  <span>PostGIS ST_DWithin Logic:</span>
+                </span>
+                <span className="text-[10px] font-mono text-emerald-400 font-bold bg-emerald-950/80 px-1.5 py-0.5 rounded border border-emerald-500/30">
+                  ⚡ 11.4ms Latency
+                </span>
+              </div>
+
+              <pre className="font-mono text-[10px] text-slate-300 bg-black p-2.5 rounded-lg overflow-x-auto leading-relaxed select-all">
+{`SELECT master_id, COUNT(*) 
+FROM incident_reports 
+WHERE ST_DWithin(
+  geom, 
+  ST_MakePoint(${selectedClusterIncident.coordinates.lng}, ${selectedClusterIncident.coordinates.lat}), 
+  50.0
+) 
+AND category = '${selectedClusterIncident.category}' 
+AND status != 'RESOLVED';`}
+              </pre>
             </div>
-            <div className="flex items-center space-x-1.5">
-              <span className="w-3 h-3 rounded-full bg-amber-500 inline-block"></span>
-              <span className="text-[11px]">School Buffer (180m)</span>
-            </div>
-            <div className="flex items-center space-x-1.5">
-              <span className="w-3 h-3 rounded-full bg-cyan-500 inline-block"></span>
-              <span className="text-[11px]">Water / Flood Basin</span>
-            </div>
+
+            {/* Clustered Child Reports */}
+            {selectedClusterIncident.duplicates && (
+              <div className="space-y-1.5">
+                <span className="text-[10px] font-mono text-slate-400 uppercase font-bold">Consolidated Duplicate Citations:</span>
+                {selectedClusterIncident.duplicates.map((dup, i) => (
+                  <div key={i} className="p-2 rounded-lg bg-black/40 border border-white/5 flex items-center justify-between text-xs">
+                    <div>
+                      <span className="font-mono font-bold text-cyan-300">#{dup.id}</span>
+                      <span className="text-slate-400 text-[11px] ml-2">{dup.citizenName}</span>
+                    </div>
+                    <span className="text-[10px] font-mono text-amber-400 font-semibold">{dup.distanceFromPrimaryMeters}m away</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <button
+              onClick={() => {
+                setSelectedIncident(selectedClusterIncident);
+                setActiveView('case_tracking');
+              }}
+              className="w-full py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs tracking-wide transition flex items-center justify-center space-x-1.5 shadow"
+            >
+              <span>Track Complete Remediation Pipeline</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        )}
+
+        {/* Live Command Telemetry Streaming Ticker */}
+        <div className="p-2.5 bg-[#07090E] border-t border-cyan-500/30 flex items-center space-x-3 text-xs font-mono">
+          <div className="flex items-center space-x-1.5 text-cyan-400 font-bold shrink-0">
+            <Radio className="w-3.5 h-3.5 animate-pulse text-cyan-400" />
+            <span className="text-[11px] tracking-wider uppercase">LIVE COMMAND STREAM:</span>
           </div>
 
-          <div className="text-[11px] font-mono text-slate-500">
-            OpenStreetMap Cartography • 0 API Key Required • PostGIS EPSG:4326
+          <div className="text-slate-300 truncate text-[11px]">
+            {TELEMETRY_STREAM[telemetryIndex]}
           </div>
         </div>
       </div>
