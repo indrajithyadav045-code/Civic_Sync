@@ -216,7 +216,7 @@ export const Header: React.FC = () => {
             </div>
           </div>
 
-          {/* Evaluator Demo Trigger Button */}
+          {/* Operations Walkthrough Trigger Button */}
           <div className="flex items-center space-x-2">
             <button
               onClick={startHackathonDemo}
@@ -227,7 +227,7 @@ export const Header: React.FC = () => {
               }`}
             >
               <Play className="w-3.5 h-3.5 fill-current" />
-              <span>{isDemoRunning ? t('evaluatorTourActive') : t('evaluatorTour')}</span>
+              <span>{isDemoRunning ? 'Automated Run Active...' : '▶ Operations Walkthrough'}</span>
             </button>
           </div>
         </div>

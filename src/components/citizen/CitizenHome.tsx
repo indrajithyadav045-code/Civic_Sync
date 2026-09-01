@@ -12,14 +12,15 @@ import {
   Search, 
   Shield, 
   Clock, 
-  FileText,
+  Activity,
+  LayoutDashboard,
   FileCheck,
   PhoneCall
 } from 'lucide-react';
 import { useCivic } from '../../context/CivicContext';
 
 export const CitizenHome: React.FC = () => {
-  const { setActiveView, incidents, alerts, setSelectedIncident, startHackathonDemo, t } = useCivic();
+  const { setActiveView, incidents, alerts, setSelectedIncident, cityHealth, t } = useCivic();
 
   const activeAlert = alerts[0];
   const highPriorityIncidents = incidents.filter(i => i.severity === 'CRITICAL' || i.severity === 'HIGH');
@@ -53,11 +54,11 @@ export const CitizenHome: React.FC = () => {
             </button>
 
             <button
-              onClick={startHackathonDemo}
-              className="flex items-center space-x-2 px-5 py-2.5 rounded bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs transition shadow-sm"
+              onClick={() => setActiveView('command_center')}
+              className="flex items-center space-x-2 px-5 py-2.5 rounded bg-blue-800 hover:bg-blue-900 text-white font-semibold text-xs transition shadow-sm"
             >
-              <FileText className="w-4 h-4" />
-              <span>{t('homeDemoBtn')}</span>
+              <LayoutDashboard className="w-4 h-4" />
+              <span>Smart City ICCC Command Center</span>
             </button>
 
             <button
@@ -73,9 +74,9 @@ export const CitizenHome: React.FC = () => {
         {/* Official Governance KPI Metrics Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-100">
           <div className="p-3.5 rounded bg-slate-50 border border-slate-200">
-            <div className="text-xs text-slate-500 font-semibold uppercase">{t('kpiAiTriage')}</div>
-            <div className="text-2xl font-bold text-slate-900 mt-1">94.2%</div>
-            <div className="text-[11px] text-slate-500 mt-0.5">ViT-B / NLP Validated</div>
+            <div className="text-xs text-slate-500 font-semibold uppercase">CITY HEALTH SCORE</div>
+            <div className="text-2xl font-bold text-slate-900 mt-1">{cityHealth.overallScore} / 100</div>
+            <div className="text-[11px] text-emerald-700 font-semibold mt-0.5">Optimal • Live Multi-Signal</div>
           </div>
 
           <div className="p-3.5 rounded bg-slate-50 border border-slate-200">
@@ -98,166 +99,165 @@ export const CitizenHome: React.FC = () => {
         </div>
       </div>
 
-      {/* Official Emergency Broadcast Advisory (if any) */}
+      {/* Emergency Broadcast Alert Banner */}
       {activeAlert && (
-        <div className="p-4 sm:p-5 rounded-lg bg-red-50 border-l-4 border-red-600 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="p-4 sm:p-5 rounded-lg bg-red-50 border-2 border-red-300 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-start space-x-3.5">
-            <div className="p-2 bg-red-100 rounded-lg text-red-700 shrink-0">
-              <Radio className="w-5 h-5" />
+            <div className="p-2 rounded bg-red-600 text-white shrink-0 mt-0.5">
+              <Radio className="w-5 h-5 animate-pulse" />
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <span className="px-2 py-0.5 text-[10px] font-bold bg-red-600 text-white rounded uppercase">
-                  EMERGENCY ADVISORY (DISASTER MANAGEMENT)
+                <span className="px-2 py-0.5 rounded bg-red-600 text-white font-mono text-[10px] font-bold uppercase tracking-wider">
+                  {t('alertLiveBadge')}
                 </span>
-                <span className="text-xs font-semibold text-slate-600">ZONE: {activeAlert.zoneName}</span>
+                <span className="text-xs text-red-900 font-bold uppercase">
+                  {activeAlert.broadcastChannel}
+                </span>
               </div>
-              <h3 className="text-sm sm:text-base font-bold text-slate-900 mt-1">
-                {activeAlert.title}
-              </h3>
-              <p className="text-xs text-slate-700 mt-0.5 max-w-2xl">
+              <h2 className="text-base font-bold text-red-950 mt-1">{activeAlert.title}</h2>
+              <p className="text-xs text-red-900 mt-0.5 max-w-3xl leading-relaxed">
                 {activeAlert.message}
               </p>
+              <div className="text-[11px] text-red-800 font-mono mt-1">
+                Affected: <strong>{activeAlert.targetZone}</strong> • Est. Population: {activeAlert.affectedCitizensEstimate.toLocaleString()}
+              </div>
             </div>
           </div>
 
           <button
             onClick={() => setActiveView('disaster_alerts')}
-            className="self-end sm:self-center px-3.5 py-2 rounded bg-red-700 hover:bg-red-800 text-white font-semibold text-xs transition flex items-center space-x-1.5 shrink-0"
+            className="px-4 py-2 rounded bg-red-700 hover:bg-red-800 text-white font-semibold text-xs whitespace-nowrap transition shadow-xs flex items-center justify-center space-x-1.5"
           >
-            <span>View Safety Zone</span>
+            <span>{t('alertViewDetailsBtn')}</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
       )}
 
-      {/* Core Platform Modules */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <div>
-            <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wide">{t('homeKeyCapabilities')}</h2>
+      {/* Main Feature Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Card 1: AI Triage & ViT Vision Engine */}
+        <div 
+          onClick={() => setActiveView('ai_triage')}
+          className="gov-card rounded-lg p-5 bg-white border border-slate-200 shadow-sm hover:border-blue-400 hover:shadow-md cursor-pointer transition flex flex-col justify-between"
+        >
+          <div className="space-y-3">
+            <div className="w-10 h-10 rounded bg-blue-50 border border-blue-200 text-blue-800 flex items-center justify-center">
+              <Cpu className="w-5 h-5" />
+            </div>
+            <h3 className="font-bold text-slate-900 text-base">
+              {t('featureTriageTitle')}
+            </h3>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              {t('featureTriageDesc')}
+            </p>
           </div>
-          <button
-            onClick={() => setActiveView('command_map')}
-            className="text-xs font-semibold text-blue-700 hover:underline flex items-center space-x-1"
-          >
-            <span>{t('homeOpenGisMap')}</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
+
+          <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-blue-900">
+            <span>{t('featureTriageAction')}</span>
+            <ArrowRight className="w-4 h-4" />
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div 
-            onClick={() => setActiveView('ai_triage')}
-            className="p-4 rounded-lg gov-card cursor-pointer group hover:shadow-md transition"
-          >
-            <div className="p-2 rounded bg-blue-50 text-blue-700 w-fit mb-2.5">
-              <Cpu className="w-4 h-4" />
+        {/* Card 2: 50m Spatial Deduplication */}
+        <div 
+          onClick={() => setActiveView('dedup_lab')}
+          className="gov-card rounded-lg p-5 bg-white border border-slate-200 shadow-sm hover:border-blue-400 hover:shadow-md cursor-pointer transition flex flex-col justify-between"
+        >
+          <div className="space-y-3">
+            <div className="w-10 h-10 rounded bg-indigo-50 border border-indigo-200 text-indigo-800 flex items-center justify-center">
+              <Layers className="w-5 h-5" />
             </div>
-            <h3 className="font-bold text-slate-900 text-xs mb-1 group-hover:text-blue-700 transition">
-              {t('capTriageTitle')}
+            <h3 className="font-bold text-slate-900 text-base">
+              {t('featureDedupTitle')}
             </h3>
             <p className="text-xs text-slate-600 leading-relaxed">
-              {t('capTriageDesc')}
+              {t('featureDedupDesc')}
             </p>
           </div>
 
-          <div 
-            onClick={() => setActiveView('dedup_lab')}
-            className="p-4 rounded-lg gov-card cursor-pointer group hover:shadow-md transition"
-          >
-            <div className="p-2 rounded bg-green-50 text-green-700 w-fit mb-2.5">
-              <Layers className="w-4 h-4" />
+          <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-indigo-900">
+            <span>{t('featureDedupAction')}</span>
+            <ArrowRight className="w-4 h-4" />
+          </div>
+        </div>
+
+        {/* Card 3: City Digital Twin GIS Map */}
+        <div 
+          onClick={() => setActiveView('command_map')}
+          className="gov-card rounded-lg p-5 bg-white border border-slate-200 shadow-sm hover:border-blue-400 hover:shadow-md cursor-pointer transition flex flex-col justify-between"
+        >
+          <div className="space-y-3">
+            <div className="w-10 h-10 rounded bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center justify-center">
+              <Building className="w-5 h-5" />
             </div>
-            <h3 className="font-bold text-slate-900 text-xs mb-1 group-hover:text-green-700 transition">
-              {t('capDedupTitle')}
+            <h3 className="font-bold text-slate-900 text-base">
+              City Digital Twin & Spatial Map
             </h3>
             <p className="text-xs text-slate-600 leading-relaxed">
-              {t('capDedupDesc')}
+              Multi-layer GIS operations map tracking traffic corridors, flood drainage basins, air quality stations, water telemetry, and emergency fleets.
             </p>
           </div>
 
-          <div 
-            onClick={() => setActiveView('command_map')}
-            className="p-4 rounded-lg gov-card cursor-pointer group hover:shadow-md transition"
-          >
-            <div className="p-2 rounded bg-amber-50 text-amber-700 w-fit mb-2.5">
-              <Shield className="w-4 h-4" />
-            </div>
-            <h3 className="font-bold text-slate-900 text-xs mb-1 group-hover:text-amber-700 transition">
-              {t('capRiskTitle')}
-            </h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              {t('capRiskDesc')}
-            </p>
-          </div>
-
-          <div 
-            onClick={() => setActiveView('resolution_verification')}
-            className="p-4 rounded-lg gov-card cursor-pointer group hover:shadow-md transition"
-          >
-            <div className="p-2 rounded bg-emerald-50 text-emerald-700 w-fit mb-2.5">
-              <CheckCircle2 className="w-4 h-4" />
-            </div>
-            <h3 className="font-bold text-slate-900 text-xs mb-1 group-hover:text-emerald-700 transition">
-              {t('capResolutionTitle')}
-            </h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              {t('capResolutionDesc')}
-            </p>
+          <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-emerald-900">
+            <span>Open Spatial Twin</span>
+            <ArrowRight className="w-4 h-4" />
           </div>
         </div>
       </div>
 
-      {/* Priority Grievance Monitoring List */}
-      <div className="gov-card rounded-lg p-5 bg-white border border-slate-200 shadow-sm space-y-3">
-        <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-          <div className="flex items-center space-x-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-red-600"></span>
-            <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wide">
-              {t('activeIncidentsHeading')}
-            </h2>
+      {/* Active Incident Feed Section */}
+      <div className="gov-card rounded-lg p-5 bg-white border border-slate-200 shadow-sm space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+          <div>
+            <h3 className="font-bold text-slate-900 text-base">{t('feedHeading')}</h3>
+            <p className="text-xs text-slate-500">{t('feedSubheading')}</p>
           </div>
+
           <button
             onClick={() => setActiveView('command_center')}
-            className="text-xs font-semibold text-blue-700 hover:underline"
+            className="text-xs text-blue-800 hover:underline font-semibold flex items-center space-x-1"
           >
-            {t('viewFullOperations')}
+            <span>{t('feedViewAllBtn')}</span>
+            <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
-          {highPriorityIncidents.slice(0, 3).map((inc) => (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {highPriorityIncidents.slice(0, 3).map((incident) => (
             <div
-              key={inc.id}
+              key={incident.id}
               onClick={() => {
-                setSelectedIncident(inc);
+                setSelectedIncident(incident);
                 setActiveView('case_tracking');
               }}
-              className="p-3.5 rounded bg-slate-50 border border-slate-200 hover:border-blue-400 cursor-pointer transition flex flex-col justify-between space-y-2"
+              className="p-3.5 rounded border border-slate-200 hover:border-blue-500 bg-slate-50/50 hover:bg-white cursor-pointer transition space-y-2.5"
             >
-              <div>
-                <div className="flex items-center justify-between text-xs mb-1">
-                  <span className="text-blue-900 font-bold font-mono">{inc.id}</span>
-                  <span className={`px-1.5 py-0.2 rounded text-[10px] font-bold ${
-                    inc.severity === 'CRITICAL' 
-                      ? 'bg-red-100 text-red-800 border border-red-200' 
-                      : 'bg-amber-100 text-amber-800 border border-amber-200'
-                  }`}>
-                    {inc.severity}
-                  </span>
-                </div>
-                <h4 className="font-semibold text-slate-900 text-xs line-clamp-1">{inc.title}</h4>
-                <p className="text-xs text-slate-600 line-clamp-2 mt-0.5">{inc.description}</p>
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-mono font-bold text-blue-900">#{incident.id}</span>
+                <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                  incident.severity === 'CRITICAL' 
+                    ? 'bg-red-100 text-red-800 border border-red-200' 
+                    : 'bg-amber-100 text-amber-800 border border-amber-200'
+                }`}>
+                  {incident.severity}
+                </span>
               </div>
 
-              <div className="pt-2 border-t border-slate-200 text-[11px] flex items-center justify-between text-slate-600">
-                <span className="flex items-center space-x-1">
-                  <MapPin className="w-3 h-3 text-slate-400" />
-                  <span className="truncate max-w-[140px]">{inc.locationName}</span>
-                </span>
-                <span className="text-amber-800 font-bold font-mono">
-                  SLA: {Math.floor(inc.sla.remainingSeconds / 3600)}h {Math.floor((inc.sla.remainingSeconds % 3600) / 60)}m
+              <h4 className="font-semibold text-slate-900 text-xs line-clamp-1">
+                {incident.title}
+              </h4>
+
+              <div className="text-[11px] text-slate-500 flex items-center space-x-1">
+                <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
+                <span className="truncate">{incident.locationName}</span>
+              </div>
+
+              <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-[11px]">
+                <span className="text-slate-500">SLA:</span>
+                <span className="font-mono font-bold text-amber-700">
+                  {Math.floor(incident.sla.remainingSeconds / 3600)}h {Math.floor((incident.sla.remainingSeconds % 3600) / 60)}m
                 </span>
               </div>
             </div>
