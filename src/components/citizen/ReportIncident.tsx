@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Camera, 
   MapPin, 
@@ -13,7 +13,10 @@ import {
   Navigation,
   FileText,
   Shield,
-  Smartphone
+  Smartphone,
+  Upload,
+  RefreshCw,
+  X
 } from 'lucide-react';
 import { useCivic } from '../../context/CivicContext';
 import { dispatchSmsAlert, getStoredRecipients } from '../../services/smsService';
@@ -64,8 +67,12 @@ const PRESET_SCENARIOS = [
 export const ReportIncident: React.FC = () => {
   const { submitNewReport, setActiveView, runTriageAnimation, playSound, t } = useCivic();
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [description, setDescription] = useState(PRESET_SCENARIOS[0].text);
   const [imagePreview, setImagePreview] = useState(PRESET_SCENARIOS[0].image);
+  const [isCustomPhoto, setIsCustomPhoto] = useState(false);
+  const [customPhotoName, setCustomPhotoName] = useState<string | null>(null);
   const [coordinates, setCoordinates] = useState({ lat: PRESET_SCENARIOS[0].lat, lng: PRESET_SCENARIOS[0].lng });
   const [locationName, setLocationName] = useState(PRESET_SCENARIOS[0].location);
   const [citizenName, setCitizenName] = useState('Karthik Subramanian');
@@ -73,6 +80,7 @@ export const ReportIncident: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [gpsLocked, setGpsLocked] = useState(true);
   const [gpsMessage, setGpsMessage] = useState('Chennai (Velachery Sector)');
+  const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -95,10 +103,56 @@ export const ReportIncident: React.FC = () => {
   const handleSelectPreset = (preset: typeof PRESET_SCENARIOS[0]) => {
     setDescription(preset.text);
     setImagePreview(preset.image);
+    setIsCustomPhoto(false);
+    setCustomPhotoName(null);
     setCoordinates({ lat: preset.lat, lng: preset.lng });
     setLocationName(preset.location);
     setGpsMessage('Preset Chennai Sector Locked');
     playSound('beep');
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      processFile(file);
+    }
+  };
+
+  const processFile = (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      alert('Please upload an image file (PNG, JPG, JPEG, WEBP).');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (typeof reader.result === 'string') {
+        setImagePreview(reader.result);
+        setIsCustomPhoto(true);
+        setCustomPhotoName(file.name);
+        playSound('success');
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      processFile(file);
+    }
   };
 
   const handleUseCurrentLiveGps = () => {
@@ -138,35 +192,37 @@ export const ReportIncident: React.FC = () => {
     setIsSubmitting(true);
     playSound('triage');
 
-    const createdIncident = await submitNewReport(
+    // 1. Submit report to global Civic Context
+    const createdIncident = submitNewReport({
+      title: description.slice(0, 50) + (description.length > 50 ? '...' : ''),
       description,
-      imagePreview,
-      coordinates.lat,
-      coordinates.lng,
+      locationName,
+      coordinates,
       citizenName,
-      phone
-    );
+      citizenContact: phone,
+      image: imagePreview
+    });
 
-    // Dispatch Grievance Registration SMS to citizen phone + configured friend's phone
-    const configuredRecipients = getStoredRecipients();
-    const smsTargets = [
-      { id: 'citizen', name: citizenName, phone: phone, enabled: true },
-      ...configuredRecipients.filter(r => r.enabled && r.phone.trim().length >= 10)
-    ];
+    // 2. Dispatch Live SMS Alert to configured test numbers
+    const recipients = getStoredRecipients();
+    const smsMessage = `[CIVIC-SYNC] Grievance #${createdIncident.id} registered at ${locationName}. AI Triage Category: ${createdIncident.category}. Dynamic SLA: ${Math.floor(createdIncident.sla.remainingSeconds / 3600)}h. Assigned to ${createdIncident.assignedDepartment}.`;
+    
+    dispatchSmsAlert(recipients, smsMessage).catch(err => {
+      console.warn('SMS dispatch handled in background:', err);
+    });
 
-    dispatchSmsAlert(
-      `GRIEVANCE REGISTERED (#${createdIncident.id})`,
-      `Thank you ${citizenName}. Your report "${description.slice(0, 50)}..." at ${locationName} is queued for AI triage and GCC dispatch.`,
-      smsTargets
-    );
-
-    setIsSubmitting(false);
-    setActiveView('ai_triage');
+    // 3. Trigger 7-Stage Triage Animation sequence
     runTriageAnimation(createdIncident);
+
+    // 4. Navigate to AI Triage Engine View
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setActiveView('ai_triage');
+    }, 1200);
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
         <div>
@@ -194,7 +250,7 @@ export const ReportIncident: React.FC = () => {
                 type="button"
                 onClick={() => handleSelectPreset(preset)}
                 className={`px-2.5 py-1 text-xs rounded border transition font-medium ${
-                  description === preset.text
+                  description === preset.text && !isCustomPhoto
                     ? 'bg-blue-900 text-white border-blue-900 font-semibold'
                     : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
                 }`}
@@ -298,22 +354,76 @@ export const ReportIncident: React.FC = () => {
           <div className="gov-card rounded-lg p-5 bg-white border border-slate-200 shadow-sm space-y-4">
             <div className="flex items-center justify-between">
               <label className="block text-xs font-bold text-slate-800 uppercase tracking-wide">
-                {t('evidencePhotoLabel')}
+                {t('evidencePhotoLabel')} <span className="text-red-600">*</span>
               </label>
-              <span className="text-[10px] font-semibold text-green-700">ViT-B Model Ready</span>
+              <span className="text-[10px] font-semibold text-emerald-700">ViT-B Model Ready</span>
             </div>
 
-            {/* Photo Container */}
-            <div className="relative rounded overflow-hidden border border-slate-300 bg-slate-100 aspect-video">
+            {/* Hidden Native File Input */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={handleFileUpload}
+              className="hidden"
+            />
+
+            {/* Photo Container with Drag & Drop & Upload Button */}
+            <div 
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              className={`relative rounded overflow-hidden border-2 transition aspect-video bg-slate-100 flex flex-col items-center justify-center ${
+                isDragging ? 'border-blue-600 bg-blue-50' : 'border-slate-300'
+              }`}
+            >
               <img
                 src={imagePreview}
                 alt="Evidence Upload"
                 className="w-full h-full object-cover"
               />
+
+              <div className="absolute top-2 right-2 flex items-center space-x-1">
+                {isCustomPhoto && (
+                  <span className="px-2 py-0.5 rounded bg-emerald-600 text-white font-mono text-[10px] font-bold shadow-xs">
+                    CUSTOM UPLOAD
+                  </span>
+                )}
+              </div>
+
               <div className="absolute bottom-2 left-2 px-2 py-0.5 rounded bg-slate-900/80 text-white font-mono text-[10px]">
-                GEO-TAG EXIF ATTACHED
+                {customPhotoName ? customPhotoName : 'GEO-TAG EXIF ATTACHED'}
               </div>
             </div>
+
+            {/* Upload Action Controls */}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="flex-1 py-2 px-3 rounded bg-blue-800 hover:bg-blue-900 text-white font-semibold text-xs transition flex items-center justify-center space-x-1.5 shadow-xs"
+              >
+                <Camera className="w-3.5 h-3.5" />
+                <span>Upload / Take Photo</span>
+              </button>
+
+              {isCustomPhoto && (
+                <button
+                  type="button"
+                  onClick={() => handleSelectPreset(PRESET_SCENARIOS[0])}
+                  className="py-2 px-2.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs border border-slate-300 transition flex items-center space-x-1"
+                  title="Reset to Default Preset"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  <span>Reset</span>
+                </button>
+              )}
+            </div>
+
+            <p className="text-[10px] text-slate-500 text-center">
+              Supports live camera capture & image file uploads (JPG, PNG, WEBP)
+            </p>
 
             {/* Checklist */}
             <div className="p-3 rounded bg-slate-50 border border-slate-200 space-y-1.5 text-xs text-slate-700">
@@ -322,19 +432,19 @@ export const ReportIncident: React.FC = () => {
               </div>
               <div className="space-y-1 text-[11px]">
                 <div className="flex items-center space-x-1.5 text-blue-900">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-blue-700" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-blue-700 shrink-0" />
                   <span>1. NLP Automated Category & Department Classification</span>
                 </div>
-                <div className="flex items-center space-x-1.5 text-green-900">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-green-700" />
+                <div className="flex items-center space-x-1.5 text-emerald-900">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
                   <span>2. 50-Meter Haversine Spatial Deduplication Check</span>
                 </div>
                 <div className="flex items-center space-x-1.5 text-amber-900">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-amber-700" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-amber-700 shrink-0" />
                   <span>3. School (180m) & Flood Basin Proximity Risk Matrix</span>
                 </div>
                 <div className="flex items-center space-x-1.5 text-slate-900">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-slate-700" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-slate-700 shrink-0" />
                   <span>4. Dynamic SLA & Rapid Response Squad Mobilization</span>
                 </div>
               </div>
@@ -348,13 +458,13 @@ export const ReportIncident: React.FC = () => {
             >
               {isSubmitting ? (
                 <>
-                  <Cpu className="w-4 h-4 animate-spin" />
+                  <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
                   <span>{t('submittingBtn')}</span>
                 </>
               ) : (
                 <>
-                  <Send className="w-4 h-4" />
                   <span>{t('submitGrievanceBtn')}</span>
+                  <Send className="w-3.5 h-3.5" />
                 </>
               )}
             </button>
