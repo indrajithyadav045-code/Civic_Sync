@@ -86,6 +86,10 @@ export const translations = {
     feedViewAllBtn: 'View All Operations',
     alertLiveBadge: 'LIVE ADVISORY',
     alertViewDetailsBtn: 'View Advisory Details',
+    bharatGovBadge: 'BHARATGOV AI • SCHEMES COPILOT',
+    bharatGovHeading: 'Discover Government Schemes, Benefits & Subsidies in Seconds',
+    bharatGovDesc: 'AI-powered citizen copilot for finding Central and State welfare schemes, instant eligibility checks, and direct application links.',
+    bharatGovAction: 'Open BharatGov AI Copilot →',
 
     // Report Incident Form
     reportFormBadge: 'OFFICIAL COMPLAINT REGISTRATION (FORM C-1)',
@@ -275,6 +279,10 @@ export const translations = {
     feedViewAllBtn: 'அனைத்து செயல்பாடுகளையும் காண்க',
     alertLiveBadge: 'நேரடி அறிவிப்பு',
     alertViewDetailsBtn: 'விவரங்களை காண்க',
+    bharatGovBadge: 'பாரத் அரசு AI • நலத்திட்ட வழிகாட்டி',
+    bharatGovHeading: 'அரசு நலத்திட்டங்கள் மற்றும் மானியங்களை நொடிகளில் கண்டறியுங்கள்',
+    bharatGovDesc: 'மத்திய மற்றும் மாநில அரசு நலத்திட்டங்களை கண்டறிந்து, தகுதி சரிபார்த்து விண்ணப்பிக்க உதவும் AI குடிமக்கள் உதவியாளர்.',
+    bharatGovAction: 'பாரத் அரசு AI திறக்க →',
 
     // Report Incident Form
     reportFormBadge: 'அதிகாரப்பூர்வ புகார் பதிவு படிவம் (படிவம் C-1)',
@@ -464,6 +472,10 @@ export const translations = {
     feedViewAllBtn: 'అన్ని కార్యకలాపాలను చూడండి',
     alertLiveBadge: 'లైవ్ హెచ్చరిక',
     alertViewDetailsBtn: 'వివరాలు చూడండి',
+    bharatGovBadge: 'భారత్‌గవ్ AI • పథకాల కోపైలట్',
+    bharatGovHeading: 'ప్రభుత్వ పథకాలు మరియు ప్రయోజనాలను క్షణాల్లో కనుగొనండి',
+    bharatGovDesc: 'కేంద్ర మరియు రాష్ట్ర సంక్షేమ పథకాలను కనుగొనడానికి, అర్హతను తనిఖీ చేయడానికి AI పౌర కోపైలట్.',
+    bharatGovAction: 'భారత్‌గవ్ AI తెరవండి →',
 
     // Report Incident Form
     reportFormBadge: 'అధికారిక ఫిర్యాదు నమోదు పత్రం (ఫారం C-1)',
@@ -653,6 +665,10 @@ export const translations = {
     feedViewAllBtn: 'ಎಲ್ಲಾ ಕಾರ್ಯಾಚರಣೆಗಳನ್ನು ನೋಡಿ',
     alertLiveBadge: 'ಲೈವ್ ಎಚ್ಚರಿಕೆ',
     alertViewDetailsBtn: 'ವಿವರಗಳನ್ನು ನೋಡಿ',
+    bharatGovBadge: 'ಭಾರತ್‌ಗವ್ AI • ಯೋಜನೆಗಳ ಮಾರ್ಗದರ್ಶಿ',
+    bharatGovHeading: 'ಸರ್ಕಾರಿ ಯೋಜನೆಗಳು ಮತ್ತು ಸಬ್ಸಿಡಿಗಳನ್ನು ಸೆಕೆಂಡುಗಳಲ್ಲಿ ಹುಡುಕಿ',
+    bharatGovDesc: 'ಕೇಂದ್ರ ಮತ್ತು ರಾಜ್ಯ ಕಲ್ಯಾಣ ಯೋಜನೆಗಳನ್ನು ಹುಡುಕಲು ಮತ್ತು ಅರ್ಹತೆ ಪರಿಶೀಲಿಸಲು AI ನಾಗರಿಕ ಸಹಾಯಕ.',
+    bharatGovAction: 'ಭಾರತ್‌ಗವ್ AI ತೆರೆಯಿರಿ →',
 
     // Report Incident Form
     reportFormBadge: 'ಅಧಿಕೃತ ದೂರು ನೋಂದಣಿ ನಮೂನೆ (ನಮೂನೆ C-1)',
@@ -842,6 +858,10 @@ export const translations = {
     feedViewAllBtn: 'എല്ലാ പ്രവർത്തനങ്ങളും കാണുക',
     alertLiveBadge: 'ലൈവ് മുന്നറിയിപ്പ്',
     alertViewDetailsBtn: 'വിശദാംശങ്ങൾ കാണുക',
+    bharatGovBadge: 'ഭാരത്‌ഗവ് AI • ക്ഷേമ പദ്ധതി വഴികാട്ടി',
+    bharatGovHeading: 'സർക്കാർ ക്ഷേമ പദ്ധതികളും സബ്‌സിഡികളും നിമിഷങ്ങൾക്കകം കണ്ടെത്തുക',
+    bharatGovDesc: 'കേന്ദ്ര-സംസ്ഥാന ക്ഷേമ പദ്ധതികൾ കണ്ടെത്താനും അർഹത പരിശോധിക്കാനും സഹായിക്കുന്ന AI പൗര സഹായി.',
+    bharatGovAction: 'ഭാരത്‌ഗവ് AI തുറക്കുക →',
 
     // Report Incident Form
     reportFormBadge: 'ഔദ്യോഗിക പരാതി രജിസ്ട്രേഷൻ ഫോം (ഫോം C-1)',
@@ -1031,6 +1051,10 @@ export const translations = {
     feedViewAllBtn: 'सभी संचालन देखें',
     alertLiveBadge: 'लाइव सूचना',
     alertViewDetailsBtn: 'विवरण देखें',
+    bharatGovBadge: 'भारतगव AI • योजना सहायक',
+    bharatGovHeading: 'सरकारी योजनाओं, लाभों और सब्सिडी को सेकंडों में खोजें',
+    bharatGovDesc: 'केंद्रीय और राज्य कल्याणकारी योजनाओं को खोजने, पात्रता जांचने और सीधे आवेदन करने के लिए AI नागरिक सहायक।',
+    bharatGovAction: 'भारतगव AI खोलें →',
 
     // Report Incident Form
     reportFormBadge: 'आधिकारिक शिकायत पंजीकरण प्रपत्र (फॉर्म C-1)',

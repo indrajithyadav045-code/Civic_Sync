@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Building, 
   PlusCircle, 
@@ -20,12 +20,16 @@ import {
   Droplet,
   Lightbulb,
   Building2,
-  TreePine
+  TreePine,
+  Sparkles,
+  ExternalLink
 } from 'lucide-react';
 import { useCivic } from '../../context/CivicContext';
+import { BharatGovAiModal } from '../smartcity/BharatGovAiModal';
 
 export const CitizenHome: React.FC = () => {
-  const { setActiveView, incidents, alerts, setSelectedIncident, cityHealth, liveWeather, liveAqi, smartTraffic, t } = useCivic();
+  const { setActiveView, incidents, alerts, setSelectedIncident, cityHealth, liveWeather, liveAqi, smartTraffic, playSound, t } = useCivic();
+  const [isBharatGovModalOpen, setIsBharatGovModalOpen] = useState(false);
 
   const activeAlert = alerts[0];
   const highPriorityIncidents = incidents.filter(i => i.severity === 'CRITICAL' || i.severity === 'HIGH');
@@ -140,6 +144,51 @@ export const CitizenHome: React.FC = () => {
           </button>
         </div>
       )}
+
+      {/* BharatGov AI Scheme Discovery & Welfare Copilot Banner */}
+      <div className="gov-card rounded-lg p-5 bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white border border-blue-800 shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-start space-x-3.5">
+          <div className="w-10 h-10 rounded-xl bg-blue-500/30 text-white flex items-center justify-center shrink-0 text-xl border border-blue-400/30">
+            🏛️
+          </div>
+          <div className="space-y-1">
+            <div className="flex items-center space-x-2">
+              <span className="px-2 py-0.5 rounded bg-blue-500/30 text-blue-200 text-[10px] font-mono font-bold uppercase tracking-wider">
+                {t('bharatGovBadge')}
+              </span>
+              <span className="px-2 py-0.5 rounded bg-emerald-500/30 text-emerald-300 text-[10px] font-mono font-bold">
+                bharathgovai.netlify.app
+              </span>
+            </div>
+            <h2 className="text-base sm:text-lg font-bold text-white font-sans">{t('bharatGovHeading')}</h2>
+            <p className="text-xs text-slate-200 max-w-3xl leading-relaxed">
+              {t('bharatGovDesc')}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center space-x-2 shrink-0">
+          <button
+            onClick={() => {
+              setIsBharatGovModalOpen(true);
+              playSound('beep');
+            }}
+            className="px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-bold text-xs whitespace-nowrap transition shadow-sm flex items-center justify-center space-x-1.5"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-cyan-200" />
+            <span>{t('bharatGovAction')}</span>
+          </button>
+          <a
+            href="https://bharathgovai.netlify.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 transition"
+            title="Open BharatGov in new tab"
+          >
+            <ExternalLink className="w-4 h-4" />
+          </a>
+        </div>
+      </div>
 
       {/* 4 Core Smart City Domain Pillars */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -349,6 +398,11 @@ export const CitizenHome: React.FC = () => {
           ))}
         </div>
       </div>
+
+      <BharatGovAiModal
+        isOpen={isBharatGovModalOpen}
+        onClose={() => setIsBharatGovModalOpen(false)}
+      />
     </div>
   );
 };

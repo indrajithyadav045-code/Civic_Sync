@@ -30,6 +30,7 @@ import { SmsSettingsModal } from './SmsSettingsModal';
 import { DataSourcesModal } from './DataSourcesModal';
 import { QuickCommandBar } from './QuickCommandBar';
 import { AuraClimateModal } from '../smartcity/AuraClimateModal';
+import { BharatGovAiModal } from '../smartcity/BharatGovAiModal';
 import { SUPPORTED_LANGUAGES, Language } from '../../i18n/translations';
 
 export const Header: React.FC = () => {
@@ -55,6 +56,7 @@ export const Header: React.FC = () => {
   const [isSmsModalOpen, setIsSmsModalOpen] = useState(false);
   const [isSourcesModalOpen, setIsSourcesModalOpen] = useState(false);
   const [isAuraModalOpen, setIsAuraModalOpen] = useState(false);
+  const [isBharatGovModalOpen, setIsBharatGovModalOpen] = useState(false);
   const [isCommandBarOpen, setIsCommandBarOpen] = useState(false);
   const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
 
@@ -120,6 +122,21 @@ export const Header: React.FC = () => {
             <Search className="w-3 h-3 text-slate-500" />
             <span className="hidden sm:inline">Spotlight</span>
             <kbd className="px-1 py-0.2 rounded bg-white text-[9px] font-mono text-slate-500 border border-slate-200 hidden md:inline">⌘K</kbd>
+          </button>
+
+          <span className="text-slate-300">|</span>
+
+          {/* BharatGov AI Citizen Schemes Copilot Button */}
+          <button
+            onClick={() => {
+              setIsBharatGovModalOpen(true);
+              playSound('beep');
+            }}
+            className="flex items-center space-x-1.5 px-2.5 py-0.5 rounded bg-blue-900 hover:bg-blue-800 text-white border border-blue-700 text-[11px] font-bold transition shadow-xs"
+            title="BharatGov AI Schemes & Welfare Copilot (bharathgovai.netlify.app)"
+          >
+            <span>🏛️ BharatGov AI</span>
+            <span className="hidden sm:inline text-[9px] bg-blue-700 text-blue-100 px-1 py-0.2 rounded font-mono">Copilot</span>
           </button>
 
           <span className="text-slate-300">|</span>
@@ -333,6 +350,11 @@ export const Header: React.FC = () => {
       <AuraClimateModal
         isOpen={isAuraModalOpen}
         onClose={() => setIsAuraModalOpen(false)}
+      />
+
+      <BharatGovAiModal
+        isOpen={isBharatGovModalOpen}
+        onClose={() => setIsBharatGovModalOpen(false)}
       />
     </header>
   );
